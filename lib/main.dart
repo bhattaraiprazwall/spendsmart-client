@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme.dart';
 import 'package:spendsmart/features/auth/presentation/screens/login_screen.dart';
 
 void main() {
@@ -12,12 +13,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primaryColor: 
-        Colors.green
-        
-      ),
+      title: 'SpendSmart',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
       home: const LoginScreen(),
     );
   }
