@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:spendsmart/core/theme/app_colors.dart';
+import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
-import 'package:spendsmart/core/widgets/primary_button.dart';
-import 'package:spendsmart/core/widgets/social_button.dart';
+import 'package:spendsmart/core/widgets/common/already_login_register.dart';
+import 'package:spendsmart/core/widgets/common/custom_textfield.dart';
+import 'package:spendsmart/core/widgets/common/primary_button.dart';
+import 'package:spendsmart/core/widgets/common/social_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   //TOGGLE TO SHOW/HIDE PASSWORD
-  bool _obscurePassword = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,14 +50,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
 
                 //--EMAIL FIELD--//
-                _buildTextField(
+                CustomTextfield(
                   controller: _emailController,
                   hint: 'Email Address',
-                  keyboardType: TextInputType.emailAddress,
                 ),
 
                 const SizedBox(height: 14),
-                _buildPasswordField(hint: 'Password'),
+                CustomTextfield(
+                  hint: 'Password',
+                  controller: _passwordController,
+                  isPassword: true,
+                ),
                 const SizedBox(height: 10),
 
                 Align(
@@ -118,33 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
                 //SIGNUP ROW
-                Center(
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Don\'t have an account? ',
-                          // style: TextStyle(color: Colors.black, fontSize: 17),
-                          style: AppTextStyles.body.copyWith(
-                            color: Colors.black,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'Sign Up',
-                          // style: TextStyle(
-                          //   color: AppColors.primary,
-                          //   fontWeight: FontWeight.bold,
-                          //   fontSize: 17,
-                          // ),
-                          style: AppTextStyles.body.copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                AlreadyLoginRegister(text1: 'Don\'t have an account?',text2: 'Sign Up',),
               ],
             ),
           ),
@@ -181,42 +159,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  //GENERIC TEXT INPUT FIELDS
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hint,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(hintText: hint),
-    );
-  }
-
-  //PASSWORD FIELD WITH SHOW/HIDE TOGGLE
-  Widget _buildPasswordField({required String hint}) {
-    return TextField(
-      controller: _passwordController,
-      obscureText: _obscurePassword,
-      decoration: InputDecoration(
-        hintText: hint,
-        suffixIcon: IconButton(
-          onPressed: () {
-            setState(() {
-              _obscurePassword = !_obscurePassword;
-            });
-          },
-          icon: Icon(
-            _obscurePassword
-                ? Icons.visibility_off_outlined
-                : Icons.visibility_outlined,
-          ),
-        ),
-      ),
     );
   }
 }
