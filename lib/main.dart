@@ -4,7 +4,6 @@ import 'package:spendsmart/features/auth/presentation/screens/login_screen.dart'
 import 'package:spendsmart/features/home/presentation/screens/home_screen.dart';
 import 'package:spendsmart/features/onboarding/presentation/screens/onboardingflow.dart';
 import 'package:spendsmart/features/auth/presentation/screens/signup_screen.dart';
-
 void main() {
   runApp(const MyApp());
 }

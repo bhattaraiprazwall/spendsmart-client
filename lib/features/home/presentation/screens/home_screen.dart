@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/widgets/common/bottom_nav_bar.dart';
 import 'package:spendsmart/core/widgets/common/spendsmart_appbar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -39,8 +40,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             _remainingBudget(context),
+            _spendingBreakDown(context),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavBar(
+        onTabChanged: (index) {
+          print('Tab changed to $index');
+        },
       ),
     );
   }
@@ -285,24 +292,113 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     ];
     return SingleChildScrollView(
+      // padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20),
       scrollDirection: Axis.horizontal,
-      child: Row(children: List.generate(bugetData.length, (index) {})),
+      child: Row(
+        children: List.generate(bugetData.length, (index) {
+          final item = bugetData[index];
+          return _budgetCard(context, item);
+        }),
+      ),
     );
   }
 
   Widget _budgetCard(BuildContext context, Map<String, dynamic> item) {
     return Container(
+      padding: EdgeInsets.all(20),
       margin: EdgeInsets.only(left: 20, right: 0, top: 20, bottom: 20),
       height: MediaQuery.of(context).size.height * 0.18,
       width: MediaQuery.of(context).size.width * 0.42,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade200,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [const Icon(Icons.shopping_cart), Text('\$150 left')]),
+          //Icon + Amount Row
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: (item['iconColor'] as Color).withOpacity(0.1),
+                ),
+                child: Icon(item['icon'] as IconData, size: 20),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                item['amount'] as String,
+                style: AppTextStyles.body.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: item['iconColor'] as Color,
+                ),
+              ),
+            ],
+          ),
+
+          const Spacer(),
+          //label
+          Text(
+            item['label'] as String,
+            style: AppTextStyles.body.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          //ProgressBar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: item['progress'] as double,
+              backgroundColor: Colors.grey.shade200,
+              color: item['color'] as Color,
+              minHeight: 6,
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _spendingBreakDown(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+
+      height: MediaQuery.of(context).size.height * 0.10,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+
+      child: Row(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Spending Breakdown',
+                style: AppTextStyles.body.copyWith(
+                  fontSize: 25,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+
+              Text('Top category:Housing'),
+            ],
+          ),
+        ],
+        
       ),
     );
   }
