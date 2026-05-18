@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
-import 'package:spendsmart/core/widgets/common/bottom_nav_bar.dart';
-import 'package:spendsmart/core/widgets/common/spendsmart_appbar.dart';
+import 'package:spendsmart/core/navigation/bottom_nav_bar.dart';
+import 'package:spendsmart/core/widgets/navigation/spendsmart_appbar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             _remainingBudget(context),
             _spendingBreakDown(context),
+            _recentTrans(),
           ],
         ),
       ),
@@ -398,8 +399,229 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ],
-        
       ),
+    );
+  }
+
+  // Widget _recentTrans() {
+  //   final List<Map<String, dynamic>> transactions = [
+  //     {
+  //       'icon': Icons.shopping_bag,
+  //       'title': 'Whole Foods Market',
+  //       'category': 'Groceries',
+  //       'day': 'Today',
+  //       'amount': -84.20,
+  //     },
+  //     {
+  //       'icon': Icons.stay_current_landscape,
+  //       'title': 'Electric Bill',
+  //       'category': 'Utilities',
+  //       'day': 'Yesterday',
+  //       'amount': -120.00,
+  //     },
+  //     {
+  //       'icon': Icons.money_rounded,
+  //       'title': 'Salary Transfer',
+  //       'category': 'Income',
+  //       'day': 'Sep 14',
+  //       'amount': 2400,
+  //     },
+  //   ];
+
+  //   return SingleChildScrollView(
+  //     scrollDirection: Axis.vertical,
+  //     child: Column(
+  //       children: List.generate(transactions.length, (index) {
+  //         final item = transactions[index];
+  //         return _transactionsCard(context, item);
+  //       }),
+  //     ),
+  //   );
+  // }
+
+  // Widget _transactionsCard(BuildContext context, Map<String, dynamic> item) {
+  //   return Column(
+  //     children: [
+  //       Row(
+  //         children: [
+  //           Icon(item['icon'] as IconData),
+  //           Text(item['title'] as String),
+  //           Text(item['amount'].toString()),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
+
+  Widget _recentTrans() {
+    final List<Map<String, dynamic>> transactions = [
+      {
+        'icon': Icons.shopping_bag_outlined,
+        'title': 'Whole Foods Market',
+        'category': 'Groceries',
+        'day': 'Today',
+        'amount': -84.20,
+        'iconColor': Colors.blueGrey,
+        'iconBg': Colors.blue.shade50,
+      },
+      {
+        'icon': Icons.flash_on_rounded,
+        'title': 'Electric Bill',
+        'category': 'Utilities',
+        'day': 'Yesterday',
+        'amount': -120.00,
+        'iconColor': Colors.blueGrey,
+        'iconBg': Colors.blue.shade50,
+      },
+      {
+        'icon': Icons.money_rounded,
+        'title': 'Salary Transfer',
+        'category': 'Income',
+        'day': 'Sep 14',
+        'amount': 2400.00,
+        'iconColor': Colors.green,
+        'iconBg': Colors.green.shade50,
+      },
+      {
+        'icon': Icons.money_rounded,
+        'title': 'Salary Transfer',
+        'category': 'Income',
+        'day': 'Sep 14',
+        'amount': 2400.00,
+        'iconColor': Colors.green,
+        'iconBg': Colors.green.shade50,
+      },
+      {
+        'icon': Icons.money_rounded,
+        'title': 'Salary Transfer',
+        'category': 'Income',
+        'day': 'Sep 14',
+        'amount': 2400.00,
+        'iconColor': Colors.green,
+        'iconBg': Colors.green.shade50,
+      },
+    ];
+
+    return Column(
+      children: [
+        // Header Row
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Recent Transactions',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                'SEE ALL',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Transaction Cards
+        Container(
+          margin: const EdgeInsets.only(left: 20, right: 20, bottom: 40),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: List.generate(transactions.length, (index) {
+              final item = transactions[index];
+              final bool isLast = index == transactions.length - 1;
+              return _transactionsCard(item, isLast);
+            }),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _transactionsCard(Map<String, dynamic> item, bool isLast) {
+    final bool isPositive = (item['amount'] as double) > 0;
+    final String formattedAmount =
+        '${isPositive ? '+' : '-'}\$${(item['amount'] as double).abs().toStringAsFixed(2)}';
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              // Icon
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: item['iconBg'] as Color,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  item['icon'] as IconData,
+                  color: item['iconColor'] as Color,
+                  size: 22,
+                ),
+              ),
+
+              const SizedBox(width: 14),
+
+              // Title + subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['title'] as String,
+                      style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${item['category']} • ${item['day']}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Amount
+              Text(
+                formattedAmount,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: isPositive ? Colors.green : Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Divider (skip for last item)
+        if (!isLast)
+          Divider(
+            height: 1,
+            indent: 16,
+            endIndent: 16,
+            color: Colors.grey.shade200,
+          ),
+      ],
     );
   }
 }

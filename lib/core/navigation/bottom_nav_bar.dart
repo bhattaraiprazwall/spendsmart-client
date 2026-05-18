@@ -35,7 +35,7 @@ class _BottomNavigationBarState extends State<BottomNavBar> {
       children: [
         //Bottom Bar
         Container(
-          height: 70,
+          height: MediaQuery.of(context).size.height * 0.09,
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: [
@@ -47,12 +47,11 @@ class _BottomNavigationBarState extends State<BottomNavBar> {
             ],
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(_navItems.length, (index) {
               if (index == 2) {
-                return const SizedBox(width: 60);
+                return Expanded(child: SizedBox());
               }
-              return _navItem(index);
+              return Expanded(child: _navItem(index));
             }),
           ),
         ),
