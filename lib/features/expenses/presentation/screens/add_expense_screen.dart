@@ -11,11 +11,11 @@ class AddExpenseScreen extends StatefulWidget {
 }
 
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
-  String _amount = '0.00';
-  String _selectedCategory = 'Select Category';
-  String _selectedDate = 'Today';
-  String _selectedMethod = 'Card';
-  String _note = '';
+  final String _amount = '0.00';
+  final String _selectedCategory = 'Select Category';
+  final String _selectedDate = 'Today';
+  final String _selectedMethod = 'Card';
+  final String _note = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,11 +35,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         child: Column(
           children: [
             _amountDisplay(),
-            const SizedBox(height: 20),
-            _formCard(),
             const SizedBox(height: 50),
+            _formCard(),
+            const SizedBox(height: 60),
             Expanded(child: _numpad()),
-            PrimaryButton(onPressed: () {}, label: 'Save Expense ☑️'),
+            _saveButton()
           ],
         ),
       ),
@@ -259,9 +259,39 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 key,
                 style: const TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.bold
                 ),
               ),
+      ),
+    );
+  }
+
+  // ── Save Button ───────────────────────────────────────────────
+  Widget _saveButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton.icon(
+        onPressed: () {},
+        icon: const Icon(
+          Icons.check_circle_outline,
+          color: Colors.white,
+          size: 20,
+        ),
+        label: const Text(
+          'Save Expense',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
       ),
     );
   }
