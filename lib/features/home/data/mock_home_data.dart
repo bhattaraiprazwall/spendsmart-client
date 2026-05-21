@@ -40,6 +40,14 @@ class MockHomeData {
       color: Colors.red,
       iconColor: Colors.red,
     ),
+    BudgetItem(
+      icon: Icons.restaurant_outlined,
+      amount: '\$15 left',
+      label: 'DINING OUT',
+      progress: 0.9,
+      color: Colors.red,
+      iconColor: Colors.red,
+    ),
   ];
 
   static final List<TransactionItem> transactions = [

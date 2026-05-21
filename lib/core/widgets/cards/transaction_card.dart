@@ -5,18 +5,12 @@ import 'package:spendsmart/features/home/models/transaction_item.dart';
 class TransactionCard extends StatelessWidget {
   final TransactionItem item;
 
-  const TransactionCard({
-    super.key,
-    required this.item,
-  });
+  const TransactionCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
         children: [
           Container(
@@ -25,10 +19,7 @@ class TransactionCard extends StatelessWidget {
               color: item.iconBg,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              item.icon,
-              color: item.iconColor,
-            ),
+            child: Icon(item.icon, color: item.iconColor),
           ),
 
           const SizedBox(width: 14),
@@ -48,9 +39,7 @@ class TransactionCard extends StatelessWidget {
 
                 Text(
                   '${item.category} • ${item.day}',
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade500),
                 ),
               ],
             ),
@@ -60,9 +49,7 @@ class TransactionCard extends StatelessWidget {
             item.formattedAmount,
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: item.isPositive
-                  ? Colors.green
-                  : Colors.black,
+              color: item.isPositive ? Colors.green : Colors.black,
             ),
           ),
         ],

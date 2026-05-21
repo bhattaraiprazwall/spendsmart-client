@@ -5,17 +5,14 @@ import 'package:spendsmart/features/home/models/summary_item.dart';
 class SummaryCard extends StatelessWidget {
   final SummaryItem item;
 
-  const SummaryCard({
-    super.key,
-    required this.item,
-  });
+  const SummaryCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(20),
-        margin: const EdgeInsets.symmetric(horizontal: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 5),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -31,10 +28,7 @@ class SummaryCard extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: item.iconBg,
                   ),
-                  child: Icon(
-                    item.icon,
-                    color: item.iconColor,
-                  ),
+                  child: Icon(item.icon, color: item.iconColor),
                 ),
                 const SizedBox(width: 8),
                 Text(
