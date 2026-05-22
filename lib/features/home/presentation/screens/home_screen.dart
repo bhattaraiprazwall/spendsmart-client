@@ -14,7 +14,6 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: SpendsmartAppbar(
         onProfileTap: () {},
         onMenuTap: () {},
@@ -71,7 +70,7 @@ class HomeScreen extends StatelessWidget {
         onTabChanged: (index) {
           print('Tab changed to $index');
         },
-    )
+      ),
     );
   }
 }

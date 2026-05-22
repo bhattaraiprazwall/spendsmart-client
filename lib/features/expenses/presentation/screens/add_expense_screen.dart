@@ -39,7 +39,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             _formCard(),
             const SizedBox(height: 60),
             Expanded(child: _numpad()),
-            _saveButton()
+            _saveButton(),
           ],
         ),
       ),
@@ -259,7 +259,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 key,
                 style: const TextStyle(
                   fontSize: 22,
-                  fontWeight: FontWeight.bold
+                  fontWeight: FontWeight.bold,
                 ),
               ),
       ),
