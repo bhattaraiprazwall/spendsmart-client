@@ -5,10 +5,7 @@ import 'package:spendsmart/features/home/models/budget_item.dart';
 class BudgetCard extends StatelessWidget {
   final BudgetItem item;
 
-  const BudgetCard({
-    super.key,
-    required this.item,
-  });
+  const BudgetCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +28,7 @@ class BudgetCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: item.iconColor.withOpacity(0.1),
                 ),
-                child: Icon(
-                  item.icon,
-                  color: item.iconColor,
-                ),
+                child: Icon(item.icon, color: item.iconColor),
               ),
 
               const SizedBox(width: 8),
@@ -53,9 +47,7 @@ class BudgetCard extends StatelessWidget {
 
           Text(
             item.label,
-            style: AppTextStyles.body.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
           ),
 
           const SizedBox(height: 10),

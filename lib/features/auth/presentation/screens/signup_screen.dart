@@ -36,13 +36,20 @@ class _SignupScreenState extends State<SignupScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-             Text(
+            Text(
               'SpendSmart',
-              style: AppTextStyles.body.copyWith(color: AppColors.primary,fontSize: 35,fontWeight: FontWeight.bold),
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.primary,
+                fontSize: 35,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 10),
 
-             Text('Join SpendSmart', style: AppTextStyles.headline.copyWith(fontSize: 25)),
+            Text(
+              'Join SpendSmart',
+              style: AppTextStyles.headline.copyWith(fontSize: 25),
+            ),
             const SizedBox(height: 10),
 
             const Text(

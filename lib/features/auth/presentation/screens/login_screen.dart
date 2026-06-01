@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/services/api_service.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/widgets/already_login_register.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/widgets/buttons/social_button.dart';
+import 'package:spendsmart/features/auth/data/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,6 +17,28 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final AuthService _authService = AuthService();
+  final ApiService _apiService = ApiService();
+
+  Future<void> _login() async {
+    try {
+      final credential = await _authService.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      final token = await credential.user?.getIdToken();
+
+      if (token != null) {
+        await _apiService.syncUser(token);
+      }
+
+      print("Login Success");
+    } catch (e) {
+      print(e);
+    }
+  }
+
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   @override
@@ -82,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 const SizedBox(height: 20),
-                PrimaryButton(label: 'Login', onPressed: () {}),
+                PrimaryButton(label: 'Login', onPressed: _login),
                 const SizedBox(height: 30),
 
                 //DIVIDER
@@ -122,7 +146,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
                 //SIGNUP ROW
-                AlreadyLoginRegister(text1: 'Don\'t have an account?',text2: 'Sign Up',),
+                AlreadyLoginRegister(
+                  text1: 'Don\'t have an account?',
+                  text2: 'Sign Up',
+                ),
               ],
             ),
           ),
