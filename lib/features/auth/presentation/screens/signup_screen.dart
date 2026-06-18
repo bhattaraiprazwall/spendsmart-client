@@ -5,6 +5,7 @@ import 'package:spendsmart/core/widgets/already_login_register.dart';
 import 'package:spendsmart/core/widgets/checkbox.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
+import 'package:spendsmart/core/services/api_service.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -18,6 +19,60 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirmpassword = TextEditingController();
+
+  final ApiService _apiService = ApiService();
+  bool _isLoading = false;
+
+  Future<void> _register() async {
+    final name = _fullname.text.trim();
+    final email = _email.text.trim();
+    final password = _password.text;
+    final confirmPassword = _confirmpassword.text;
+
+    if (name.isEmpty) {
+      _showError('Please enter your full name');
+      return;
+    }
+    if (email.isEmpty || !email.contains('@')) {
+      _showError('Please enter a valid email');
+      return;
+    }
+    if (password.isEmpty || password.length < 6) {
+      _showError('Password must be at least 6 characters');
+      return;
+    }
+    if (password != confirmPassword) {
+      _showError('Passwords do not match');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      await _apiService.register(
+        name: name,
+        email: email,
+        password: password,
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registration successful!')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      _showError(e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
   @override
   void dispose() {
     _fullname.dispose();
@@ -79,7 +134,10 @@ class _SignupScreenState extends State<SignupScreen> {
 
             TermsCheckBox(),
             const SizedBox(height: 15),
-            PrimaryButton(onPressed: () {}, label: 'Sign Up'),
+            PrimaryButton(
+              onPressed: _isLoading ? () {} : _register,
+              label: _isLoading ? 'Please wait...' : 'Sign Up',
+            ),
             const SizedBox(height: 30),
             AlreadyLoginRegister(
               text1: 'Already have an account? ',

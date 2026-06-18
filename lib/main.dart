@@ -1,7 +1,12 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/theme/app_theme.dart';
+import 'package:spendsmart/features/auth/presentation/screens/login_screen.dart';
+import 'package:spendsmart/features/auth/presentation/screens/signup_screen.dart';
 import 'package:spendsmart/features/expenses/presentation/screens/add_expense_screen.dart';
+import 'package:spendsmart/features/home/presentation/screens/home_screen.dart';
+import 'package:spendsmart/features/onboarding/presentation/screens/onboardingflow.dart';
+import 'package:spendsmart/features/onboarding/presentation/widgets/onboarding.dart';
 // import 'package:spendsmart/features/auth/presentation/screens/login_screen.dart';
 // import 'package:spendsmart/features/expenses/presentation/screens/add_expense_screen.dart';
 // import 'package:spendsmart/features/home/presentation/screens/home_screen.dart';
@@ -24,7 +29,7 @@ class MyApp extends StatelessWidget {
       title: 'SpendSmart',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const AddExpenseScreen(),
+      home: const SignupScreen(),
     );
   }
 }
