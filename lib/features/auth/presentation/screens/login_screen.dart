@@ -7,7 +7,6 @@ import 'package:spendsmart/core/widgets/already_login_register.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/widgets/buttons/social_button.dart';
-import 'package:spendsmart/features/auth/data/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,27 +16,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final AuthService _authService = AuthService();
   final ApiService _apiService = ApiService();
 
-  Future<void> _login() async {
-    try {
-      final credential = await _authService.login(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-
-      final token = await credential.user?.getIdToken();
-
-      if (token != null) {
-        await _apiService.syncUser(token);
-      }
-
-      print("Login Success");
-    } catch (e) {
-      print(e);
-    }
-  }
+  
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -106,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 const SizedBox(height: 20),
-                PrimaryButton(label: 'Login', onPressed: _login),
+                PrimaryButton(label: 'Login', onPressed: (){}),
                 const SizedBox(height: 30),
 
                 //DIVIDER
