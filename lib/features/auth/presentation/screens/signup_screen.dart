@@ -37,7 +37,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           email: _email.text.trim(),
           password: _password.text,
         );
-    if (!mounted) return;
 
     // if (success) {
     //   context.go('/login');

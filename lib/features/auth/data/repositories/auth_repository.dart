@@ -13,4 +13,11 @@ class AuthRepository {
       password: password,
     );
   }
+
+  Future<Map<String, dynamic>> login({
+    required String email,
+    required String password,
+  }) async {
+    return await _authService.login(email: email, password: password);
+  }
 }

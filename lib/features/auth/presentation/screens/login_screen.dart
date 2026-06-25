@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/services/api_service.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/utils/validators.dart';
 import 'package:spendsmart/core/widgets/already_login_register.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/widgets/buttons/social_button.dart';
+import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final ApiService _apiService = ApiService();
-
-  
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -29,109 +31,147 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  Future<void> _loginHandler() async {
+    if (_formKey.currentState!.validate()) {
+      return;
+    }
+    //if success
+    await ref
+        .read(authProvider.notifier)
+        .login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+  }
+
   //TOGGLE TO SHOW/HIDE PASSWORD
   @override
   Widget build(BuildContext context) {
+    ref.listen(authProvider, (previous, next) {
+      if (previous?.isLoading == true && next.hasValue) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Login Successful')));
+
+        context.go('/home');
+      }
+
+      next.whenOrNull(
+        error: (error, stackTrace) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(error.toString())));
+        },
+      );
+    });
+    final authState = ref.watch(authProvider);
+
+    final isLoading = authState.isLoading;
     return Scaffold(
       // resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //Logo
-                _buildLogo(),
-                const SizedBox(height: 32),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  //Logo
+                  _buildLogo(),
+                  const SizedBox(height: 32),
 
-                //HEADLINE
-                const Text('Welcome Back', style: AppTextStyles.headline),
-                const SizedBox(height: 6),
-                const Text(
-                  'Login to effortlessly manage your finances.',
-                  style: AppTextStyles.body,
-                ),
-                const SizedBox(height: 32),
+                  //HEADLINE
+                  const Text('Welcome Back', style: AppTextStyles.headline),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Login to effortlessly manage your finances.',
+                    style: AppTextStyles.body,
+                  ),
+                  const SizedBox(height: 32),
 
-                //--EMAIL FIELD--//
-                CustomTextfield(
-                  controller: _emailController,
-                  hint: 'Email Address',
-                ),
+                  //--EMAIL FIELD--//
+                  CustomTextfield(
+                    controller: _emailController,
+                    hint: 'Email Address',
+                    validator: Validators.validatePassword,
+                  ),
 
-                const SizedBox(height: 14),
-                CustomTextfield(
-                  hint: 'Password',
-                  controller: _passwordController,
-                  isPassword: true,
-                ),
-                const SizedBox(height: 10),
+                  const SizedBox(height: 14),
+                  CustomTextfield(
+                    hint: 'Password',
+                    controller: _passwordController,
+                    isPassword: true,
+                    validator: Validators.validatePassword,
+                  ),
+                  const SizedBox(height: 10),
 
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    'Forgot Password?',
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      'Forgot Password?',
 
-                    // style: TextStyle(
-                    //   color: AppColors.primary,
-                    //   fontSize: 13,
-                    //   fontWeight: FontWeight.bold,
-                    // ),
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                      // style: TextStyle(
+                      //   color: AppColors.primary,
+                      //   fontSize: 13,
+                      //   fontWeight: FontWeight.bold,
+                      // ),
+                      style: AppTextStyles.body.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 20),
-                PrimaryButton(label: 'Login', onPressed: (){}),
-                const SizedBox(height: 30),
+                  const SizedBox(height: 20),
+                  PrimaryButton(label: 'Login', onPressed: () {}),
+                  const SizedBox(height: 30),
 
-                //DIVIDER
-                Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: const Text('OR CONTINUE WITH'),
+                  //DIVIDER
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: const Text('OR CONTINUE WITH'),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  //GOOGLE BUTTON
+                  SocialButton(
+                    text: 'Google',
+                    icon: SvgPicture.asset(
+                      'assets/icons/google.svg',
+                      width: 15,
+                      height: 15,
                     ),
-                    const Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                //GOOGLE BUTTON
-                SocialButton(
-                  text: 'Google',
-                  icon: SvgPicture.asset(
-                    'assets/icons/google.svg',
-                    width: 15,
-                    height: 15,
+                    backgroundColor: Colors.white,
+                    textColor: Colors.black,
                   ),
-                  backgroundColor: Colors.white,
-                  textColor: Colors.black,
-                ),
-                const SizedBox(height: 10),
-                SocialButton(
-                  text: 'Apple',
-                  icon: SvgPicture.asset(
-                    'assets/icons/apple.svg',
-                    width: 15,
-                    height: 15,
-                    color: Colors.white,
+                  const SizedBox(height: 10),
+                  SocialButton(
+                    text: 'Apple',
+                    icon: SvgPicture.asset(
+                      'assets/icons/apple.svg',
+                      width: 15,
+                      height: 15,
+                      color: Colors.white,
+                    ),
+                    backgroundColor: AppColors.neutral,
+                    textColor: Colors.white,
                   ),
-                  backgroundColor: AppColors.neutral,
-                  textColor: Colors.white,
-                ),
-                const SizedBox(height: 30),
-                //SIGNUP ROW
-                AlreadyLoginRegister(
-                  text1: 'Don\'t have an account?',
-                  text2: 'Sign Up',
-                ),
-              ],
+                  const SizedBox(height: 30),
+                  //SIGNUP ROW
+                  AlreadyLoginRegister(
+                    text1: 'Don\'t have an account?',
+                    text2: 'Sign Up',
+                  ),
+                ],
+              ),
             ),
           ),
         ),

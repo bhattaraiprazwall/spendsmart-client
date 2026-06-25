@@ -15,4 +15,15 @@ class AuthService {
     });
     return response;
   }
+
+  Future<Map<String, dynamic>> login({
+    required String email,
+    required String password,
+  }) async {
+    final response = _apiService.post(ApiConstants.login, {
+      "email": email,
+      "password": password,
+    });
+    return response;
+  }
 }

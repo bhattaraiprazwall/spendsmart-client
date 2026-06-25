@@ -1,3 +1,4 @@
+import 'package:http/http.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spendsmart/features/auth/data/repositories/auth_repository.dart';
 part 'auth_provider.g.dart';
@@ -34,6 +35,20 @@ class Auth extends _$Auth {
       }
 
       state = const AsyncData(null);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  Future<void> login({required String email, required String password}) async {
+    state = const AsyncLoading();
+    try {
+      final repository = ref.read(authRepositoryProvider);
+      final response = await repository.login(email: email, password: password);
+      if (response['statusCode'] != 200) {
+        throw Exception(response["data"]["message"] ?? "Login Failed");
+      }
+      state = AsyncData(response["data"]);
     } catch (e, st) {
       state = AsyncError(e, st);
     }
