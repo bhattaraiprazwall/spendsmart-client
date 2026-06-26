@@ -9,6 +9,7 @@ import 'package:spendsmart/core/widgets/checkbox.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
+import 'package:spendsmart/features/auth/presentation/providers/register_provider.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -31,7 +32,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
     // final success =
     await ref
-        .read(authProvider.notifier)
+        .read(registerProvider.notifier)
         .register(
           name: _name.text.trim(),
           email: _email.text.trim(),
@@ -62,8 +63,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(authProvider, (previous, next) {
+    ref.listen(registerProvider, (previous, next) {
       if (previous?.isLoading == true && next.hasValue) {
+        print("PREVIOUS = $previous");
+        print("NEXT = $next");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registration Successful')),
         );
@@ -78,7 +81,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         },
       );
     });
-    final authState = ref.watch(authProvider);
+    final authState = ref.watch(registerProvider);
     final isLoading = authState.isLoading;
 
     return Scaffold(

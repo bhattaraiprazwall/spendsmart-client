@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
-import 'package:spendsmart/core/services/api_service.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/utils/validators.dart';
 import 'package:spendsmart/core/widgets/already_login_register.dart';
@@ -11,6 +10,7 @@ import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/widgets/buttons/social_button.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
+import 'package:spendsmart/features/auth/presentation/providers/login_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -32,12 +32,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _loginHandler() async {
-    if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) {
       return;
     }
-    //if success
     await ref
-        .read(authProvider.notifier)
+        .read(loginProvider.notifier)
         .login(
           email: _emailController.text.trim(),
           password: _passwordController.text,
@@ -47,24 +46,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   //TOGGLE TO SHOW/HIDE PASSWORD
   @override
   Widget build(BuildContext context) {
-    ref.listen(authProvider, (previous, next) {
-      if (previous?.isLoading == true && next.hasValue) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Login Successful')));
-
-        context.go('/home');
-      }
-
+    ref.listen(loginProvider, (previous, next) {
       next.whenOrNull(
-        error: (error, stackTrace) {
+        data: (_) {
+          // Only navigate if we actually came from a loading state
+          // This prevents firing on the initial AsyncData(null) build state
+          if (previous?.isLoading == true) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text('Login Successful')));
+            context.go('/home');
+          }
+        },
+        error: (error, _) {
+          String message = "Login failed. Please try again.";
+
+          final errorText = error.toString();
+          if (errorText.contains("INVALID_LOGIN_CREDENTIALS")) {
+            message = "Invalid email or password.";
+          } else if (errorText.contains("EMAIL_NOT_FOUND")) {
+            message = "No account found with this email.";
+          } else if (errorText.contains("INVALID_PASSWORD")) {
+            message = "Incorrect password.";
+          } else if (errorText.contains("USER_DISABLED")) {
+            message = "This account has been disabled.";
+          } else if (errorText.contains("TOO_MANY_ATTEMPTS")) {
+            message = "Too many attempts. Please try again later.";
+          }
+
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(error.toString())));
+          ).showSnackBar(SnackBar(content: Text(message)));
         },
       );
     });
-    final authState = ref.watch(authProvider);
+    final authState = ref.watch(loginProvider);
 
     final isLoading = authState.isLoading;
     return Scaffold(
@@ -95,7 +111,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   CustomTextfield(
                     controller: _emailController,
                     hint: 'Email Address',
-                    validator: Validators.validatePassword,
+                    validator: Validators.validateEmail,
                   ),
 
                   const SizedBox(height: 14),
@@ -126,7 +142,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
 
                   const SizedBox(height: 20),
-                  PrimaryButton(label: 'Login', onPressed: () {}),
+                  PrimaryButton(
+                    label: isLoading ? 'Loggin in' : 'Login',
+                    onPressed: isLoading ? () {} : _loginHandler,
+                  ),
                   const SizedBox(height: 30),
 
                   //DIVIDER

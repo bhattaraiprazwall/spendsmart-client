@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/theme/app_theme.dart';
+import 'package:spendsmart/features/auth/presentation/screens/login_screen.dart';
 import 'package:spendsmart/features/auth/presentation/screens/signup_screen.dart';
-
+import 'package:spendsmart/features/home/presentation/screens/home_screen.dart';
 import 'package:spendsmart/firebase_options.dart';
 
 void main() async {
@@ -29,12 +30,12 @@ class MyApp extends StatelessWidget {
   final GoRouter _router = GoRouter(
     initialLocation: '/',
     routes: [
+      GoRoute(path: '/', builder: (context, state) => const LoginScreen()),
       GoRoute(
-        path: '/',
-        builder: (context, state) {
-          return const SignupScreen();
-        },
+        path: '/signup',
+        builder: (context, state) => const SignupScreen(),
       ),
+      GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
     ],
   );
 }
