@@ -9,7 +9,6 @@ import 'package:spendsmart/core/widgets/already_login_register.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/widgets/buttons/social_button.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/auth/presentation/providers/login_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -59,20 +58,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           }
         },
         error: (error, _) {
-          String message = "Login failed. Please try again.";
-
-          final errorText = error.toString();
-          if (errorText.contains("INVALID_LOGIN_CREDENTIALS")) {
-            message = "Invalid email or password.";
-          } else if (errorText.contains("EMAIL_NOT_FOUND")) {
-            message = "No account found with this email.";
-          } else if (errorText.contains("INVALID_PASSWORD")) {
-            message = "Incorrect password.";
-          } else if (errorText.contains("USER_DISABLED")) {
-            message = "This account has been disabled.";
-          } else if (errorText.contains("TOO_MANY_ATTEMPTS")) {
-            message = "Too many attempts. Please try again later.";
-          }
+          // error.toString() = "Exception: Invalid email or password"
+          // We remove the "Exception: " prefix for cleaner display
+          final message = error.toString().replaceFirst("Exception: ", "");
 
           ScaffoldMessenger.of(
             context,
@@ -186,6 +174,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 30),
                   //SIGNUP ROW
                   AlreadyLoginRegister(
+                    action: () {
+                      context.go('/signup');
+                    },
                     text1: 'Don\'t have an account?',
                     text2: 'Sign Up',
                   ),

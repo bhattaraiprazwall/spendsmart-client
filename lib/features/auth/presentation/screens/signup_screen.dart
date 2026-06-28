@@ -71,7 +71,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           const SnackBar(content: Text('Registration Successful')),
         );
 
-        context.go('/login');
+        context.go('/');
       }
       next.whenOrNull(
         error: (error, stackTrace) {
@@ -159,7 +159,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 label: isLoading ? 'Please wait...' : 'Sign Up',
               ),
               const SizedBox(height: 30),
-              const AlreadyLoginRegister(
+               AlreadyLoginRegister(
+                action:(){
+                  context.go('/');
+
+                } ,
                 text1: 'Already have an account? ',
                 text2: 'Login',
               ),

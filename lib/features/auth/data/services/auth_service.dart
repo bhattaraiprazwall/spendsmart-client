@@ -20,10 +20,16 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final response = _apiService.post(ApiConstants.login, {
+    final response = await _apiService.post(ApiConstants.login, {
       "email": email,
       "password": password,
     });
-    return response;
+    // Throw here with the backend's friendly message
+
+    if (response["statusCode"] != 200) {
+      final message = response["data"]["message"] ?? "Login failed";
+      throw Exception(message);
+    }
+    return response["data"]; // { idToken, refreshToken, expiresIn }
   }
 }

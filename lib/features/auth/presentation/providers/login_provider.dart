@@ -11,10 +11,10 @@ class Login extends _$Login {
     state = const AsyncLoading();
     try {
       final repository = ref.read(authRepositoryProvider);
-      final response = await repository.login(email: email, password: password);
-      if (response['statusCode'] != 200) {
-        throw Exception(response["data"]["message"] ?? "Login Failed");
-      }
+      final data = await repository.login(email: email, password: password);
+
+      //saving the id token received from the backend in the local storage
+      await ref.read(storageServiceProvider).saveToken(data["data"]["idToken"]);
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);
