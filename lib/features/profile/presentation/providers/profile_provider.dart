@@ -29,4 +29,32 @@ class Profile extends _$Profile {
       state = AsyncError(e, st);
     }
   }
+
+  Future<void> updateProfile(
+    String idToken, {
+    String? name,
+    String? avatarUrl,
+    String? currency,
+    String? theme,
+    String? language,
+  }) async {
+    try {
+      final repository = ref.read(profileRepositoryProvider);
+      await repository.updateProfile(
+        idToken,
+        name: name,
+        avatarUrl: avatarUrl,
+        currency: currency,
+        theme: theme,
+        language: language,
+      );
+      await fetchProfile(idToken);
+    } catch (e, st) {
+      if (e is UnauthorizedException) {
+        await ref.read(storageServiceProvider).deleteToken();
+        ref.read(authStateProvider.notifier).state = false;
+      }
+      state = AsyncError(e, st);
+    }
+  }
 }
