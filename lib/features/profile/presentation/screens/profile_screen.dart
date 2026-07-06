@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
+import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
+import 'package:spendsmart/features/profile/presentation/screens/edit_profile_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -11,9 +15,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool _darkMode = false;
   bool _biometricLogin = true;
-  String _currency = 'USD';
   // ── Colours & constants ──────────────────────────────────────────────
   static const _bg = Color(0xFFEEF0FB);
   static const _card = Colors.white;
@@ -36,6 +38,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ref.read(profileProvider.notifier).fetchProfile(token);
       }
     });
+  }
+
+  Future<void> logoutHandler() async {
+    print('Logged out');
+    await ref.read(storageServiceProvider).deleteToken();
+    ref.read(authStateProvider.notifier).state = false;
   }
 
   @override
@@ -107,13 +115,31 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
               child: Column(
                 children: [
-                  _buildProfileHeader(name: profile["data"]["name"] as String,subname: profile["data"]["email"]),
+                  _buildProfileHeader(
+                    name: profile["name"] as String,
+                    subname: profile["email"] ?? "",
+                  ),
                   const SizedBox(height: 24),
                   _buildSection(
                     icon: Icons.person_outline_rounded,
                     title: 'Account',
                     children: [
-                      _buildNavRow('Edit Profile'),
+                      _buildNavRow(
+                        'Edit Profile',
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const EditProfileScreen(),
+                            ),
+                          );
+                          final t = await ref
+                              .read(storageServiceProvider)
+                              .getToken();
+                          if (t != null) {
+                            ref.read(profileProvider.notifier).fetchProfile(t);
+                          }
+                        },
+                      ),
                       _buildDivider(),
                       _buildNavRow('Change Password'),
                     ],
@@ -125,18 +151,43 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     children: [
                       _buildDropdownRow(
                         label: 'Currency',
-                        value: _currency,
+                        value: profile["currency"] ?? "USD",
                         items: const ['USD', 'EUR', 'GBP', 'JPY', 'NPR'],
-                        onChanged: (v) => setState(() => _currency = v!),
+                        onChanged: (v) async {
+                          final t = await ref
+                              .read(storageServiceProvider)
+                              .getToken();
+                          if (t != null) {
+                            ref
+                                .read(profileProvider.notifier)
+                                .updateProfile(t, currency: v);
+                          }
+                        },
                       ),
                       _buildDivider(),
                       _buildToggleRow(
                         label: 'Dark Mode',
-                        value: _darkMode,
-                        onChanged: (v) => setState(() => _darkMode = v),
+                        value: profile["theme"] == "dark",
+                        onChanged: (v) async {
+                          final t = await ref
+                              .read(storageServiceProvider)
+                              .getToken();
+                          if (t != null) {
+                            ref
+                                .read(profileProvider.notifier)
+                                .updateProfile(t, theme: v ? "dark" : "light");
+                          }
+                        },
                       ),
                       _buildDivider(),
-                      _buildNavRow('Language', trailing: 'English'),
+                      _buildNavRow(
+                        'Language',
+                        trailing: (profile["language"] as String? ?? "en")
+                            .toUpperCase(),
+                        onTap: () => _showLanguagePicker(
+                          profile["language"] as String? ?? "en",
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -207,7 +258,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ],
             image: const DecorationImage(
-              image: NetworkImage('https://tse2.mm.bing.net/th/id/OIP.sBD5k_FV4Y2F7_V3RQj6EQHaHa?r=0&cb=thfvnextfalcon3&rs=1&pid=ImgDetMain&o=7&rm=3'),
+              image: NetworkImage(
+                'https://tse2.mm.bing.net/th/id/OIP.sBD5k_FV4Y2F7_V3RQj6EQHaHa?r=0&cb=thfvnextfalcon3&rs=1&pid=ImgDetMain&o=7&rm=3',
+              ),
               fit: BoxFit.cover,
             ),
           ),
@@ -283,9 +336,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   // ── Row types ────────────────────────────────────────────────────────
-  Widget _buildNavRow(String label, {String? trailing}) {
+  Widget _buildNavRow(String label, {String? trailing, VoidCallback? onTap}) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap ?? () {},
       borderRadius: BorderRadius.circular(12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -423,12 +476,45 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  void _showLanguagePicker(String current) {
+    showDialog<String>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text("Select Language"),
+        children: ["en", "es", "fr", "de", "ja", "zh"]
+            .map(
+              (l) => SimpleDialogOption(
+                onPressed: () async {
+                  Navigator.of(ctx).pop();
+                  final t = await ref.read(storageServiceProvider).getToken();
+                  if (t != null) {
+                    ref
+                        .read(profileProvider.notifier)
+                        .updateProfile(t, language: l);
+                  }
+                },
+                child: Text(
+                  l.toUpperCase(),
+                  style: TextStyle(
+                    fontWeight: l == current
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: l == current ? _primary : null,
+                  ),
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
   // ── Logout button ────────────────────────────────────────────────────
   Widget _buildLogoutButton() {
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed: () {},
+        onPressed: logoutHandler,
         style: OutlinedButton.styleFrom(
           backgroundColor: _logoutBg,
           side: const BorderSide(color: _logoutBorder, width: 1.5),
