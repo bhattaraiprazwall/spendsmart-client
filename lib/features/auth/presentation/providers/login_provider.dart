@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 part 'login_provider.g.dart';
 
@@ -15,6 +16,8 @@ class Login extends _$Login {
 
       //saving the id token received from the backend in the local storage
       await ref.read(storageServiceProvider).saveToken(data["data"]["idToken"]);
+       
+      ref.read(authStateProvider.notifier).state = true;
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);
