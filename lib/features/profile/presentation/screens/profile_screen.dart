@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
@@ -16,18 +16,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _biometricLogin = true;
-  // ── Colours & constants ──────────────────────────────────────────────
-  static const _bg = Color(0xFFEEF0FB);
-  static const _card = Colors.white;
-  static const _primary = Color(0xFF3D5CFF);
-  static const _sectionIcon = Color(0xFF3D5CFF);
-  static const _labelColor = Color(0xFF1A1E2C);
-  static const _subtitleColor = Color(0xFF9095A0);
-  static const _divider = Color(0xFFF2F3F7);
-  static const _chevronColor = Color(0xFFB0B5C3);
-  static const _logoutText = Color(0xFFE53935);
-  static const _logoutBg = Color(0xFFFFF0F0);
-  static const _logoutBorder = Color(0xFFFFCDD2);
+
   @override
   void initState() {
     super.initState();
@@ -109,7 +98,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         //   );
 
         return Scaffold(
-          backgroundColor: _bg,
+          backgroundColor: AppColors.bg,
           body: SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
@@ -127,11 +116,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       _buildNavRow(
                         'Edit Profile',
                         onTap: () async {
-                          await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const EditProfileScreen(),
-                            ),
-                          );
+                          context.push('edit_profile');
                           final t = await ref
                               .read(storageServiceProvider)
                               .getToken();
@@ -252,7 +237,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             border: Border.all(color: Colors.white, width: 3),
             boxShadow: [
               BoxShadow(
-                color: _primary.withOpacity(0.15),
+                color: AppColors.profilePrimary.withOpacity(0.15),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),
@@ -272,7 +257,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: _labelColor,
+            color: AppColors.labelColor,
             letterSpacing: -0.3,
           ),
         ),
@@ -281,7 +266,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           subname,
           style: TextStyle(
             fontSize: 13,
-            color: _subtitleColor,
+            color: AppColors.subtitleColor,
             letterSpacing: 0.1,
           ),
         ),
@@ -297,7 +282,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: _card,
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
@@ -314,14 +299,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
             child: Row(
               children: [
-                Icon(icon, color: _sectionIcon, size: 22),
+                Icon(icon, color: AppColors.sectionIcon, size: 22),
                 const SizedBox(width: 10),
                 Text(
                   title,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: _labelColor,
+                    color: AppColors.labelColor,
                     letterSpacing: -0.2,
                   ),
                 ),
@@ -350,20 +335,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 style: const TextStyle(
                   fontSize: 14.5,
                   fontWeight: FontWeight.w500,
-                  color: _labelColor,
+                  color: AppColors.labelColor,
                 ),
               ),
             ),
             if (trailing != null) ...[
               Text(
                 trailing,
-                style: const TextStyle(fontSize: 14, color: _subtitleColor),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.subtitleColor,
+                ),
               ),
               const SizedBox(width: 6),
             ],
             const Icon(
               Icons.chevron_right_rounded,
-              color: _chevronColor,
+              color: AppColors.chevronColor,
               size: 20,
             ),
           ],
@@ -391,14 +379,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   style: const TextStyle(
                     fontSize: 14.5,
                     fontWeight: FontWeight.w500,
-                    color: _labelColor,
+                    color: AppColors.labelColor,
                   ),
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(fontSize: 12, color: _subtitleColor),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.subtitleColor,
+                    ),
                   ),
                 ],
               ],
@@ -408,12 +399,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             value: value,
             onChanged: onChanged,
             activeColor: Colors.white,
-            activeTrackColor: _primary,
+            activeTrackColor: AppColors.profilePrimary,
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: const Color(0xFFDDE0EF),
             thumbIcon: value
                 ? WidgetStateProperty.all(
-                    const Icon(Icons.check_rounded, color: _primary, size: 14),
+                    const Icon(
+                      Icons.check_rounded,
+                      color: AppColors.profilePrimary,
+                      size: 14,
+                    ),
                   )
                 : null,
           ),
@@ -438,7 +433,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               style: const TextStyle(
                 fontSize: 14.5,
                 fontWeight: FontWeight.w500,
-                color: _labelColor,
+                color: AppColors.labelColor,
               ),
             ),
           ),
@@ -447,13 +442,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               value: value,
               icon: const Icon(
                 Icons.arrow_drop_down_rounded,
-                color: _primary,
+                color: AppColors.profilePrimary,
                 size: 22,
               ),
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: _primary,
+                color: AppColors.profilePrimary,
               ),
               items: items
                   .map((c) => DropdownMenuItem(value: c, child: Text(c)))
@@ -470,7 +465,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return const Divider(
       height: 1,
       thickness: 1,
-      color: _divider,
+      color: AppColors.divider,
       indent: 18,
       endIndent: 18,
     );
@@ -499,7 +494,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     fontWeight: l == current
                         ? FontWeight.bold
                         : FontWeight.normal,
-                    color: l == current ? _primary : null,
+                    color: l == current ? AppColors.profilePrimary : null,
                   ),
                 ),
               ),
@@ -516,20 +511,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       child: OutlinedButton.icon(
         onPressed: logoutHandler,
         style: OutlinedButton.styleFrom(
-          backgroundColor: _logoutBg,
-          side: const BorderSide(color: _logoutBorder, width: 1.5),
+          backgroundColor: AppColors.logoutBg,
+          side: const BorderSide(color: AppColors.logoutBorder, width: 1.5),
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        icon: const Icon(Icons.logout_rounded, color: _logoutText, size: 20),
+        icon: const Icon(
+          Icons.logout_rounded,
+          color: AppColors.logoutText,
+          size: 20,
+        ),
         label: const Text(
           'Logout',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w700,
-            color: _logoutText,
+            color: AppColors.logoutText,
             letterSpacing: 0.2,
           ),
         ),
