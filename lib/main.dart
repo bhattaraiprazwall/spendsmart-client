@@ -7,6 +7,7 @@ import 'package:spendsmart/core/theme/app_theme.dart';
 import 'package:spendsmart/features/auth/presentation/screens/login_screen.dart';
 import 'package:spendsmart/features/auth/presentation/screens/signup_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/home_screen.dart';
+import 'package:spendsmart/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:spendsmart/firebase_options.dart';
 
 void main() async {
@@ -34,6 +35,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         GoRoute(path: '/', builder: (_, _) => const LoginScreen()),
         GoRoute(path: '/signup', builder: (_, _) => const SignupScreen()),
         GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
+        GoRoute(path: '/edit_profile', builder: (_, _) => const EditProfileScreen()),
       ],
     );
   }
