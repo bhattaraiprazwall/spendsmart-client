@@ -131,7 +131,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                   const SizedBox(height: 20),
                   PrimaryButton(
-                    label: isLoading ? 'Loggin in' : 'Login',
+                    label: isLoading ? 'Please wait..' : 'Login',
                     onPressed: isLoading ? () {} : _loginHandler,
                   ),
                   const SizedBox(height: 30),
