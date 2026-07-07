@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
 
@@ -22,7 +23,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.initState();
     final profile = ref.read(profileProvider).asData?.value;
     _nameController = TextEditingController(text: profile?["name"] ?? "");
-    _avatarController = TextEditingController(text: profile?["avatarUrl"] ?? "");
+    _avatarController = TextEditingController(
+      text: profile?["avatarUrl"] ?? "",
+    );
   }
 
   @override
@@ -40,13 +43,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       final token = await ref.read(storageServiceProvider).getToken();
       if (token == null) return;
 
-      await ref.read(profileProvider.notifier).updateProfile(
-        token,
-        name: _nameController.text.trim(),
-        avatarUrl: _avatarController.text.trim().isEmpty
-            ? null
-            : _avatarController.text.trim(),
-      );
+      await ref
+          .read(profileProvider.notifier)
+          .updateProfile(
+            token,
+            name: _nameController.text.trim(),
+            avatarUrl: _avatarController.text.trim().isEmpty
+                ? null
+                : _avatarController.text.trim(),
+          );
 
       if (mounted) Navigator.of(context).pop();
     } catch (_) {
@@ -59,8 +64,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Edit Profile"),
+      appBar: AppBar( 
+        iconTheme: IconThemeData(color: AppColors.neutral),
+        centerTitle: true,
+        title: const Text(
+          'Edit profile',
+          style: AppTextStyles.body,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -99,11 +109,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
-                      : const Text("Save",
-                          style: TextStyle(
-                              fontSize: 16, color: Colors.white)),
+                      : const Text(
+                          "Save",
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
                 ),
               ),
             ],
