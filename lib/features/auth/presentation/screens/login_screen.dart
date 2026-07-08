@@ -37,7 +37,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     await ref
         .read(loginProvider.notifier)
         .login(
-          email: _emailController.text.trim(),
+          email: _emailController.text.trim().toLowerCase(),
           password: _passwordController.text,
         );
   }
@@ -96,15 +96,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 32),
 
                   //--EMAIL FIELD--//
-                  CustomTextfield(
+                  CustomTextField(
                     controller: _emailController,
-                    hint: 'Email Address',
+                    label: 'Email Address',
                     validator: Validators.validateEmail,
                   ),
 
                   const SizedBox(height: 14),
-                  CustomTextfield(
-                    hint: 'Password',
+                  CustomTextField(
+                    label: 'Password',
                     controller: _passwordController,
                     isPassword: true,
                     validator: Validators.validatePassword,
