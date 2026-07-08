@@ -114,31 +114,31 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               ),
               const SizedBox(height: 20),
 
-              CustomTextfield(
+              CustomTextField(
                 controller: _name,
-                hint: 'Full Name',
+                label: 'Full Name',
                 validator: Validators.validateName,
               ),
               const SizedBox(height: 20),
 
-              CustomTextfield(
+              CustomTextField(
                 controller: _email,
-                hint: 'Email Address',
+                label: 'Email Address',
                 validator: Validators.validateEmail,
               ),
               const SizedBox(height: 20),
 
-              CustomTextfield(
+              CustomTextField(
                 controller: _password,
-                hint: 'Password',
+                label: 'Password',
                 isPassword: true,
                 validator: Validators.validatePassword,
               ),
               const SizedBox(height: 20),
 
-              CustomTextfield(
+              CustomTextField(
                 controller: _confirmpassword,
-                hint: 'Confirm Password',
+                label: 'Confirm Password',
                 isPassword: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
