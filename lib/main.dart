@@ -24,7 +24,7 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
-  late final GoRouter _router;
+   late final GoRouter _router;
 
   @override
   void initState() {
