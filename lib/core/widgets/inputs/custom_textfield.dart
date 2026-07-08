@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 
-class CustomTextfield extends StatefulWidget {
+class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
-  final String hint;
+  final String? hint;
+  final String? label;
   final TextInputType keyboardType;
   final bool isPassword;
   final String? Function(String?)? validator;
-  const CustomTextfield({
+  const CustomTextField({
     super.key,
     required this.controller,
-    required this.hint,
+    this.hint,
     this.keyboardType = TextInputType.text,
     this.isPassword = false,
-    this.validator
+    this.validator,
+    this.label,
   });
 
   @override
-  State<CustomTextfield> createState() => _CustomTextfieldState();
+  State<CustomTextField> createState() => _CustomTextFieldState();
 }
 
-class _CustomTextfieldState extends State<CustomTextfield> {
+class _CustomTextFieldState extends State<CustomTextField> {
   bool _obscurePassword = true;
 
   @override
@@ -31,6 +33,7 @@ class _CustomTextfieldState extends State<CustomTextfield> {
       obscureText: widget.isPassword && _obscurePassword,
       decoration: InputDecoration(
         hintText: widget.hint,
+        labelText: widget.label,
         suffixIcon: widget.isPassword
             ? IconButton(
                 onPressed: () {
