@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
+import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
-import 'package:spendsmart/features/profile/presentation/screens/edit_profile_screen.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -199,7 +199,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ],
                   ),
                   const SizedBox(height: 28),
-                  _buildLogoutButton(),
+                  PrimaryButton(
+                    onPressed: logoutHandler,
+                    label: "Logout",
+                    btnColor: AppColors.logoutBg,
+                    textColor: AppColors.logoutText,
+                  leadingIcon: Icon(Icons.logout_rounded, color: AppColors.logoutText),
+                  ),
                   const SizedBox(height: 12),
                 ],
               ),
@@ -505,34 +511,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   // ── Logout button ────────────────────────────────────────────────────
-  Widget _buildLogoutButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton.icon(
-        onPressed: logoutHandler,
-        style: OutlinedButton.styleFrom(
-          backgroundColor: AppColors.logoutBg,
-          side: const BorderSide(color: AppColors.logoutBorder, width: 1.5),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        icon: const Icon(
-          Icons.logout_rounded,
-          color: AppColors.logoutText,
-          size: 20,
-        ),
-        label: const Text(
-          'Logout',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: AppColors.logoutText,
-            letterSpacing: 0.2,
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _buildLogoutButton() {
+  //   return SizedBox(
+  //     width: double.infinity,
+  //     child: OutlinedButton.icon(
+  //       onPressed: logoutHandler,
+  //       style: OutlinedButton.styleFrom(
+  //         backgroundColor: AppColors.logoutBg,
+  //         side: const BorderSide(color: AppColors.logoutBorder, width: 1.5),
+  //         padding: const EdgeInsets.symmetric(vertical: 16),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(16),
+  //         ),
+  //       ),
+  //       icon: const Icon(
+  //         Icons.logout_rounded,
+  //         color: AppColors.logoutText,
+  //         size: 20,
+  //       ),
+  //       label: const Text(
+  //         'Logout',
+  //         style: TextStyle(
+  //           fontSize: 15,
+  //           fontWeight: FontWeight.w700,
+  //           color: AppColors.logoutText,
+  //           letterSpacing: 0.2,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
