@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
 
@@ -64,13 +65,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar( 
+      appBar: AppBar(
         iconTheme: IconThemeData(color: AppColors.neutral),
         centerTitle: true,
-        title: const Text(
-          'Edit profile',
-          style: AppTextStyles.body,
-        ),
+        title: const Text('Edit profile', style: AppTextStyles.body),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -78,22 +76,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           key: _formKey,
           child: Column(
             children: [
-              TextFormField(
+              CustomTextField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: "Name",
-                  border: OutlineInputBorder(),
-                ),
+                label: "Name",
+
                 validator: (v) =>
                     v == null || v.trim().isEmpty ? "Name is required" : null,
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              CustomTextField(
                 controller: _avatarController,
-                decoration: const InputDecoration(
-                  labelText: "Avatar URL (optional)",
-                  border: OutlineInputBorder(),
-                ),
+                label: "Avatar URL (optional)",
               ),
               const SizedBox(height: 24),
               SizedBox(
