@@ -6,10 +6,11 @@ class ApiService {
   Future<Map<String, dynamic>> post(
     String url,
     Map<String, dynamic> body,
+    {Map<String, String>? headers,}
   ) async {
     final response = await http.post(
       Uri.parse(url),
-      headers: {"Content-Type": "application/json"},
+      headers: headers ??  {"Content-Type": "application/json"},
       body: jsonEncode(body),
     );
     if (response.statusCode == 401) throw UnauthorizedException();
