@@ -34,6 +34,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       decoration: InputDecoration(
         hintText: widget.hint,
         labelText: widget.label,
+        labelStyle: TextStyle(color: Colors.grey),
         suffixIcon: widget.isPassword
             ? IconButton(
                 onPressed: () {
