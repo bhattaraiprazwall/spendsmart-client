@@ -7,7 +7,8 @@ import 'package:spendsmart/features/auth/presentation/providers/auth_provider.da
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
-  const EditProfileScreen({super.key});
+  final Map<String, dynamic> profile;
+  const EditProfileScreen({super.key, required this.profile});
 
   @override
   ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -15,18 +16,19 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _avatarController;
-  bool _saving = false;
+  final _nameController = TextEditingController();
+  final _avatarController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    final profile = ref.read(profileProvider).asData?.value;
-    _nameController = TextEditingController(text: profile?["name"] ?? "");
-    _avatarController = TextEditingController(
-      text: profile?["avatarUrl"] ?? "",
-    );
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   final profile = ref.read(profileProvider).asData?.value;
+    //   _nameController.text = profile?["data"]["name"] ?? "";
+    //   _avatarController.text = profile?["data"]["avatarUrl"] ?? "";
+    // });
+    _nameController.text = widget.profile["name"] ?? "";
+    _avatarController.text = widget.profile["avatarUrl"] ?? "";
   }
 
   @override
@@ -39,36 +41,36 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _saving = true);
-    try {
-      final token = await ref.read(storageServiceProvider).getToken();
-      if (token == null) return;
+    final token = await ref.read(storageServiceProvider).getToken();
+    if (token == null) return;
 
-      await ref
-          .read(profileProvider.notifier)
-          .updateProfile(
-            token,
-            name: _nameController.text.trim(),
-            avatarUrl: _avatarController.text.trim().isEmpty
-                ? null
-                : _avatarController.text.trim(),
-          );
-
-      if (mounted) Navigator.of(context).pop();
-    } catch (_) {
-      // error handled by provider
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
+    await ref
+        .read(profileProvider.notifier)
+        .updateProfile(
+          token,
+          name: _nameController.text.trim(),
+          avatarUrl: _avatarController.text.trim().isEmpty
+              ? null
+              : _avatarController.text.trim(),
+        );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: const Text('Profile Updated Successfully'),
+      ),
+    );
+    if (mounted) Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    final isSaving = ref.watch(profileProvider).isLoading;
+
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: AppColors.neutral),
+        iconTheme: const IconThemeData(color: AppColors.neutral),
         centerTitle: true,
-        title: const Text('Edit profile', style: AppTextStyles.body),
+        title: const Text('Edit Profile', style: AppTextStyles.body),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -79,7 +81,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               CustomTextField(
                 controller: _nameController,
                 label: "Name",
-
                 validator: (v) =>
                     v == null || v.trim().isEmpty ? "Name is required" : null,
               ),
@@ -92,12 +93,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _saving ? null : _save,
+                  onPressed: isSaving ? null : _save,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: _saving
+                  child: isSaving
                       ? const SizedBox(
                           width: 20,
                           height: 20,

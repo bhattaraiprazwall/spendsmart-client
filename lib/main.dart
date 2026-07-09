@@ -7,6 +7,7 @@ import 'package:spendsmart/core/theme/app_theme.dart';
 import 'package:spendsmart/features/auth/presentation/screens/login_screen.dart';
 import 'package:spendsmart/features/auth/presentation/screens/signup_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/home_screen.dart';
+import 'package:spendsmart/features/profile/presentation/screens/change_password_screen.dart';
 import 'package:spendsmart/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:spendsmart/firebase_options.dart';
 
@@ -24,7 +25,7 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
-   late final GoRouter _router;
+  late final GoRouter _router;
 
   @override
   void initState() {
@@ -35,7 +36,15 @@ class _MyAppState extends ConsumerState<MyApp> {
         GoRoute(path: '/', builder: (_, _) => const LoginScreen()),
         GoRoute(path: '/signup', builder: (_, _) => const SignupScreen()),
         GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
-        GoRoute(path: '/edit_profile', builder: (_, _) => const EditProfileScreen()),
+        GoRoute(
+          path: '/edit_profile',
+          builder: (context, state) =>
+              EditProfileScreen(profile: state.extra as Map<String, dynamic>),
+        ),
+        GoRoute(
+          path: '/change_password',
+          builder: (_, _) => const ChangePasswordScreen(),
+        ),
       ],
     );
   }
@@ -45,6 +54,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     ref.listen<bool>(authStateProvider, (previous, next) {
       if (next == false && previous == true) {
         _router.go('/');
+       
       }
     });
 

@@ -22,7 +22,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.initState();
     Future.microtask(() async {
       final token = await ref.read(storageServiceProvider).getToken();
-      print("Token: $token");
+      // print("Token: $token");
       if (token != null) {
         ref.read(profileProvider.notifier).fetchProfile(token);
       }
@@ -116,7 +116,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       _buildNavRow(
                         'Edit Profile',
                         onTap: () async {
-                          context.push('edit_profile');
+                          context.push('edit_profile', extra: profile);
                           final t = await ref
                               .read(storageServiceProvider)
                               .getToken();
@@ -126,7 +126,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         },
                       ),
                       _buildDivider(),
-                      _buildNavRow('Change Password'),
+                      _buildNavRow(
+                        'Change Password',
+                        onTap: () async {
+                          context.push('change_password');
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -204,7 +209,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     label: "Logout",
                     btnColor: AppColors.logoutBg,
                     textColor: AppColors.logoutText,
-                  leadingIcon: Icon(Icons.logout_rounded, color: AppColors.logoutText),
+                    leadingIcon: Icon(
+                      Icons.logout_rounded,
+                      color: AppColors.logoutText,
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -509,36 +517,4 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ),
     );
   }
-
-  // ── Logout button ────────────────────────────────────────────────────
-  // Widget _buildLogoutButton() {
-  //   return SizedBox(
-  //     width: double.infinity,
-  //     child: OutlinedButton.icon(
-  //       onPressed: logoutHandler,
-  //       style: OutlinedButton.styleFrom(
-  //         backgroundColor: AppColors.logoutBg,
-  //         side: const BorderSide(color: AppColors.logoutBorder, width: 1.5),
-  //         padding: const EdgeInsets.symmetric(vertical: 16),
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(16),
-  //         ),
-  //       ),
-  //       icon: const Icon(
-  //         Icons.logout_rounded,
-  //         color: AppColors.logoutText,
-  //         size: 20,
-  //       ),
-  //       label: const Text(
-  //         'Logout',
-  //         style: TextStyle(
-  //           fontSize: 15,
-  //           fontWeight: FontWeight.w700,
-  //           color: AppColors.logoutText,
-  //           letterSpacing: 0.2,
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 }

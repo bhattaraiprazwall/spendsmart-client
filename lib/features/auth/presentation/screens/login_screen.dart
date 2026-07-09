@@ -53,7 +53,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           if (previous?.isLoading == true) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(const SnackBar(content: Text('Login Successful')));
+            ).showSnackBar(const SnackBar(behavior: SnackBarBehavior.floating,content: Text('Login Successful')));
             context.go('/home');
           }
         },

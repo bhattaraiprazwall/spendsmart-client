@@ -8,7 +8,6 @@ import 'package:spendsmart/core/widgets/already_login_register.dart';
 import 'package:spendsmart/core/widgets/checkbox.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/auth/presentation/providers/register_provider.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
