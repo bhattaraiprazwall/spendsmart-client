@@ -20,4 +20,12 @@ class AuthRepository {
   }) async {
     return await _authService.login(email: email, password: password);
   }
+
+  Future<void> changePassword(
+    String idToken,
+    String currentPassword,
+    String newPassword,
+  ) async {
+    return _authService.changePassword(idToken, currentPassword, newPassword);
+  }
 }

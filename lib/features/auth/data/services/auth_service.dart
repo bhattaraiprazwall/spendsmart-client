@@ -32,4 +32,24 @@ class AuthService {
     }
     return response["data"]; // { idToken, refreshToken, expiresIn }
   }
+
+  Future<void> changePassword(
+    String idToken,
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final response = await _apiService.post(
+      ApiConstants.changePassword,
+      {"currentPassword": currentPassword, "newPassword": newPassword},
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $idToken",
+      },
+    );
+    if (response["statusCode"] != 200) {
+      final message =
+          response["data"]["message"] ?? "Failed to change password";
+      throw Exception(message);
+    }
+  }
 }
