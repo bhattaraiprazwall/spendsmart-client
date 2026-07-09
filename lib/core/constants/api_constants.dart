@@ -5,5 +5,8 @@ class ApiConstants {
 
   static const String login = "$baseUrl/v1/auth/login";
 
+//profile page routes
   static const String profile = "$baseUrl/v1/users/me";
+
+  static const String changePassword = '$baseUrl/v1/auth/change-password';
 }
