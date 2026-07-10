@@ -1,13 +1,14 @@
+import 'package:spendsmart/features/profile/data/models/profile_model.dart';
 import 'package:spendsmart/features/profile/data/services/profile_service.dart';
 
 class ProfileRepository {
   final ProfileService _profileService = ProfileService();
 
-  Future<Map<String, dynamic>> getProfile(String idToken) async {
+  Future<ProfileModel> getProfile(String idToken) async {
     return await _profileService.getProfile(idToken);
   }
 
-  Future<Map<String, dynamic>> updateProfile(
+  Future<ProfileModel> updateProfile(
     String idToken, {
     String? name,
     String? avatarUrl,
@@ -20,7 +21,7 @@ class ProfileRepository {
       idToken,
       name: name,
       avatarUrl: avatarUrl,
-      password:password,
+      password: password,
       currency: currency,
       theme: theme,
       language: language,
