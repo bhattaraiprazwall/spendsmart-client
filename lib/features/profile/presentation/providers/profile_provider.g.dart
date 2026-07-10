@@ -60,7 +60,7 @@ String _$profileRepositoryHash() => r'2a010f6ed5ff032b91d9ec4959a43cafd642cf2b';
 final profileProvider = ProfileProvider._();
 
 final class ProfileProvider
-    extends $AsyncNotifierProvider<Profile, Map<String, dynamic>?> {
+    extends $AsyncNotifierProvider<Profile, ProfileModel?> {
   ProfileProvider._()
     : super(
         from: null,
@@ -80,24 +80,19 @@ final class ProfileProvider
   Profile create() => Profile();
 }
 
-String _$profileHash() => r'1423ba819970b1859ee5227e8522458cdf16891f';
+String _$profileHash() => r'7fb26dfd032b111cf10f82db68e70249478d6a3d';
 
-abstract class _$Profile extends $AsyncNotifier<Map<String, dynamic>?> {
-  FutureOr<Map<String, dynamic>?> build();
+abstract class _$Profile extends $AsyncNotifier<ProfileModel?> {
+  FutureOr<ProfileModel?> build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
-    final ref =
-        this.ref
-            as $Ref<AsyncValue<Map<String, dynamic>?>, Map<String, dynamic>?>;
+    final ref = this.ref as $Ref<AsyncValue<ProfileModel?>, ProfileModel?>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<
-                AsyncValue<Map<String, dynamic>?>,
-                Map<String, dynamic>?
-              >,
-              AsyncValue<Map<String, dynamic>?>,
+              AnyNotifier<AsyncValue<ProfileModel?>, ProfileModel?>,
+              AsyncValue<ProfileModel?>,
               Object?,
               Object?
             >;

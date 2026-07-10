@@ -105,8 +105,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: Column(
                 children: [
                   _buildProfileHeader(
-                    name: profile["name"] as String,
-                    subname: profile["email"] ?? "",
+                    name: profile.name,
+                    subname: profile.email,
                   ),
                   const SizedBox(height: 24),
                   _buildSection(
@@ -141,7 +141,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     children: [
                       _buildDropdownRow(
                         label: 'Currency',
-                        value: profile["currency"] ?? "USD",
+                        value: profile.currency,
                         items: const ['USD', 'EUR', 'GBP', 'JPY', 'NPR'],
                         onChanged: (v) async {
                           final t = await ref
@@ -157,7 +157,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       _buildDivider(),
                       _buildToggleRow(
                         label: 'Dark Mode',
-                        value: profile["theme"] == "dark",
+                        value: profile.theme == "dark",
+                        onChanged: (v) async {
+                          final t = await ref
+                              .read(storageServiceProvider)
+                              .getToken();
+                          if (t != null) {
+                            ref
+                                .read(profileProvider.notifier)
+                                .updateProfile(t, theme: v ? "dark" : "light");
+                          }
+                        },
+                      ),
+                      _buildDivider(),
+
+                      _buildToggleRow(
+                        label: 'Enable app notifications',
+                        value: profile.theme == "dark",
                         onChanged: (v) async {
                           final t = await ref
                               .read(storageServiceProvider)
@@ -172,10 +188,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       _buildDivider(),
                       _buildNavRow(
                         'Language',
-                        trailing: (profile["language"] as String? ?? "en")
+                        trailing: (profile.language as String? ?? "en")
                             .toUpperCase(),
                         onTap: () => _showLanguagePicker(
-                          profile["language"] as String? ?? "en",
+                          profile.language as String? ?? "en",
                         ),
                       ),
                     ],
