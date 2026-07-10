@@ -1,10 +1,11 @@
 import 'package:spendsmart/core/constants/api_constants.dart';
 import 'package:spendsmart/core/services/api_service.dart';
+import 'package:spendsmart/features/profile/data/models/profile_model.dart';
 
 class ProfileService {
   final ApiService _apiService = ApiService();
 
-  Future<Map<String, dynamic>> getProfile(String idToken) async {
+  Future<ProfileModel> getProfile(String idToken) async {
     final response = await _apiService.get(
       ApiConstants.profile,
       headers: {
@@ -16,11 +17,10 @@ class ProfileService {
     if (response["statusCode"] != 200) {
       throw Exception(response["data"]["message"] ?? "Failed to load profile");
     }
-
-    return response["data"]["data"];
+    return ProfileModel.fromJson(response["data"]["data"]);
   }
 
-  Future<Map<String, dynamic>> updateProfile(
+  Future<ProfileModel> updateProfile(
     String idToken, {
     String? name,
     String? avatarUrl,
@@ -52,6 +52,6 @@ class ProfileService {
       );
     }
 
-    return response["data"]["data"];
+    return ProfileModel.fromJson(response["data"]["data"]);
   }
 }
