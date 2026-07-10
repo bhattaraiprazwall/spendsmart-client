@@ -5,7 +5,6 @@ import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/utils/validators.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -24,7 +23,6 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _currentPassController.dispose();
     _newPasswordController.dispose();
     _confirmNewPasswordController.dispose();
