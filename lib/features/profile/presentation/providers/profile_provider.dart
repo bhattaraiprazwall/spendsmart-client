@@ -35,19 +35,37 @@ class Profile extends _$Profile {
     String idToken, {
     String? name,
     String? avatarUrl,
-    String? currency,
-    String? theme,
-    String? language,
   }) async {
     try {
       final repository = ref.read(profileRepositoryProvider);
-      await repository.updateProfile(
+      await repository.updateProfile(idToken, name: name, avatarUrl: avatarUrl);
+      await fetchProfile(idToken);
+    } catch (e, st) {
+      if (e is UnauthorizedException) {
+        await ref.read(storageServiceProvider).deleteToken();
+        ref.read(authStateProvider.notifier).state = false;
+      }
+      state = AsyncError(e, st);
+    }
+  }
+
+  Future<void> updateSettings(
+    String idToken, {
+    String? currency,
+    String? theme,
+    String? language,
+    bool? notificationsEnabled,
+    int? budgetAlertThreshold,
+  }) async {
+    try {
+      final repository = ref.read(profileRepositoryProvider);
+      await repository.updateSettings(
         idToken,
-        name: name,
-        avatarUrl: avatarUrl,
         currency: currency,
         theme: theme,
         language: language,
+        notificationsEnabled: notificationsEnabled,
+        budgetAlertThreshold: budgetAlertThreshold,
       );
       await fetchProfile(idToken);
     } catch (e, st) {
