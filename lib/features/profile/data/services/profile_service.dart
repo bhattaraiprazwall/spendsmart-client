@@ -24,18 +24,10 @@ class ProfileService {
     String idToken, {
     String? name,
     String? avatarUrl,
-    String? password,
-    String? currency,
-    String? theme,
-    String? language,
   }) async {
     final body = <String, dynamic>{};
     if (name != null) body["name"] = name;
     if (avatarUrl != null) body["avatarUrl"] = avatarUrl;
-    if (password != null) body["password"] = password;
-    if (currency != null) body["currency"] = currency;
-    if (theme != null) body["theme"] = theme;
-    if (language != null) body["language"] = language;
 
     final response = await _apiService.put(
       ApiConstants.profile,
@@ -52,6 +44,36 @@ class ProfileService {
       );
     }
 
+    return ProfileModel.fromJson(response["data"]["data"]);
+  }
+
+  Future<ProfileModel> updateSettings(
+    String idToken,{
+    String? currency,
+    String? theme,
+    String? language,
+    bool? notificationsEnabled,
+    int? budgetAlertThreshold,
+  }) async {
+    final body = <String, dynamic>{};
+    if (currency != null) body["currency"] = currency;
+    if (theme != null) body["theme"] = theme;
+    if (language != null) body["language"] = language;
+    if (notificationsEnabled != null) body["notificationsEnabled"] = notificationsEnabled;
+    if (budgetAlertThreshold != null) body["budgetAlertThreshold"] = budgetAlertThreshold;
+    final response = await _apiService.put(
+      ApiConstants.profileSettings,
+      body,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $idToken",
+      },
+    );
+    if (response["statusCode"] != 200) {
+      throw Exception(
+        response["data"]["message"] ?? "Failed to update settings",
+      );
+    }
     return ProfileModel.fromJson(response["data"]["data"]);
   }
 }
