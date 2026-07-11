@@ -50,53 +50,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         if (profile == null) {
           return const Center(child: Text("No profile data"));
         }
-
-        //   return SingleChildScrollView(
-        //     padding: const EdgeInsets.all(20),
-        //     child: Column(
-        //       crossAxisAlignment: CrossAxisAlignment.start,
-        //       children: [
-        //         const SizedBox(height: 20),
-        //         Center(
-        //           child: CircleAvatar(
-        //             radius: 50,
-        //             backgroundColor: AppColors.primary,
-        //             child: Text(
-        //               (profile["name"] as String? ?? "U")
-        //                   .substring(0, 1)
-        //                   .toUpperCase(),
-        //               style: const TextStyle(fontSize: 40, color: Colors.white),
-        //             ),
-        //           ),
-        //         ),
-        //         const SizedBox(height: 20),
-        //         Center(
-        //           child: Text(
-        //             profile["name"] ?? "User",
-        //             style: AppTextStyles.headline,
-        //           ),
-        //         ),
-        //         Center(
-        //           child: Text(profile["email"] ?? "", style: AppTextStyles.body),
-        //         ),
-        //         const SizedBox(height: 30),
-        //         _buildInfoTile("Currency", profile["currency"] ?? "USD"),
-        //         _buildInfoTile("Language", profile["language"] ?? "en"),
-        //         _buildInfoTile("Theme", profile["theme"] ?? "light"),
-        //         _buildInfoTile(
-        //           "Notifications",
-        //           profile["notificationsEnabled"] == true
-        //               ? "Enabled"
-        //               : "Disabled",
-        //         ),
-        //         _buildInfoTile(
-        //           "Budget Alert Threshold",
-        //           "${profile["budgetAlertThreshold"] ?? 80}%",
-        //         ),
-        //       ],
-        //     ),
-        //   );
-
         return Scaffold(
           backgroundColor: AppColors.bg,
           body: SafeArea(
@@ -150,7 +103,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           if (t != null) {
                             ref
                                 .read(profileProvider.notifier)
-                                .updateProfile(t, currency: v);
+                                .updateSettings(t, currency: v);
                           }
                         },
                       ),
@@ -165,7 +118,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           if (t != null) {
                             ref
                                 .read(profileProvider.notifier)
-                                .updateProfile(t, theme: v ? "dark" : "light");
+                                .updateSettings(t, theme: v ? "dark" : "light");
                           }
                         },
                       ),
@@ -173,7 +126,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                       _buildToggleRow(
                         label: 'Enable app notifications',
-                        value: profile.theme == "dark",
+                        value: profile.notificationsEnabled == true,
                         onChanged: (v) async {
                           final t = await ref
                               .read(storageServiceProvider)
@@ -181,7 +134,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           if (t != null) {
                             ref
                                 .read(profileProvider.notifier)
-                                .updateProfile(t, theme: v ? "dark" : "light");
+                                .updateSettings(t, notificationsEnabled: v);
                           }
                         },
                       ),
@@ -192,6 +145,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             .toUpperCase(),
                         onTap: () => _showLanguagePicker(
                           profile.language as String? ?? "en",
+                        ),
+                      ),
+                      _buildDivider(),
+                      _buildNavRow(
+                        'Budget Alert Threshold',
+                        trailing:
+                            "${profile.budgetAlertThreshold as int? ?? 80}%",
+                        onTap: () => _showThresholdPicker(
+                          profile.budgetAlertThreshold as int? ?? 80,
                         ),
                       ),
                     ],
@@ -239,22 +201,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       },
     );
   }
-
-  // Widget _buildInfoTile(String label, String value) {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(vertical: 8),
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: [
-  //         Text(label, style: AppTextStyles.body),
-  //         Text(
-  //           value,
-  //           style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildProfileHeader({required String name, required String subname}) {
     return Column(
@@ -515,7 +461,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   if (t != null) {
                     ref
                         .read(profileProvider.notifier)
-                        .updateProfile(t, language: l);
+                        .updateSettings(t, language: l);
                   }
                 },
                 child: Text(
@@ -525,6 +471,41 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ? FontWeight.bold
                         : FontWeight.normal,
                     color: l == current ? AppColors.profilePrimary : null,
+                  ),
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
+  void _showThresholdPicker(int current) {
+    showDialog<int>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text("Budget Alert Threshold"),
+        children: [50, 60, 70, 80, 90, 100]
+            .map(
+              (t) => SimpleDialogOption(
+                onPressed: () async {
+                  Navigator.of(ctx).pop();
+                  final token = await ref
+                      .read(storageServiceProvider)
+                      .getToken();
+                  if (token != null) {
+                    ref
+                        .read(profileProvider.notifier)
+                        .updateSettings(token, budgetAlertThreshold: t);
+                  }
+                },
+                child: Text(
+                  "$t%",
+                  style: TextStyle(
+                    fontWeight: t == current
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: t == current ? AppColors.profilePrimary : null,
                   ),
                 ),
               ),
