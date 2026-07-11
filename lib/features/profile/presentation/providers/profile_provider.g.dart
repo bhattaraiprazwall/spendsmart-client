@@ -80,7 +80,7 @@ final class ProfileProvider
   Profile create() => Profile();
 }
 
-String _$profileHash() => r'7fb26dfd032b111cf10f82db68e70249478d6a3d';
+String _$profileHash() => r'038443e8e705b1fb8d12a46b236226fda1f2fa94';
 
 abstract class _$Profile extends $AsyncNotifier<ProfileModel?> {
   FutureOr<ProfileModel?> build();

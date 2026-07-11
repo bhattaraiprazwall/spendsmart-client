@@ -12,19 +12,29 @@ class ProfileRepository {
     String idToken, {
     String? name,
     String? avatarUrl,
-    String? password,
-    String? currency,
-    String? theme,
-    String? language,
   }) async {
     return await _profileService.updateProfile(
       idToken,
       name: name,
       avatarUrl: avatarUrl,
-      password: password,
+    );
+  }
+
+  Future<ProfileModel> updateSettings(
+    String idToken, {
+    String? currency,
+    String? theme,
+    String? language,
+    bool? notificationsEnabled,
+    int? budgetAlertThreshold,
+  }) async {
+    return await _profileService.updateSettings(
+      idToken,
       currency: currency,
       theme: theme,
       language: language,
+      notificationsEnabled: notificationsEnabled,
+      budgetAlertThreshold: budgetAlertThreshold,
     );
   }
 }
