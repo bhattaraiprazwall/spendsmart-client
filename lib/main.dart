@@ -6,6 +6,7 @@ import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/theme/app_theme.dart';
 import 'package:spendsmart/features/auth/presentation/screens/login_screen.dart';
 import 'package:spendsmart/features/auth/presentation/screens/signup_screen.dart';
+import 'package:spendsmart/features/category/presentation/screens/add_category_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/home_screen.dart';
 import 'package:spendsmart/features/profile/presentation/screens/change_password_screen.dart';
 import 'package:spendsmart/features/profile/presentation/screens/edit_profile_screen.dart';
