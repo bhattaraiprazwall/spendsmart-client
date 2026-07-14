@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/widgets/navigation/bottom_nav_bar.dart';
 import 'package:spendsmart/core/widgets/navigation/spendsmart_appbar.dart';
 import 'package:spendsmart/core/widgets/sections/section_header.dart';
 import 'package:spendsmart/core/widgets/sections/smart_forecast_card.dart';
+import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
+import 'package:spendsmart/features/category/presentation/screens/add_category_screen.dart';
+import 'package:spendsmart/features/category/presentation/screens/categories_list.dart';
 import 'package:spendsmart/features/home/presentation/widgets/income_expense_section.dart';
 import 'package:spendsmart/features/home/presentation/widgets/recent_transactions_section.dart';
 import 'package:spendsmart/features/home/presentation/widgets/remaining_budget_section.dart';
@@ -26,7 +30,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ? null
           : SpendsmartAppbar(
               onProfileTap: () {},
-              onMenuTap: () {},
+              onMenuTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const CategoriesScreen();
+                    },
+                  ),
+                );
+              },
               profileImageUrl:
                   'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250',
             ),
