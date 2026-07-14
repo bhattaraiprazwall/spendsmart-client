@@ -13,6 +13,6 @@ class ApiConstants {
   static const String profileSettings = '$baseUrl/v1/users/me/settings';
 
   //category page routes
-  static const String createCategory = '$baseUrl/v1/categories';
+  static const String categories = '$baseUrl/v1/categories';
 }
 
