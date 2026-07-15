@@ -35,7 +35,7 @@ class _BottomNavigationBarState extends State<BottomNavBar> {
       children: [
         //Bottom Bar
         Container(
-          height: MediaQuery.of(context).size.height * 0.09,
+          height: MediaQuery.of(context).size.height * 0.10,
           decoration: BoxDecoration(
             color: Colors.white,
             boxShadow: [
