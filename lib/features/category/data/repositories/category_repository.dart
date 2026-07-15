@@ -21,4 +21,20 @@ class CategoryRepository {
       color: color,
     );
   }
+
+  Future<CategoryModel> updateCategory(
+    String idToken,
+    String categoryId, {
+    required String name,
+    required String icon,
+    required String color,
+  }) async {
+    return await _categoryService.updateCategory(
+      idToken,
+      categoryId,
+      name: name,
+      icon: icon,
+      color: color,
+    );
+  }
 }
