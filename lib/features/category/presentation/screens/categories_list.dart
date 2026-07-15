@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/category/data/models/category_model.dart';
@@ -62,10 +63,8 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (categories) {
-          final custom =
-              categories.where((c) => !c.isDefault).toList();
-          final defaults =
-              categories.where((c) => c.isDefault).toList();
+          final custom = categories.where((c) => !c.isDefault).toList();
+          final defaults = categories.where((c) => c.isDefault).toList();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -131,11 +130,21 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
           const SizedBox(width: 14),
           Expanded(child: _buildNameAndCount(item)),
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: Colors.black45, size: 20),
-            onPressed: () {},
+            icon: const Icon(
+              Icons.edit_outlined,
+              color: Colors.black45,
+              size: 20,
+            ),
+            onPressed: () {
+              context.push('edit_category');
+            },
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.black45, size: 20),
+            icon: const Icon(
+              Icons.delete_outline,
+              color: Colors.black45,
+              size: 20,
+            ),
             onPressed: () {},
           ),
         ],
@@ -168,11 +177,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     return CircleAvatar(
       radius: 26,
       backgroundColor: isDefault ? color.withOpacity(0.15) : color,
-      child: Icon(
-        icon,
-        color: isDefault ? color : Colors.white,
-        size: 22,
-      ),
+      child: Icon(icon, color: isDefault ? color : Colors.white, size: 22),
     );
   }
 
@@ -202,7 +207,11 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       ),
       child: const Text(
         'Default',
-        style: TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w500),
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.black54,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
