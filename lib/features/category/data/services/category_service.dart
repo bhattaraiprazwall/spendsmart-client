@@ -2,6 +2,7 @@ import 'package:spendsmart/core/constants/api_constants.dart';
 import 'package:spendsmart/core/services/api_service.dart';
 import 'package:spendsmart/features/category/data/models/category_model.dart';
 
+
 class CategoryService {
   final ApiService _apiService = ApiService();
 
@@ -35,11 +36,7 @@ class CategoryService {
   }) async {
     final response = await _apiService.post(
       ApiConstants.categories,
-      {
-        "name": name,
-        "icon": icon,
-        "color": color,
-      },
+      {"name": name, "icon": icon, "color": color},
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $idToken",
@@ -53,5 +50,33 @@ class CategoryService {
     }
 
     return CategoryModel.fromJson(response["data"]["data"]["category"]);
+  }
+
+  Future<CategoryModel> updateCategory(
+    String idToken,
+    String categoryId, {
+    String? name,
+    String? icon,
+    String? color,
+  }) async {
+    final body = <String, dynamic>{};
+    if (name != null) body["name"] = name;
+    if (icon != null) body["icon"] = icon;
+    if (color != null) body["color"] = color;
+
+    final response = await _apiService.put(
+      '${ApiConstants.categories}/$categoryId',
+      body,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $idToken",
+      },
+    );
+    if (response["statusCode"] != 200) {
+      throw Exception(
+        response["data"]["message"] ?? "Failed to update category..",
+      );
+    }
+    return CategoryModel.fromJson(response["data"]["data"]);
   }
 }
