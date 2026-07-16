@@ -55,4 +55,31 @@ class Category extends _$Category {
       state = AsyncError(e, st);
     }
   }
+
+  Future<void> updateCategory(
+    String idToken,
+    String categoryId, {
+    required String name,
+    required String icon,
+    required String color,
+  }) async {
+    state = const AsyncLoading();
+    try {
+      final repository = ref.read(categoryRepositoryProvider);
+      await repository.updateCategory(
+        idToken,
+        categoryId,
+        name: name,
+        icon: icon,
+        color: color,
+      );
+      await fetchCategories(idToken);
+    } catch (e, st) {
+      if (e is UnauthorizedException) {
+        await ref.read(storageServiceProvider).deleteToken();
+        ref.read(authStateProvider.notifier).state = false;
+      }
+      state = AsyncError(e, st);
+    }
+  }
 }

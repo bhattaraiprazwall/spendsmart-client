@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
+import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
@@ -69,7 +70,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       _buildNavRow(
                         'Edit Profile',
                         onTap: () async {
-                          context.push('edit_profile', extra: profile);
+                          context.push(RoutePaths.editProfile, extra: profile.toJson());
                           final t = await ref
                               .read(storageServiceProvider)
                               .getToken();
@@ -82,7 +83,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       _buildNavRow(
                         'Change Password',
                         onTap: () async {
-                          context.push('change_password');
+                          context.push(RoutePaths.changePassword);
                         },
                       ),
                     ],
