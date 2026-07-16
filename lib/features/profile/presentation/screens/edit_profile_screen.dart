@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
@@ -59,7 +60,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         content: const Text('Profile Updated Successfully'),
       ),
     );
-    if (mounted) Navigator.of(context).pop();
+    if (mounted) context.pop();
   }
 
   @override
