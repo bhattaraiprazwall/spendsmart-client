@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/utils/validators.dart';
 import 'package:spendsmart/core/widgets/already_login_register.dart';
@@ -54,7 +55,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(const SnackBar(behavior: SnackBarBehavior.floating,content: Text('Login Successful')));
-            context.go('/home');
+            context.go(RoutePaths.dashboard);
           }
         },
         error: (error, _) {
@@ -175,7 +176,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   //SIGNUP ROW
                   AlreadyLoginRegister(
                     action: () {
-                      context.go('/signup');
+                      context.go(RoutePaths.signup);
                     },
                     text1: 'Don\'t have an account?',
                     text2: 'Sign Up',
