@@ -1,31 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 
-class BottomNavBar extends StatefulWidget {
-  final Function(int) onTabChanged; // 👈 callback to parent
-  const BottomNavBar({super.key, required this.onTabChanged});
+class BottomNavBar extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onTabChanged;
+  final VoidCallback onFabTap;
 
-  @override
-  State<BottomNavBar> createState() => _BottomNavigationBarState();
-}
+  const BottomNavBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTabChanged,
+    required this.onFabTap,
+  });
 
-class _BottomNavigationBarState extends State<BottomNavBar> {
-  int _selectedIndex = 0;
-  final List<Map<String, dynamic>> _navItems = [
+  final List<Map<String, dynamic>> _navItems = const [
     {'icon': Icons.dashboard_rounded, 'label': 'DASHBOARD'},
     {'icon': Icons.receipt_long_outlined, 'label': 'TRANSACTION'},
-    {'icon': null, 'label': ''}, // 👈 middle FAB placeholder
     {'icon': Icons.insights_outlined, 'label': 'INSIGHTS'},
     {'icon': Icons.person_outline, 'label': 'PROFILE'},
   ];
-
-  void _onTap(int index) {
-    if (index == 2) return;
-    setState(() {
-      _selectedIndex = index;
-      widget.onTabChanged(index);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +26,6 @@ class _BottomNavigationBarState extends State<BottomNavBar> {
       clipBehavior: Clip.none,
       alignment: Alignment.topCenter,
       children: [
-        //Bottom Bar
         Container(
           height: MediaQuery.of(context).size.height * 0.10,
           decoration: BoxDecoration(
@@ -48,14 +40,10 @@ class _BottomNavigationBarState extends State<BottomNavBar> {
           ),
           child: Row(
             children: List.generate(_navItems.length, (index) {
-              if (index == 2) {
-                return Expanded(child: SizedBox());
-              }
               return Expanded(child: _navItem(index));
             }),
           ),
         ),
-        // Floating + button
         Positioned(top: -25, child: _fabButton()),
       ],
     );
@@ -63,14 +51,12 @@ class _BottomNavigationBarState extends State<BottomNavBar> {
 
   Widget _navItem(int index) {
     final item = _navItems[index];
-    final bool isSelected = _selectedIndex == index;
+    final bool isSelected = currentIndex == index;
     return GestureDetector(
-      onTap: () {
-        _onTap(index);
-      },
+      onTap: () => onTabChanged(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
@@ -95,26 +81,29 @@ class _BottomNavigationBarState extends State<BottomNavBar> {
   }
 
   Widget _fabButton() {
-    return Container(
-      height: 58,
-      width: 58,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.primary,
-        gradient: LinearGradient(
-          colors: [Colors.blue.shade300, Colors.blue.shade700],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.shade200,
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onTap: onFabTap,
+      child: Container(
+        height: 58,
+        width: 58,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.primary,
+          gradient: LinearGradient(
+            colors: [Colors.blue.shade300, Colors.blue.shade700],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.shade200,
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: const Icon(Icons.add, color: AppColors.white, size: 30),
       ),
-      child: const Icon(Icons.add, color: AppColors.white, size: 30),
     );
   }
 }

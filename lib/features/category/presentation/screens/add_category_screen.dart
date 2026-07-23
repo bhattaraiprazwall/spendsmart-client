@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
@@ -73,7 +74,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Category created successfully")),
       );
-      Navigator.pop(context);
+      if (mounted) context.pop();
     }
   }
 
@@ -85,7 +86,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
       appBar: AppTopBar(
         title: 'Create Category',
         useCloseIcon: true,
-        onLeading: () => Navigator.pop(context),
+        onLeading: () => context.pop(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -115,7 +116,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
               ),
               const SizedBox(height: 12),
               PrimaryButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => context.pop(),
                 label: 'Cancel',
                 btnColor: Colors.red,
               ),

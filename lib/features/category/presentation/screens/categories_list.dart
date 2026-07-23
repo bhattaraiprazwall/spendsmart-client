@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/category/data/models/category_model.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
-import 'package:spendsmart/features/category/presentation/screens/add_category_screen.dart';
 
 final Map<String, IconData> _categoryIcons = {
   "shopping_cart": Icons.shopping_cart,
@@ -98,7 +98,12 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
           );
         },
       ),
-      floatingActionButton: _buildFAB(context),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push(RoutePaths.addCategory),
+        backgroundColor: Colors.blue,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
   }
 
@@ -129,14 +134,14 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
           _buildIconCircle(icon, color, false),
           const SizedBox(width: 14),
           Expanded(child: _buildNameAndCount(item)),
-          IconButton(
+            IconButton(
             icon: const Icon(
               Icons.edit_outlined,
               color: Colors.black45,
               size: 20,
             ),
             onPressed: () {
-              context.push('edit_category');
+              context.push(RoutePaths.editCategory(item.id));
             },
           ),
           IconButton(
@@ -216,15 +221,4 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  Widget _buildFAB(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const AddCategoryScreen()),
-      ),
-      backgroundColor: Colors.blue,
-      shape: const CircleBorder(),
-      child: const Icon(Icons.add, color: Colors.white),
-    );
-  }
 }
