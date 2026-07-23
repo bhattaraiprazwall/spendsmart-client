@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/utils/validators.dart';
 import 'package:spendsmart/core/widgets/already_login_register.dart';
@@ -70,7 +71,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           const SnackBar(content: Text('Registration Successful')),
         );
 
-        context.go('/');
+        context.go(RoutePaths.login);
       }
       next.whenOrNull(
         error: (error, stackTrace) {
@@ -160,7 +161,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               const SizedBox(height: 30),
                AlreadyLoginRegister(
                 action:(){
-                  context.go('/');
+                  context.go(RoutePaths.login);
 
                 } ,
                 text1: 'Already have an account? ',
