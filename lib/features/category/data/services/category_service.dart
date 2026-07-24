@@ -77,6 +77,6 @@ class CategoryService {
         response["data"]["message"] ?? "Failed to update category..",
       );
     }
-    return CategoryModel.fromJson(response["data"]["data"]);
+    return CategoryModel.fromJson(response["data"]["data"]["category"]);
   }
 }
