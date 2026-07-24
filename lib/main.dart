@@ -24,7 +24,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-    _checkAuthOnStart();
+_checkAuthOnStart();
   }
 
   Future<void> _checkAuthOnStart() async {
