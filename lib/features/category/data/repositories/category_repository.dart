@@ -37,4 +37,8 @@ class CategoryRepository {
       color: color,
     );
   }
+
+  Future<void> deleteCategory(String idToken, String categoryId) async {
+    return await _categoryService.deleteCategory(idToken, categoryId);
+  }
 }

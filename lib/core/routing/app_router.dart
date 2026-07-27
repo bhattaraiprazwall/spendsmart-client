@@ -20,7 +20,7 @@ import 'package:spendsmart/features/profile/presentation/screens/profile_screen.
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final goRouter = GoRouter(
-    initialLocation: RoutePaths.login,
+    initialLocation: RoutePaths.onboarding,
     debugLogDiagnostics: true,
     errorBuilder: (_, _) => const NotFoundScreen(),
     redirect: (context, state) {

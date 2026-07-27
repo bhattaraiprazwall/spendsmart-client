@@ -16,18 +16,24 @@ class Category extends _$Category {
   @override
   FutureOr<List<CategoryModel>> build() => const [];
 
+  void _safeSetState(AsyncValue<List<CategoryModel>> newState) {
+    try {
+      state = newState;
+    } catch (_) {}
+  }
+
   Future<void> fetchCategories(String idToken) async {
-    state = const AsyncLoading();
+    _safeSetState(const AsyncLoading());
     try {
       final repository = ref.read(categoryRepositoryProvider);
       final data = await repository.getCategories(idToken);
-      state = AsyncData(data);
+      _safeSetState(AsyncData(data));
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).deleteToken();
         ref.read(authStateProvider.notifier).state = false;
       }
-      state = AsyncError(e, st);
+      _safeSetState(AsyncError(e, st));
     }
   }
 
@@ -37,7 +43,7 @@ class Category extends _$Category {
     required String icon,
     required String color,
   }) async {
-    state = const AsyncLoading();
+    _safeSetState(const AsyncLoading());
     try {
       final repository = ref.read(categoryRepositoryProvider);
       await repository.createCategory(
@@ -52,7 +58,22 @@ class Category extends _$Category {
         await ref.read(storageServiceProvider).deleteToken();
         ref.read(authStateProvider.notifier).state = false;
       }
-      state = AsyncError(e, st);
+      _safeSetState(AsyncError(e, st));
+    }
+  }
+
+  Future<void> deleteCategory(String idToken, String categoryId) async {
+    _safeSetState(const AsyncLoading());
+    try {
+      final repository = ref.read(categoryRepositoryProvider);
+      await repository.deleteCategory(idToken, categoryId);
+      await fetchCategories(idToken);
+    } catch (e, st) {
+      if (e is UnauthorizedException) {
+        await ref.read(storageServiceProvider).deleteToken();
+        ref.read(authStateProvider.notifier).state = false;
+      }
+      _safeSetState(AsyncError(e, st));
     }
   }
 
@@ -63,7 +84,7 @@ class Category extends _$Category {
     required String icon,
     required String color,
   }) async {
-    state = const AsyncLoading();
+    _safeSetState(const AsyncLoading());
     try {
       final repository = ref.read(categoryRepositoryProvider);
       await repository.updateCategory(
@@ -79,7 +100,7 @@ class Category extends _$Category {
         await ref.read(storageServiceProvider).deleteToken();
         ref.read(authStateProvider.notifier).state = false;
       }
-      state = AsyncError(e, st);
+      _safeSetState(AsyncError(e, st));
     }
   }
 }

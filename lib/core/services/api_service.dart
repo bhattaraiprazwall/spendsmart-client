@@ -52,4 +52,19 @@ class ApiService {
       "data": jsonDecode(response.body),
     };
   }
+
+  Future<Map<String, dynamic>> delete(
+    String url, {
+    Map<String, String>? headers,
+  }) async {
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: headers ?? {"Content-Type": "application/json"},
+    );
+    if (response.statusCode == 401) throw UnauthorizedException();
+    return {
+      "statusCode": response.statusCode,
+      "data": jsonDecode(response.body),
+    };
+  }
 }

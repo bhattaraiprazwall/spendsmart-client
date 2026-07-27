@@ -14,5 +14,8 @@ class ApiConstants {
 
   //category page routes
   static const String categories = '$baseUrl/v1/categories';
+
+  //transaction routes
+  static const String transactions = '$baseUrl/v1/transactions';
 }
 

@@ -6,6 +6,7 @@ import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/category/data/models/category_model.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
+import 'package:spendsmart/features/category/presentation/screens/delete_category_confirmation.dart';
 
 final Map<String, IconData> _categoryIcons = {
   "shopping_cart": Icons.shopping_cart,
@@ -134,14 +135,25 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
           _buildIconCircle(icon, color, false),
           const SizedBox(width: 14),
           Expanded(child: _buildNameAndCount(item)),
-            IconButton(
+          IconButton(
             icon: const Icon(
               Icons.edit_outlined,
               color: Colors.black45,
               size: 20,
             ),
-            onPressed: () {
-              context.push(RoutePaths.editCategory(item.id));
+            onPressed: () async {
+              final deleted = await context.push<bool>(
+                RoutePaths.editCategory(item.id),
+              );
+              if (mounted) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && deleted == true) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Category deleted successfully..')));
+                  }
+                });
+              }
             },
           ),
           IconButton(
@@ -150,7 +162,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
               color: Colors.black45,
               size: 20,
             ),
-            onPressed: () {},
+            onPressed: () {
+              _showDeleteDialog(context, item);
+            },
           ),
         ],
       ),
@@ -221,4 +235,28 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
+  void _showDeleteDialog(BuildContext context, CategoryModel item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => DeleteCategoryConfirmation(
+        categoryName: item.name,
+        onDelete: () => Navigator.of(ctx).pop(true),
+      ),
+    );
+    if (confirmed != true) return;
+    final token = await ref.read(storageServiceProvider).getToken();
+    if (token == null) return;
+    await ref.read(categoryProvider.notifier).deleteCategory(token, item.id);
+    if (!mounted) return;
+    final currentState = ref.read(categoryProvider);
+    if (currentState is AsyncError) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('${currentState.error}')));
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Category deleted successfully..')),
+    );
+  }
 }

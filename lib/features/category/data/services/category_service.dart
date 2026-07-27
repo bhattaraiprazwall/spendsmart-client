@@ -52,6 +52,21 @@ class CategoryService {
     return CategoryModel.fromJson(response["data"]["data"]["category"]);
   }
 
+  Future<void> deleteCategory(String idToken, String categoryId) async {
+    final response = await _apiService.delete(
+      '${ApiConstants.categories}/$categoryId',
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $idToken",
+      },
+    );
+    if (response["statusCode"] != 200 && response["statusCode"] != 204) {
+      throw Exception(
+        response["data"]["message"] ?? "Failed to delete category",
+      );
+    }
+  }
+
   Future<CategoryModel> updateCategory(
     String idToken,
     String categoryId, {
