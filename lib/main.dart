@@ -24,13 +24,13 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-_checkAuthOnStart();
+    _checkAuthOnStart();
   }
 
   Future<void> _checkAuthOnStart() async {
     final token = await LocalStorageService().getToken();
     if (token != null) {
-      ref.read(authStateProvider.notifier).state = true;
+      ref.read(authStateProvider.notifier).state = true; 
     }
   }
 
