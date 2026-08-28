@@ -22,30 +22,32 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.topCenter,
-      children: [
-        Container(
-          height: MediaQuery.of(context).size.height * 0.10,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade300,
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
+    return SafeArea(
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.topCenter,
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height * 0.10,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.shade300,
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: List.generate(_navItems.length, (index) {
+                return Expanded(child: _navItem(index));
+              }),
+            ),
           ),
-          child: Row(
-            children: List.generate(_navItems.length, (index) {
-              return Expanded(child: _navItem(index));
-            }),
-          ),
-        ),
-        Positioned(top: -25, child: _fabButton()),
-      ],
+          Positioned(top: -25, child: _fabButton()),
+        ],
+      ),
     );
   }
 
@@ -53,10 +55,12 @@ class BottomNavBar extends StatelessWidget {
     final item = _navItems[index];
     final bool isSelected = currentIndex == index;
     return GestureDetector(
+
+behavior: HitTestBehavior.opaque,
       onTap: () => onTabChanged(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
