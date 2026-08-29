@@ -55,8 +55,7 @@ class BottomNavBar extends StatelessWidget {
     final item = _navItems[index];
     final bool isSelected = currentIndex == index;
     return GestureDetector(
-
-behavior: HitTestBehavior.opaque,
+      behavior: HitTestBehavior.opaque,
       onTap: () => onTabChanged(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -87,6 +86,7 @@ behavior: HitTestBehavior.opaque,
   Widget _fabButton() {
     return GestureDetector(
       onTap: onFabTap,
+      behavior: HitTestBehavior.opaque,
       child: Container(
         height: 58,
         width: 58,

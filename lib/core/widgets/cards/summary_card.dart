@@ -12,7 +12,7 @@ class SummaryCard extends StatelessWidget {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(20),
-        margin: const EdgeInsets.symmetric(horizontal: 5),
+        margin: const EdgeInsets.symmetric(horizontal: 3),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -35,7 +35,7 @@ class SummaryCard extends StatelessWidget {
                   item.title,
                   style: AppTextStyles.body.copyWith(
                     color: item.titleColor,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -46,8 +46,8 @@ class SummaryCard extends StatelessWidget {
             Text(
               item.amount,
               style: AppTextStyles.body.copyWith(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],

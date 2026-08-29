@@ -18,6 +18,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
   final _formKey = GlobalKey<FormState>();
   String _selectedIconName = "shopping_cart";
   Color _selectedColor = Colors.blue;
+  String _selectedType = 'EXPENSE';
 
   final Map<String, IconData> _icons = {
     "shopping_cart": Icons.shopping_cart,
@@ -68,6 +69,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
           name: _nameController.text.trim(),
           icon: _selectedIconName,
           color: _colorToHex(_selectedColor),
+          type: _selectedType,
         );
 
     if (mounted) {
@@ -90,37 +92,43 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPreviewCard(),
-              const SizedBox(height: 20),
-              _buildLabel('CATEGORY NAME'),
-              const SizedBox(height: 8),
-              _buildNameField(),
-              const SizedBox(height: 20),
-              _buildLabel('SELECT ICON'),
-              const SizedBox(height: 8),
-              _buildIconGrid(),
-              const SizedBox(height: 20),
-              _buildLabel('SELECT COLOR'),
-              const SizedBox(height: 12),
-              _buildColorRow(),
-              const SizedBox(height: 28),
-              PrimaryButton(
-                onPressed: isSaving ? () {} : _save,
-                label: "Save Category",
-                leadingIcon: const Icon(Icons.check_circle_outline),
-              ),
-              const SizedBox(height: 12),
-              PrimaryButton(
-                onPressed: () => context.pop(),
-                label: 'Cancel',
-                btnColor: Colors.red,
-              ),
-            ],
+        child: SafeArea(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildPreviewCard(),
+                const SizedBox(height: 20),
+                _buildLabel('CATEGORY NAME'),
+                const SizedBox(height: 8),
+                _buildNameField(),
+                const SizedBox(height: 20),
+                _buildLabel('CATEGORY TYPE'),
+                const SizedBox(height: 8),
+                _buildTypeSelector(),
+                const SizedBox(height: 20),
+                _buildLabel('SELECT ICON'),
+                const SizedBox(height: 8),
+                _buildIconGrid(),
+                const SizedBox(height: 20),
+                _buildLabel('SELECT COLOR'),
+                const SizedBox(height: 12),
+                _buildColorRow(),
+                const SizedBox(height: 28),
+                PrimaryButton(
+                  onPressed: isSaving ? () {} : _save,
+                  label: "Save Category",
+                  leadingIcon: const Icon(Icons.check_circle_outline),
+                ),
+                const SizedBox(height: 12),
+                PrimaryButton(
+                  onPressed: () => context.pop(),
+                  label: 'Cancel',
+                  btnColor: Colors.red,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -184,6 +192,67 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Colors.blue),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTypeSelector() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildTypeChip(
+            label: 'Expense',
+            icon: Icons.arrow_upward,
+            type: 'EXPENSE',
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildTypeChip(
+            label: 'Income',
+            icon: Icons.arrow_downward,
+            type: 'INCOME',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTypeChip({
+    required String label,
+    required IconData icon,
+    required String type,
+  }) {
+    final isSelected = _selectedType == type;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedType = type),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? _selectedColor.withOpacity(0.15)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? _selectedColor : const Color(0xFFDDE0EF),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: isSelected ? _selectedColor : Colors.black54),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? _selectedColor : Colors.black54,
+              ),
+            ),
+          ],
         ),
       ),
     );

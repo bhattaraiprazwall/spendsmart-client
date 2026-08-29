@@ -4,6 +4,7 @@ class CategoryModel {
   final String icon;
   final String color;
   final bool isDefault;
+  final String type;
 
   CategoryModel({
     required this.id,
@@ -11,6 +12,7 @@ class CategoryModel {
     required this.icon,
     required this.color,
     required this.isDefault,
+    this.type = 'EXPENSE',
   });
 
   /// Convert JSON (Map) → Model
@@ -21,11 +23,18 @@ class CategoryModel {
       icon: json["icon"] as String,
       color: json["color"] as String,
       isDefault: json["isDefault"] as bool? ?? true,
+      type: json["type"] as String? ?? 'EXPENSE',
     );
   }
 
   /// Convert Model → JSON (for sending to backend)
   Map<String, dynamic> toJson() {
-    return {"name": name, "icon": icon, "color": color, "isDefault": isDefault};
+    return {
+      "name": name,
+      "icon": icon,
+      "color": color,
+      "isDefault": isDefault,
+      "type": type,
+    };
   }
 }

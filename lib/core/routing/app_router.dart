@@ -6,17 +6,22 @@ import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/features/auth/presentation/screens/login_screen.dart';
 import 'package:spendsmart/features/auth/presentation/screens/signup_screen.dart';
+import 'package:spendsmart/features/budget/presentation/screens/budget_screen.dart';
 import 'package:spendsmart/features/category/presentation/screens/add_category_screen.dart';
 import 'package:spendsmart/features/category/presentation/screens/categories_list.dart';
 import 'package:spendsmart/features/category/presentation/screens/edit_category_screen.dart';
 import 'package:spendsmart/features/expenses/presentation/screens/add_expense_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/dashboard_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/insights_screen.dart';
+import 'package:spendsmart/features/home/presentation/screens/notification_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/transactions_screen.dart';
+import 'package:spendsmart/features/incomes/presentation/screens/add_income_screen.dart';
 import 'package:spendsmart/features/onboarding/presentation/screens/onboardingflow.dart';
 import 'package:spendsmart/features/profile/presentation/screens/change_password_screen.dart';
 import 'package:spendsmart/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:spendsmart/features/profile/presentation/screens/profile_screen.dart';
+import 'package:spendsmart/features/transactions/data/models/transaction_model.dart';
+import 'package:spendsmart/features/transactions/presentation/screens/transaction_detail_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final goRouter = GoRouter(
@@ -105,6 +110,24 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.addExpense,
         builder: (_, _) => const AddExpenseScreen(),
+      ),
+       GoRoute(
+        path: RoutePaths.addIncome,
+        builder: (_, _) => const AddIncomeScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.notifications,
+        builder: (_, _) => const NotificationsScreen()
+      ),
+      GoRoute(
+        path: RoutePaths.budget,
+        builder: (_, _) => const BudgetScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.transactionDetail,
+        builder: (_, state) => TransactionDetailScreen(
+          transaction: state.extra as TransactionModel,
+        ),
       ),
     ],
   );

@@ -4,8 +4,11 @@ import 'package:spendsmart/features/category/data/services/category_service.dart
 class CategoryRepository {
   final CategoryService _categoryService = CategoryService();
 
-  Future<List<CategoryModel>> getCategories(String idToken) async {
-    return await _categoryService.getCategories(idToken);
+  Future<List<CategoryModel>> getCategories(
+    String idToken, {
+    String? type,
+  }) async {
+    return await _categoryService.getCategories(idToken, type: type);
   }
 
   Future<CategoryModel> createCategory(
@@ -13,12 +16,14 @@ class CategoryRepository {
     required String name,
     required String icon,
     required String color,
+    String type = 'EXPENSE',
   }) async {
     return await _categoryService.createCategory(
       idToken,
       name: name,
       icon: icon,
       color: color,
+      type: type,
     );
   }
 
@@ -28,6 +33,7 @@ class CategoryRepository {
     required String name,
     required String icon,
     required String color,
+    String? type,
   }) async {
     return await _categoryService.updateCategory(
       idToken,
@@ -35,6 +41,7 @@ class CategoryRepository {
       name: name,
       icon: icon,
       color: color,
+      type: type,
     );
   }
 

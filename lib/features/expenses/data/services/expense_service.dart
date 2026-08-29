@@ -35,9 +35,17 @@ class ExpenseService {
     );
 
     if (response["statusCode"] != 201) {
-      throw Exception(
-        response["data"]["message"] ?? "Failed to create expense",
-      );
+      String message = "Failed to create expense";
+      final data = response["data"];
+      if (data is Map<String, dynamic>) {
+        final errors = data["errors"];
+        if (errors is List && errors.isNotEmpty) {
+          message = errors.map((e) => e is Map ? e["message"] : null).whereType<String>().join(", ");
+        } else if (data["message"] != null) {
+          message = data["message"].toString();
+        }
+      }
+      throw Exception(message);
     }
 
     return ExpenseModel.fromJson(response["data"]["data"]["transaction"]);

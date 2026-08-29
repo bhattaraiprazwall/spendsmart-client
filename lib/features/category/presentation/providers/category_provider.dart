@@ -22,11 +22,11 @@ class Category extends _$Category {
     } catch (_) {}
   }
 
-  Future<void> fetchCategories(String idToken) async {
+  Future<void> fetchCategories(String idToken, {String? type}) async {
     _safeSetState(const AsyncLoading());
     try {
       final repository = ref.read(categoryRepositoryProvider);
-      final data = await repository.getCategories(idToken);
+      final data = await repository.getCategories(idToken, type: type);
       _safeSetState(AsyncData(data));
     } catch (e, st) {
       if (e is UnauthorizedException) {
@@ -42,6 +42,7 @@ class Category extends _$Category {
     required String name,
     required String icon,
     required String color,
+    String type = 'EXPENSE',
   }) async {
     _safeSetState(const AsyncLoading());
     try {
@@ -51,6 +52,7 @@ class Category extends _$Category {
         name: name,
         icon: icon,
         color: color,
+        type: type,
       );
       await fetchCategories(idToken);
     } catch (e, st) {
@@ -83,6 +85,7 @@ class Category extends _$Category {
     required String name,
     required String icon,
     required String color,
+    String? type,
   }) async {
     _safeSetState(const AsyncLoading());
     try {
@@ -93,6 +96,7 @@ class Category extends _$Category {
         name: name,
         icon: icon,
         color: color,
+        type: type,
       );
       await fetchCategories(idToken);
     } catch (e, st) {

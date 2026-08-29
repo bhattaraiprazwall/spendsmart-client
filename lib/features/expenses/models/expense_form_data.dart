@@ -15,7 +15,7 @@ class ExpenseFormData {
     this.categoryId,
     this.date = 'Today',
     this.selectedDate,
-    this.paymentMethod = 'Card',
+    this.paymentMethod = 'CARD',
     this.note = '',
   });
 

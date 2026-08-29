@@ -143,24 +143,86 @@
       return Scaffold(
         backgroundColor: const Color(0xFFEEF0FB),
         appBar: const AppTopBar(title: 'Edit Category'),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                _buildNameCard(),
-                const SizedBox(height: 12),
-                _buildIconCard(),
-                const SizedBox(height: 12),
-                _buildColorCard(),
-                const SizedBox(height: 32),
-                _buildDeleteButton(),
-                const SizedBox(height: 12),
-                _buildUpdateButton(isSaving),
-              ],
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  _buildTypeCard(),
+                  const SizedBox(height: 12),
+                  _buildNameCard(),
+                  const SizedBox(height: 12),
+                  _buildIconCard(),
+                  const SizedBox(height: 12),
+                  _buildColorCard(),
+                  const SizedBox(height: 32),
+                  _buildDeleteButton(),
+                  const SizedBox(height: 12),
+                  _buildUpdateButton(isSaving),
+                ],
+              ),
             ),
           ),
+        ),
+      );
+    }
+
+    Widget _buildTypeCard() {
+      final isIncome = widget.category.type == 'INCOME';
+      final color = isIncome ? const Color(0xFF15803D) : const Color(0xFFB91C1C);
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color.withOpacity(0.1),
+              ),
+              child: Icon(
+                isIncome ? Icons.arrow_downward : Icons.arrow_upward,
+                color: color,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Category Type',
+                  style: TextStyle(fontSize: 13, color: Colors.black45),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'Type is fixed and cannot be changed once set.',
+                  style: TextStyle(fontSize: 11, color: Colors.black38),
+                ),
+              ],
+            ),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                isIncome ? 'Income' : 'Expense',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }

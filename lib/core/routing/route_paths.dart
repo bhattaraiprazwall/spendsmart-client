@@ -12,4 +12,8 @@ class RoutePaths {
   static const addCategory = '/categories/add';
   static String editCategory(String id) => '/categories/edit/$id';
   static const addExpense = '/expenses/add';
+  static const addIncome = '/income/add';
+  static const notifications = '/notifications';
+  static const budget = '/budget';
+  static const transactionDetail = '/transactions/:id';
 }

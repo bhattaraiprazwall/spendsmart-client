@@ -15,6 +15,8 @@ class ExpenseFormCard extends StatelessWidget {
   final IconData? predictedCategoryIcon;
   final Color? predictedCategoryColor;
   final bool isPredicting;
+  final String? titleError;
+  final String? categoryError;
 
   const ExpenseFormCard({
     super.key,
@@ -28,6 +30,8 @@ class ExpenseFormCard extends StatelessWidget {
     this.predictedCategoryIcon,
     this.predictedCategoryColor,
     this.isPredicting = false,
+    this.titleError,
+    this.categoryError,
   });
 
   @override
@@ -53,6 +57,13 @@ class ExpenseFormCard extends StatelessWidget {
             predictedCategoryColor: predictedCategoryColor,
             isPredicting: isPredicting,
           ),
+          if (categoryError != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              categoryError!,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ],
           const Divider(height: 24),
           const FieldLabel(label: 'TITLE'),
           const SizedBox(height: 8),
@@ -70,6 +81,13 @@ class ExpenseFormCard extends StatelessWidget {
             ),
             style: const TextStyle(fontSize: 14),
           ),
+          if (titleError != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              titleError!,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ],
           const Divider(height: 24),
           IntrinsicHeight(
             child: Row(

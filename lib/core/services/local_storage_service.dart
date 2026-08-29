@@ -10,5 +10,11 @@ class LocalStorageService {
 
   Future<void> deleteToken() => _storage.delete(key: StorageConstants.idToken);
 
+  Future<void> saveCurrency(String currency) =>
+      _storage.write(key: StorageConstants.currency, value: currency);
+
+  Future<String?> getCurrency() =>
+      _storage.read(key: StorageConstants.currency);
+
   Future<void> clearAll() => _storage.deleteAll();
 }

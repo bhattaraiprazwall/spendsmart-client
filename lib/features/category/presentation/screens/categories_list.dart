@@ -64,37 +64,31 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (categories) {
-          final custom = categories.where((c) => !c.isDefault).toList();
-          final defaults = categories.where((c) => c.isDefault).toList();
+          final expense = categories.where((c) => c.type == 'EXPENSE').toList();
+          final income = categories.where((c) => c.type == 'INCOME').toList();
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (custom.isNotEmpty) ...[
-                  _buildSectionLabel('CUSTOM CATEGORIES'),
-                  const SizedBox(height: 8),
-                  ...custom.map((c) => _buildCustomCard(c)),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildTypeSection('EXPENSE CATEGORIES', expense),
                   const SizedBox(height: 20),
-                ],
-                if (defaults.isNotEmpty) ...[
-                  _buildSectionLabel('DEFAULT CATEGORIES'),
-                  const SizedBox(height: 8),
-                  ...defaults.map((c) => _buildDefaultCard(c)),
-                ],
-                if (categories.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 40),
-                    child: Center(
-                      child: Text(
-                        'No categories yet.\nTap + to create one.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.black45, fontSize: 15),
+                  _buildTypeSection('INCOME CATEGORIES', income),
+                  if (categories.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 40),
+                      child: Center(
+                        child: Text(
+                          'No categories yet.\nTap + to create one.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.black45, fontSize: 15),
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -105,6 +99,34 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
         shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _buildTypeSection(String title, List<CategoryModel> typeList) {
+    final custom = typeList.where((c) => !c.isDefault).toList();
+    final defaults = typeList.where((c) => c.isDefault).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionLabel(title),
+        const SizedBox(height: 8),
+        if (custom.isNotEmpty) ...[
+          ...custom.map((c) => _buildCustomCard(c)),
+          const SizedBox(height: 20),
+        ],
+        if (defaults.isNotEmpty) ...[
+          ...defaults.map((c) => _buildDefaultCard(c)),
+        ],
+        if (typeList.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4, bottom: 4),
+            child: Text(
+              'No categories of this type yet.',
+              style: const TextStyle(color: Colors.black38, fontSize: 13),
+            ),
+          ),
+      ],
     );
   }
 
@@ -176,7 +198,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     final color = _hexToColor(item.color);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -204,9 +226,15 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          item.name,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        Row(
+          children: [
+            Text(
+              item.name,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(width: 8),
+            _buildTypeBadge(item.type),
+          ],
         ),
         const SizedBox(height: 2),
         const Text(
@@ -214,6 +242,26 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
           style: TextStyle(fontSize: 13, color: Colors.black45),
         ),
       ],
+    );
+  }
+
+  Widget _buildTypeBadge(String type) {
+    final isIncome = type == 'INCOME';
+    final color = isIncome ? const Color(0xFF15803D) : const Color(0xFFB91C1C);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        isIncome ? 'Income' : 'Expense',
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
     );
   }
 

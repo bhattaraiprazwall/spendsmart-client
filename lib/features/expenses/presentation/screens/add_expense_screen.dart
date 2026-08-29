@@ -16,7 +16,6 @@ import 'package:spendsmart/features/expenses/models/expense_form_data.dart';
 import 'package:spendsmart/features/expenses/presentation/providers/expense_provider.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/amount_display.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/expense_form_card.dart';
-import 'package:spendsmart/features/expenses/presentation/widgets/expense_numpad.dart';
 
 IconData _mapCategoryIcon(String iconName) {
   const iconMap = {
@@ -57,6 +56,8 @@ class AddExpenseScreen extends ConsumerStatefulWidget {
 
 class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   ExpenseFormData formData = const ExpenseFormData();
+  late final TextEditingController _amountController;
+  late final FocusNode _amountFocusNode;
   bool _isSaving = false;
   String? _predictedCategoryName;
   IconData? _predictedCategoryIcon;
@@ -64,10 +65,16 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   bool _isPredicting = false;
   Timer? _debounceTimer;
 
+  //Amount error initialization
+  String? _amountError;
+  String? _titleError;
+  String? _categoryError;
+
   static const List<String> _paymentMethods = [
     'CARD',
     'CASH',
-    'UPI',
+    'ESEWA',
+    'KHALTI',
     'BANK_TRANSFER',
     'OTHER',
   ];
@@ -75,65 +82,28 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   @override
   void initState() {
     super.initState();
+    _amountController = TextEditingController();
+    _amountFocusNode = FocusNode();
+    _amountFocusNode.requestFocus();
     Future.microtask(() async {
       final token = await ref.read(storageServiceProvider).getToken();
       if (token == null) return;
-      ref.read(categoryProvider.notifier).fetchCategories(token);
+      ref.read(categoryProvider.notifier).fetchCategories(token, type: 'EXPENSE');
     });
   }
 
   @override
   void dispose() {
     _debounceTimer?.cancel();
+    _amountController.dispose();
+    _amountFocusNode.dispose();
     super.dispose();
-  }
-
-  void _handleKeyTap(String value) {
-    setState(() {
-      String current = formData.amount;
-
-      // ── Backspace ──────────────────────────────────────────────────────
-      if (value == '\u{232B}') {
-        if (current.length <= 1 || current == '0.00') {
-          formData = formData.copyWith(amount: '0.00');
-        } else {
-          formData = formData.copyWith(
-            amount: current.substring(0, current.length - 1),
-          );
-        }
-        return;
-      }
-
-      // ── Decimal point ──────────────────────────────────────────────────
-      if (value == '.') {
-        if (!current.contains('.')) {
-          formData = formData.copyWith(amount: '$current.');
-        }
-        return;
-      }
-
-      // ── Digit ──────────────────────────────────────────────────────────
-      if (RegExp(r'^\d$').hasMatch(value)) {
-        // Reset default placeholder and start fresh with the typed digit
-        if (current == '0.00') {
-          formData = formData.copyWith(amount: value);
-          return;
-        }
-
-        // After a decimal point, allow at most 2 decimal digits
-        if (current.contains('.')) {
-          final decimals = current.split('.')[1];
-          if (decimals.length >= 2) return;
-        }
-
-        formData = formData.copyWith(amount: current + value);
-      }
-    });
   }
 
   void _onTitleChanged(String value) {
     setState(() {
       formData = formData.copyWith(title: value);
+      _titleError = null;
     });
     _debounceTimer?.cancel();
     if (value.trim().isEmpty) {
@@ -154,7 +124,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       final token = await ref.read(storageServiceProvider).getToken();
       if (token == null) return;
       final response = await http.get(
-        Uri.parse('${ApiConstants.categories}/predict?title=$title'),
+        Uri.parse('${ApiConstants.categories}/predict?title=$title&type=EXPENSE'),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
@@ -190,32 +160,6 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     }
   }
 
-  // void _showCategoryPicker() {
-  //   final categoriesAsync = ref.read(categoryProvider);
-  //   categoriesAsync.whenData((categories) {
-  //     showModalBottomSheet(
-  //       context: context,
-  //       shape: const RoundedRectangleBorder(
-  //         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  //       ),
-  //       builder: (ctx) {
-  //         return ListView(
-  //           shrinkWrap: true,
-  //           padding: const EdgeInsets.all(16),
-  //           children: [
-  //             const Text(
-  //               'Select Category',
-  //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-  //             ),
-  //             const SizedBox(height: 12),
-  //             ...categories.map((cat) => _buildCategoryItem(cat, ctx)),
-  //           ],
-  //         );
-  //       },
-  //     );
-  //   });
-  // }
-
   void _showCategoryPicker() {
     showModalBottomSheet(
       context: context,
@@ -248,7 +192,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 12),
-                  ...categories.map((cat) => _buildCategoryItem(cat, ctx)),
+                  ...categories
+                      .where((cat) => cat.type == 'EXPENSE')
+                      .map((cat) => _buildCategoryItem(cat, ctx)),
                 ],
               ),
             );
@@ -278,6 +224,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             date: _formatDate(formData.selectedDate ?? now),
           );
           _predictedCategoryName = null;
+          _categoryError = null;
         });
         Navigator.of(ctx).pop();
       },
@@ -343,8 +290,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                       ? Icons.money
                       : method == 'CARD'
                       ? Icons.credit_card
-                      : method == 'UPI'
+                      : method == 'ESEWA'
                       ? Icons.phone_android
+                      : method == 'KHALTI'
+                      ? Icons.phone_iphone
                       : method == 'BANK_TRANSFER'
                       ? Icons.account_balance
                       : Icons.more_horiz,
@@ -370,23 +319,25 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
   Future<void> _handleSave() async {
     if (_isSaving) return;
+
     final amount = double.tryParse(formData.amount);
-    if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid amount')),
-      );
-      return;
-    }
-    if (formData.title.trim().isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter a title')));
-      return;
-    }
-    if (formData.categoryId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a category')));
+
+    setState(() {
+      _amountError = (amount == null || amount <= 0)
+          ? 'Please enter a valid amount'
+          : null;
+      _titleError = formData.title.trim().isEmpty
+          ? 'Please enter a title'
+          : null;
+      _categoryError = formData.categoryId == null
+          ? 'Please select a category'
+          : null;
+    });
+
+    if (amount == null ||
+        amount <= 0 ||
+        formData.title.trim().isEmpty ||
+        formData.categoryId == null) {
       return;
     }
 
@@ -439,30 +390,48 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            AmountDisplay(amount: formData.amount),
-            const SizedBox(height: 40),
-            ExpenseFormCard(
-              formData: formData,
-              onCategoryTap: _showCategoryPicker,
-              onDateTap: _showDatePicker,
-              onMethodTap: _showMethodPicker,
-              onNoteChanged: (note) =>
-                  setState(() => formData = formData.copyWith(note: note)),
-              onTitleChanged: _onTitleChanged,
-              predictedCategoryName: _predictedCategoryName,
-              predictedCategoryIcon: _predictedCategoryIcon,
-              predictedCategoryColor: _predictedCategoryColor,
-              isPredicting: _isPredicting,
-            ),
-            const SizedBox(height: 40),
-            Expanded(child: ExpenseNumpad(onKeyTap: _handleKeyTap)),
-            PrimaryButton(
-              onPressed: _handleSave,
-              label: _isSaving ? 'Saving...' : 'Save Expense',
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              AmountDisplay(
+                controller: _amountController,
+                focusNode: _amountFocusNode,
+                errorText: _amountError,
+                onChanged: (value) => setState(() {
+                  formData = formData.copyWith(amount: value);
+                  _amountError = null;
+                }),
+              ),
+              const SizedBox(height: 40),
+              ExpenseFormCard(
+                formData: formData,
+                onCategoryTap: _showCategoryPicker,
+                onDateTap: _showDatePicker,
+                onMethodTap: _showMethodPicker,
+                titleError: _titleError,
+                categoryError: _categoryError,
+                onNoteChanged: (note) =>
+                    setState(() => formData = formData.copyWith(note: note)),
+                onTitleChanged: _onTitleChanged,
+                predictedCategoryName: _predictedCategoryName,
+                predictedCategoryIcon: _predictedCategoryIcon,
+                predictedCategoryColor: _predictedCategoryColor,
+                isPredicting: _isPredicting,
+              ),
+              const SizedBox(height: 40),
+
+              // Expanded(child: ExpenseNumpad(onKeyTap: _handleKeyTap)),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: PrimaryButton(
+            onPressed: _handleSave,
+            label: _isSaving ? 'Saving...' : 'Save Expense',
+          ),
         ),
       ),
     );

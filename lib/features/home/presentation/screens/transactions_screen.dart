@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:go_router/go_router.dart';
+import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/navigation/spendsmart_appbar.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/features/expenses/data/models/expense.dart';
 import 'package:spendsmart/features/expenses/presentation/providers/expense_provider.dart';
+import 'package:spendsmart/features/incomes/data/models/income.dart';
+import 'package:spendsmart/features/incomes/presentation/providers/income_provider.dart';
+import 'package:spendsmart/features/transactions/data/models/transaction_model.dart';
 
 // ── Data model ────────────────────────────────────────────────────────────────
 class TransactionItem {
@@ -14,6 +19,7 @@ class TransactionItem {
   final double amount;
   final IconData icon;
   final Color color;
+  final TransactionModel transaction;
 
   const TransactionItem({
     required this.title,
@@ -22,6 +28,7 @@ class TransactionItem {
     required this.amount,
     required this.icon,
     required this.color,
+    required this.transaction,
   });
 
   bool get isIncome => amount > 0;
@@ -37,7 +44,6 @@ class TransactionsScreen extends ConsumerStatefulWidget {
 
 class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   final _searchController = TextEditingController();
-  List<ExpenseModel> _expenses = [];
 
   static const _months = [
     'Jan',
@@ -54,21 +60,43 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     'Dec',
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchTransactions();
-  }
-
-  Future<void> _fetchTransactions() async {
-    final token = await ref.read(storageServiceProvider).getToken();
-    if (token == null) return;
-    try {
-      final expenses = await ref
-          .read(expenseProvider.notifier)
-          .fetchExpenses(token);
-      if (mounted) setState(() => _expenses = expenses);
-    } catch (_) {}
+  List<TransactionModel> get _allTransactions {
+    final list = <TransactionModel>[];
+    for (final e in ref.watch(expenseProvider).value ?? const <ExpenseModel>[]) {
+      list.add(TransactionModel(
+        id: e.id,
+        type: e.type,
+        amount: e.amount,
+        title: e.title,
+        note: e.note,
+        paymentMethod: e.paymentMethod,
+        date: e.date,
+        categoryId: e.categoryId,
+        categoryName: e.categoryName,
+        categoryIcon: e.categoryIcon,
+        categoryColor: e.categoryColor,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+      ));
+    }
+    for (final i in ref.watch(incomeProvider).value ?? const <IncomeModel>[]) {
+      list.add(TransactionModel(
+        id: i.id,
+        type: i.type,
+        amount: i.amount,
+        title: i.title,
+        note: i.note,
+        paymentMethod: i.paymentMethod,
+        date: i.date,
+        categoryId: i.categoryId,
+        categoryName: i.categoryName,
+        categoryIcon: i.categoryIcon,
+        categoryColor: i.categoryColor,
+        createdAt: i.createdAt,
+        updatedAt: i.updatedAt,
+      ));
+    }
+    return list;
   }
 
   Map<String, List<TransactionItem>> get _grouped {
@@ -77,7 +105,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
 
-    for (final e in _expenses) {
+    for (final e in _allTransactions) {
       final date = DateTime(e.date.year, e.date.month, e.date.day);
       String label;
       if (date == today) {
@@ -92,7 +120,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     return grouped;
   }
 
-  TransactionItem _mapToTransactionItem(ExpenseModel e) {
+  TransactionItem _mapToTransactionItem(TransactionModel e) {
     final hour = e.date.hour;
     final minute = e.date.minute;
     final amPm = hour >= 12 ? 'PM' : 'AM';
@@ -104,9 +132,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       title: e.title,
       time: timeStr,
       category: e.categoryName,
-      amount: -e.amount,
+      amount: e.isIncome ? e.amount : -e.amount,
       icon: _mapCategoryIcon(e.categoryIcon),
       color: _hexToColor(e.categoryColor),
+      transaction: e,
     );
   }
 
@@ -247,20 +276,26 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
 
   // ── Single transaction card ───────────────────────────────────────────
   Widget _buildTransactionCard(TransactionItem item) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+    return GestureDetector(
+      onTap: () => context.push(
+        RoutePaths.transactionDetail,
+        extra: item.transaction,
       ),
-      child: Row(
-        children: [
-          _buildIconCircle(item),
-          const SizedBox(width: 12),
-          Expanded(child: _buildTitleAndMeta(item)),
-          _buildAmount(item),
-        ],
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            _buildIconCircle(item),
+            const SizedBox(width: 12),
+            Expanded(child: _buildTitleAndMeta(item)),
+            _buildAmount(item),
+          ],
+        ),
       ),
     );
   }
@@ -291,8 +326,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   }
 
   Widget _buildAmount(TransactionItem item) {
+    final code = ref.watch(currencyProvider);
     return Text(
-      '${item.isIncome ? '+' : '-'}\$${item.amount.abs().toStringAsFixed(2)}',
+      CurrencyUtil.signed(item.amount, code),
       style: TextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w700,

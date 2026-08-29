@@ -6,9 +6,16 @@ import 'package:spendsmart/features/category/data/models/category_model.dart';
 class CategoryService {
   final ApiService _apiService = ApiService();
 
-  Future<List<CategoryModel>> getCategories(String idToken) async {
+  Future<List<CategoryModel>> getCategories(
+    String idToken, {
+    String? type,
+  }) async {
+    final uri = type != null
+        ? Uri.parse(ApiConstants.categories).replace(queryParameters: {"type": type})
+        : Uri.parse(ApiConstants.categories);
+
     final response = await _apiService.get(
-      ApiConstants.categories,
+      uri.toString(),
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $idToken",
@@ -33,10 +40,11 @@ class CategoryService {
     required String name,
     required String icon,
     required String color,
+    String type = 'EXPENSE',
   }) async {
     final response = await _apiService.post(
       ApiConstants.categories,
-      {"name": name, "icon": icon, "color": color},
+      {"name": name, "icon": icon, "color": color, "type": type},
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $idToken",
@@ -73,11 +81,13 @@ class CategoryService {
     String? name,
     String? icon,
     String? color,
+    String? type,
   }) async {
     final body = <String, dynamic>{};
     if (name != null) body["name"] = name;
     if (icon != null) body["icon"] = icon;
     if (color != null) body["color"] = color;
+    if (type != null) body["type"] = type;
 
     final response = await _apiService.put(
       '${ApiConstants.categories}/$categoryId',

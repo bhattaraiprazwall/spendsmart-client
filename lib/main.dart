@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
+import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/routing/app_router.dart';
 import 'package:spendsmart/core/services/local_storage_service.dart';
 import 'package:spendsmart/core/theme/app_theme.dart';
@@ -24,13 +25,18 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
-    _checkAuthOnStart();
+    _loadPreferencesOnStart();
   }
 
-  Future<void> _checkAuthOnStart() async {
-    final token = await LocalStorageService().getToken();
+  Future<void> _loadPreferencesOnStart() async {
+    final storage = LocalStorageService();
+    final token = await storage.getToken();
     if (token != null) {
-      ref.read(authStateProvider.notifier).state = true; 
+      ref.read(authStateProvider.notifier).state = true;
+    }
+    final currency = await storage.getCurrency();
+    if (currency != null && currency.isNotEmpty) {
+      ref.read(currencyProvider.notifier).state = currency;
     }
   }
 

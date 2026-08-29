@@ -18,5 +18,11 @@ class ApiConstants {
 
   //transaction routes
   static const String transactions = '$baseUrl/v1/transactions';
+
+  //dashboard routes
+  static const String dashboardSummary = '$baseUrl/v1/dashboard/summary';
+
+  //budget routes
+  static const String budgets = '$baseUrl/v1/budgets';
 }
 

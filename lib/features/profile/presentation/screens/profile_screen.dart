@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
+import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
@@ -86,6 +87,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           context.push(RoutePaths.changePassword);
                         },
                       ),
+                      _buildDivider(),
+                      _buildNavRow(
+                        'Manage Categories',
+                        onTap: () {
+                          context.push(RoutePaths.categories);
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -98,6 +106,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         value: profile.currency,
                         items: const ['USD', 'EUR', 'GBP', 'JPY', 'NPR'],
                         onChanged: (v) async {
+                          if (v == null) return;
+                          ref.read(currencyProvider.notifier).state = v;
+                          await ref
+                              .read(storageServiceProvider)
+                              .saveCurrency(v);
                           final t = await ref
                               .read(storageServiceProvider)
                               .getToken();

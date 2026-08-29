@@ -20,8 +20,4 @@ class TransactionItem {
   });
 
   bool get isPositive => amount > 0;
-
-  String get formattedAmount {
-    return '${isPositive ? '+' : '-'}\$${amount.abs().toStringAsFixed(2)}';
-  }
 }
