@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/cards/budget_card.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/budget/data/models/budget_category_model.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/budget/domain/entities/budget_category.dart';
 import 'package:spendsmart/features/budget/presentation/providers/budget_provider.dart';
 import 'package:spendsmart/features/budget/presentation/widgets/budget_status_widgets.dart';
-import 'package:spendsmart/features/home/models/budget_item.dart';
+import 'package:spendsmart/features/home/domain/entities/budget_item.dart';
 
 class RemainingBudgetSection extends ConsumerStatefulWidget {
   const RemainingBudgetSection({super.key});
@@ -65,7 +65,7 @@ class _RemainingBudgetSectionState
     );
   }
 
-  BudgetItem _toBudgetItem(BudgetCategoryModel cat, String currency) {
+  BudgetItem _toBudgetItem(BudgetCategory cat, String currency) {
     final color = budgetStatusColor(cat.status);
     final icon = budgetResolveIcon(cat.icon);
     return BudgetItem(

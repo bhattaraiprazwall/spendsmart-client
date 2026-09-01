@@ -1,30 +1,48 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/expenses/data/models/expense.dart';
-import 'package:spendsmart/features/expenses/data/repositories/expense_repository.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/expenses/data/datasources/expense_remote_datasource.dart';
+import 'package:spendsmart/features/expenses/data/repositories/expense_repository_impl.dart';
+import 'package:spendsmart/features/expenses/domain/entities/expense.dart';
+import 'package:spendsmart/features/expenses/domain/repositories/expense_repository.dart';
+import 'package:spendsmart/features/expenses/domain/usecases/create_expense.dart';
+import 'package:spendsmart/features/expenses/domain/usecases/get_expenses.dart';
+import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
 import 'dart:async';
+
+final expenseRemoteDataSourceProvider = Provider<ExpenseRemoteDataSource>((ref) {
+  return ExpenseRemoteDataSource();
+});
+
 final expenseRepositoryProvider = Provider<ExpenseRepository>((ref) {
-  return ExpenseRepository();
+  return ExpenseRepositoryImpl(ref.watch(expenseRemoteDataSourceProvider));
+});
+
+final createExpenseUseCaseProvider = Provider<CreateExpense>((ref) {
+  return CreateExpense(ref.watch(expenseRepositoryProvider));
+});
+
+final getExpensesUseCaseProvider = Provider<GetExpenses>((ref) {
+  return GetExpenses(ref.watch(expenseRepositoryProvider));
 });
 
 final expenseProvider =
-    AsyncNotifierProvider<ExpenseNotifier, List<ExpenseModel>>(
+    AsyncNotifierProvider<ExpenseNotifier, List<Expense>>(
   ExpenseNotifier.new,
 );
 
-class ExpenseNotifier extends AsyncNotifier<List<ExpenseModel>> {
+class ExpenseNotifier extends AsyncNotifier<List<Expense>> {
   @override
-  FutureOr<List<ExpenseModel>> build() => [];
+  FutureOr<List<Expense>> build() => [];
 
-  void _safeSetState(AsyncValue<List<ExpenseModel>> newState) {
+  void _safeSetState(AsyncValue<List<Expense>> newState) {
     try {
       state = newState;
     } catch (_) {}
   }
 
-  Future<ExpenseModel> createExpense(
+  Future<Expense> createExpense(
     String idToken, {
     required String type,
     required double amount,
@@ -36,8 +54,8 @@ class ExpenseNotifier extends AsyncNotifier<List<ExpenseModel>> {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(expenseRepositoryProvider);
-      final expense = await repository.createExpense(
+      final current = state.value ?? [];
+      final expense = await ref.read(createExpenseUseCaseProvider)(
         idToken,
         type: type,
         amount: amount,
@@ -47,7 +65,8 @@ class ExpenseNotifier extends AsyncNotifier<List<ExpenseModel>> {
         date: date,
         categoryId: categoryId,
       );
-      _safeSetState(AsyncData([expense]));
+      _safeSetState(AsyncData([...current, expense]));
+      ref.invalidate(transactionProvider);
       return expense;
     } catch (e, st) {
       if (e is UnauthorizedException) {
@@ -59,11 +78,11 @@ class ExpenseNotifier extends AsyncNotifier<List<ExpenseModel>> {
     }
   }
 
-  Future<List<ExpenseModel>> fetchExpenses(String idToken) async {
+  Future<List<Expense>> fetchExpenses(String idToken) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(expenseRepositoryProvider);
-      final expenses = await repository.getExpenses(idToken);
+      final expenses =
+          await ref.read(getExpensesUseCaseProvider)(idToken);
       _safeSetState(AsyncData(expenses));
       return expenses;
     } catch (e, st) {

@@ -65,8 +65,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Widget build(BuildContext context) {
     ref.listen(registerProvider, (previous, next) {
       if (previous?.isLoading == true && next.hasValue) {
-        print("PREVIOUS = $previous");
-        print("NEXT = $next");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registration Successful')),
         );

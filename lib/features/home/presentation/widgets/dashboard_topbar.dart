@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
-import 'package:spendsmart/features/profile/data/models/profile_model.dart';
+import 'package:spendsmart/features/profile/domain/entities/profile.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
 
 class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -26,13 +26,13 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  String _firstName(ProfileModel? profile) {
+  String _firstName(Profile? profile) {
     final name = profile != null ? profile.name.trim() : '';
     if (name.isEmpty) return 'there';
     return name.split(' ').first;
   }
 
-  String _initials(ProfileModel? profile) {
+  String _initials(Profile? profile) {
     final name = profile != null ? profile.name.trim() : '';
     if (name.isEmpty) return '?';
     final parts = name.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
@@ -42,7 +42,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
     return parts.first[0].toUpperCase();
   }
 
-  Widget _buildAvatar(ProfileModel? profile) {
+  Widget _buildAvatar(Profile? profile) {
     return Padding(
       padding: const EdgeInsets.only(left: 12),
       child: Container(
@@ -67,7 +67,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildGreeting(ProfileModel? profile) {
+  Widget _buildGreeting(Profile? profile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,

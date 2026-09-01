@@ -1,4 +1,5 @@
 import 'package:spendsmart/features/budget/data/models/budget_category_model.dart';
+import 'package:spendsmart/features/budget/domain/entities/budget.dart';
 
 class BudgetModel {
   final String id;
@@ -21,9 +22,18 @@ class BudgetModel {
       totalAmount: (json["totalAmount"] ?? "0.00").toString(),
     );
   }
+
+  Budget toEntity() {
+    return Budget(
+      id: id,
+      month: month,
+      year: year,
+      totalAmount: totalAmount,
+    );
+  }
 }
 
-class BudgetStatus {
+class BudgetStatusModel {
   final String id;
   final int month;
   final int year;
@@ -37,7 +47,7 @@ class BudgetStatus {
 
   final List<BudgetCategoryModel> categories;
 
-  const BudgetStatus({
+  const BudgetStatusModel({
     required this.id,
     required this.month,
     required this.year,
@@ -50,12 +60,12 @@ class BudgetStatus {
     required this.categories,
   });
 
-  factory BudgetStatus.fromJson(Map<String, dynamic> json) {
+  factory BudgetStatusModel.fromJson(Map<String, dynamic> json) {
     final budget = json["budget"] as Map<String, dynamic>? ?? json;
 
     final rawCategories = json["categories"] as List<dynamic>? ?? [];
 
-    return BudgetStatus(
+    return BudgetStatusModel(
       id: budget["id"] as String? ?? "",
       month: budget["month"] as int? ?? 0,
       year: budget["year"] as int? ?? 0,
@@ -69,6 +79,21 @@ class BudgetStatus {
           .map((c) => BudgetCategoryModel.fromStatusJson(
               c as Map<String, dynamic>))
           .toList(),
+    );
+  }
+
+  BudgetStatus toEntity() {
+    return BudgetStatus(
+      id: id,
+      month: month,
+      year: year,
+      totalAmount: totalAmount,
+      totalSpent: totalSpent,
+      remaining: remaining,
+      usagePercentage: usagePercentage,
+      isOverspent: isOverspent,
+      status: status,
+      categories: categories.map((c) => c.toEntity()).toList(),
     );
   }
 }

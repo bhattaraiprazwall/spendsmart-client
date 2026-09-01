@@ -4,18 +4,18 @@ import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/budget/data/models/budget_category_model.dart';
-import 'package:spendsmart/features/budget/data/models/budget_model.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/budget/domain/entities/budget.dart';
+import 'package:spendsmart/features/budget/domain/entities/budget_category.dart';
 import 'package:spendsmart/features/budget/presentation/providers/budget_provider.dart';
 import 'package:spendsmart/features/budget/presentation/widgets/budget_status_widgets.dart';
-import 'package:spendsmart/features/transactions/data/models/transaction_model.dart';
+import 'package:spendsmart/features/transactions/domain/entities/transaction.dart';
 import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
 import 'package:spendsmart/features/transactions/presentation/widgets/edit_transaction_sheet.dart';
 import 'package:spendsmart/features/transactions/presentation/widgets/transaction_ui.dart';
 
 class TransactionDetailScreen extends ConsumerStatefulWidget {
-  final TransactionModel transaction;
+  final Transaction transaction;
 
   const TransactionDetailScreen({super.key, required this.transaction});
 
@@ -26,7 +26,7 @@ class TransactionDetailScreen extends ConsumerStatefulWidget {
 
 class _TransactionDetailScreenState
     extends ConsumerState<TransactionDetailScreen> {
-  late TransactionModel _transaction;
+  late Transaction _transaction;
 
   @override
   void initState() {
@@ -47,9 +47,9 @@ class _TransactionDetailScreenState
       context,
       _transaction,
       onSaved: () async {
-        final updated = ref.read(transactionProvider).value;
-        if (updated != null && mounted) {
-          setState(() => _transaction = updated);
+        final updatedList = ref.read(transactionProvider).value;
+        if (updatedList != null && updatedList.isNotEmpty && mounted) {
+          setState(() => _transaction = updatedList.firstWhere((t) => t.id == _transaction.id, orElse: () => _transaction));
         }
       },
     );
@@ -347,7 +347,7 @@ class _TransactionDetailScreenState
     );
   }
 
-  Widget _buildBudgetProgress(BudgetCategoryModel cat, String currency) {
+  Widget _buildBudgetProgress(BudgetCategory cat, String currency) {
     final color = budgetStatusColor(cat.status);
     final percent = (cat.usagePercentage / 100).clamp(0.0, 1.0);
     return Container(

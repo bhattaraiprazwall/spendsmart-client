@@ -1,15 +1,69 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/budget/data/models/budget_model.dart';
-import 'package:spendsmart/features/budget/data/repositories/budget_repository.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/budget/data/datasources/budget_remote_datasource.dart';
+import 'package:spendsmart/features/budget/data/repositories/budget_repository_impl.dart';
+import 'package:spendsmart/features/budget/domain/entities/budget.dart';
+import 'package:spendsmart/features/budget/domain/repositories/budget_repository.dart';
+import 'package:spendsmart/features/budget/domain/usecases/add_category_limit.dart';
+import 'package:spendsmart/features/budget/domain/usecases/create_or_update_budget.dart';
+import 'package:spendsmart/features/budget/domain/usecases/delete_budget.dart';
+import 'package:spendsmart/features/budget/domain/usecases/get_budget.dart';
+import 'package:spendsmart/features/budget/domain/usecases/get_budget_status.dart';
+import 'package:spendsmart/features/budget/domain/usecases/remove_category_limit.dart';
+import 'package:spendsmart/features/budget/domain/usecases/update_budget.dart';
+import 'package:spendsmart/features/budget/domain/usecases/update_category_limit.dart';
 part 'budget_provider.g.dart';
 
 @riverpod
+BudgetRemoteDataSource budgetRemoteDataSource(Ref ref) {
+  return BudgetRemoteDataSource();
+}
+
+@riverpod
 BudgetRepository budgetRepository(Ref ref) {
-  return BudgetRepository();
+  return BudgetRepositoryImpl(ref.watch(budgetRemoteDataSourceProvider));
+}
+
+@riverpod
+GetBudget getBudgetUseCase(Ref ref) {
+  return GetBudget(ref.watch(budgetRepositoryProvider));
+}
+
+@riverpod
+GetBudgetStatus getBudgetStatusUseCase(Ref ref) {
+  return GetBudgetStatus(ref.watch(budgetRepositoryProvider));
+}
+
+@riverpod
+CreateOrUpdateBudget createOrUpdateBudgetUseCase(Ref ref) {
+  return CreateOrUpdateBudget(ref.watch(budgetRepositoryProvider));
+}
+
+@riverpod
+UpdateBudget updateBudgetUseCase(Ref ref) {
+  return UpdateBudget(ref.watch(budgetRepositoryProvider));
+}
+
+@riverpod
+DeleteBudget deleteBudgetUseCase(Ref ref) {
+  return DeleteBudget(ref.watch(budgetRepositoryProvider));
+}
+
+@riverpod
+AddCategoryLimit addCategoryLimitUseCase(Ref ref) {
+  return AddCategoryLimit(ref.watch(budgetRepositoryProvider));
+}
+
+@riverpod
+UpdateCategoryLimit updateCategoryLimitUseCase(Ref ref) {
+  return UpdateCategoryLimit(ref.watch(budgetRepositoryProvider));
+}
+
+@riverpod
+RemoveCategoryLimit removeCategoryLimitUseCase(Ref ref) {
+  return RemoveCategoryLimit(ref.watch(budgetRepositoryProvider));
 }
 
 @riverpod
@@ -48,8 +102,7 @@ class Budget extends _$Budget {
     _year = year;
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(budgetRepositoryProvider);
-      final budget = await repository.getBudget(
+      final budget = await ref.read(getBudgetUseCaseProvider)(
         idToken,
         month: month,
         year: year,
@@ -58,7 +111,8 @@ class Budget extends _$Budget {
         _safeSetState(const AsyncData(null));
         return;
       }
-      final status = await repository.getBudgetStatus(idToken, budget.id);
+      final status = await ref
+          .read(getBudgetStatusUseCaseProvider)(idToken, budget.id);
       _safeSetState(AsyncData(status));
     } catch (e, st) {
       if (e is UnauthorizedException) {
@@ -78,8 +132,7 @@ class Budget extends _$Budget {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(budgetRepositoryProvider);
-      await repository.createOrUpdateBudget(
+      await ref.read(createOrUpdateBudgetUseCaseProvider)(
         idToken,
         month: month,
         year: year,
@@ -103,8 +156,7 @@ class Budget extends _$Budget {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(budgetRepositoryProvider);
-      await repository.updateBudget(
+      await ref.read(updateBudgetUseCaseProvider)(
         idToken,
         budgetId,
         totalAmount: totalAmount,
@@ -122,8 +174,7 @@ class Budget extends _$Budget {
   Future<void> deleteBudget(String idToken, String budgetId) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(budgetRepositoryProvider);
-      await repository.deleteBudget(idToken, budgetId);
+      await ref.read(deleteBudgetUseCaseProvider)(idToken, budgetId);
       _safeSetState(const AsyncData(null));
     } catch (e, st) {
       if (e is UnauthorizedException) {
@@ -142,8 +193,7 @@ class Budget extends _$Budget {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(budgetRepositoryProvider);
-      await repository.addCategoryLimit(
+      await ref.read(addCategoryLimitUseCaseProvider)(
         idToken,
         budgetId,
         categoryId: categoryId,
@@ -167,8 +217,7 @@ class Budget extends _$Budget {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(budgetRepositoryProvider);
-      await repository.updateCategoryLimit(
+      await ref.read(updateCategoryLimitUseCaseProvider)(
         idToken,
         budgetId,
         categoryId,
@@ -191,8 +240,11 @@ class Budget extends _$Budget {
   ) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(budgetRepositoryProvider);
-      await repository.removeCategoryLimit(idToken, budgetId, categoryId);
+      await ref.read(removeCategoryLimitUseCaseProvider)(
+        idToken,
+        budgetId,
+        categoryId,
+      );
       await fetchBudget(idToken, month: _month, year: _year);
     } catch (e, st) {
       if (e is UnauthorizedException) {

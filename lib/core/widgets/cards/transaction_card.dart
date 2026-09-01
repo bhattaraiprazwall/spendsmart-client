@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
-import 'package:spendsmart/features/home/models/transaction_item.dart';
+import 'package:spendsmart/features/home/domain/entities/transaction_item.dart';
 
 class TransactionCard extends ConsumerWidget {
   final TransactionItem item;

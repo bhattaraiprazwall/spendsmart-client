@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/widgets/cards/transaction_card.dart';
-import 'package:spendsmart/features/expenses/data/models/expense.dart';
-import 'package:spendsmart/features/home/models/transaction_item.dart';
+import 'package:spendsmart/features/expenses/domain/entities/expense.dart';
+import 'package:spendsmart/features/home/domain/entities/transaction_item.dart';
 
 class RecentTransactionsSection extends StatelessWidget {
-  final List<ExpenseModel> transactions;
+  final List<Expense> transactions;
 
   const RecentTransactionsSection({
     super.key,
@@ -59,7 +59,7 @@ class RecentTransactionsSection extends StatelessWidget {
     );
   }
 
-  TransactionItem _mapToItem(ExpenseModel e) {
+  TransactionItem _mapToItem(Expense e) {
     final months = const [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',

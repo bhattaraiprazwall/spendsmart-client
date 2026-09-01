@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spendsmart/features/home/models/notification.dart';
+import 'package:spendsmart/features/home/domain/entities/notification.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});

@@ -1,3 +1,5 @@
+import 'package:spendsmart/features/category/domain/entities/category.dart';
+
 class CategoryModel {
   final String id;
   final String name;
@@ -36,5 +38,17 @@ class CategoryModel {
       "isDefault": isDefault,
       "type": type,
     };
+  }
+
+  /// Convert Model → Entity
+  Category toEntity() {
+    return Category(
+      id: id,
+      name: name,
+      icon: icon,
+      color: color,
+      isDefault: isDefault,
+      type: type,
+    );
   }
 }

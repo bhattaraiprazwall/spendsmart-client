@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/category_row.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/field_label.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/icon_text_row.dart';
-import 'package:spendsmart/features/incomes/models/income_form_data.dart';
+import 'package:spendsmart/features/incomes/domain/entities/income_form_data.dart';
 
 class IncomeFormCard extends StatelessWidget {
   final IncomeFormData formData;

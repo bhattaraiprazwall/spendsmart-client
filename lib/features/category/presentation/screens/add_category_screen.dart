@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
 
 class AddCategoryScreen extends ConsumerStatefulWidget {
@@ -63,7 +63,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
     if (token == null) return;
 
     await ref
-        .read(categoryProvider.notifier)
+        .read(categoriesProvider.notifier)
         .createCategory(
           token,
           name: _nameController.text.trim(),
@@ -82,7 +82,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isSaving = ref.watch(categoryProvider).isLoading;
+    final isSaving = ref.watch(categoriesProvider).isLoading;
     return Scaffold(
       backgroundColor: const Color(0xFFEEF0FB),
       appBar: AppTopBar(

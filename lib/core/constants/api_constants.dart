@@ -24,5 +24,8 @@ class ApiConstants {
 
   //budget routes
   static const String budgets = '$baseUrl/v1/budgets';
+
+  //insight routes
+  static const String insights = '$baseUrl/v1/insights';
 }
 

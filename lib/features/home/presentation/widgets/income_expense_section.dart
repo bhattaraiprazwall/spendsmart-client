@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/cards/summary_card.dart';
-import 'package:spendsmart/features/home/models/summary_item.dart';
+import 'package:spendsmart/features/home/domain/entities/summary_item.dart';
 
 class IncomeExpenseSection extends StatelessWidget {
   final String income;

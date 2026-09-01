@@ -5,6 +5,7 @@ import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/utils/validators.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -45,13 +46,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       final token = await ref.read(storageServiceProvider).getToken();
       if (token == null) return;
 
-      await ref
-          .read(authRepositoryProvider)
-          .changePassword(
-            token,
-            _currentPassController.text.trim(),
-            _newPasswordController.text.trim(),
-          );
+      await ref.read(changePasswordUseCaseProvider)(
+        idToken: token,
+        currentPassword: _currentPassController.text.trim(),
+        newPassword: _newPasswordController.text.trim(),
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: const Text("Password changed successfully..")),

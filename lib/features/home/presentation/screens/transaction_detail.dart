@@ -104,30 +104,32 @@ class TransactionDetailScreen extends StatelessWidget {
 
   // ── Details card ──────────────────────────────────────────────────────
   Widget _buildDetailsCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Details',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 12),
-          _buildDetailRow(Icons.category_outlined,       'Category',       'Food & Dining'),
-          _buildDivider(),
-          _buildDetailRow(Icons.calendar_today_outlined, 'Date',           'Oct 24, 2023'),
-          _buildDivider(),
-          _buildDetailRow(Icons.access_time_outlined,    'Time',           '1:15 PM'),
-          _buildDivider(),
-          _buildDetailRow(Icons.credit_card_outlined,    'Payment Method', 'Visa ending in 4242'),
-          _buildDivider(),
-          _buildNoteRow(),
-        ],
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Details',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 12),
+            _buildDetailRow(Icons.category_outlined,       'Category',       'Food & Dining'),
+            _buildDivider(),
+            _buildDetailRow(Icons.calendar_today_outlined, 'Date',           'Oct 24, 2023'),
+            _buildDivider(),
+            _buildDetailRow(Icons.access_time_outlined,    'Time',           '1:15 PM'),
+            _buildDivider(),
+            _buildDetailRow(Icons.credit_card_outlined,    'Payment Method', 'Visa ending in 4242'),
+            _buildDivider(),
+            _buildNoteRow(),
+          ],
+        ),
       ),
     );
   }

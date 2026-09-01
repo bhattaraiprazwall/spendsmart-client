@@ -1,30 +1,47 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/incomes/data/models/income.dart';
-import 'package:spendsmart/features/incomes/data/repositories/income_repository.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/incomes/data/datasources/income_remote_datasource.dart';
+import 'package:spendsmart/features/incomes/data/repositories/income_repository_impl.dart';
+import 'package:spendsmart/features/incomes/domain/entities/income.dart';
+import 'package:spendsmart/features/incomes/domain/repositories/income_repository.dart';
+import 'package:spendsmart/features/incomes/domain/usecases/create_income.dart';
+import 'package:spendsmart/features/incomes/domain/usecases/get_incomes.dart';
+import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
 import 'dart:async';
 
-final incomeRepositoryProvider = Provider<IncomeRepository>((ref) {
-  return IncomeRepository();
+final incomeRemoteDataSourceProvider = Provider<IncomeRemoteDataSource>((ref) {
+  return IncomeRemoteDataSource();
 });
 
-final incomeProvider = AsyncNotifierProvider<IncomeNotifier, List<IncomeModel>>(
+final incomeRepositoryProvider = Provider<IncomeRepository>((ref) {
+  return IncomeRepositoryImpl(ref.watch(incomeRemoteDataSourceProvider));
+});
+
+final createIncomeUseCaseProvider = Provider<CreateIncome>((ref) {
+  return CreateIncome(ref.watch(incomeRepositoryProvider));
+});
+
+final getIncomesUseCaseProvider = Provider<GetIncomes>((ref) {
+  return GetIncomes(ref.watch(incomeRepositoryProvider));
+});
+
+final incomeProvider = AsyncNotifierProvider<IncomeNotifier, List<Income>>(
   IncomeNotifier.new,
 );
 
-class IncomeNotifier extends AsyncNotifier<List<IncomeModel>> {
+class IncomeNotifier extends AsyncNotifier<List<Income>> {
   @override
-  FutureOr<List<IncomeModel>> build() => [];
+  FutureOr<List<Income>> build() => [];
 
-  void _safeSetState(AsyncValue<List<IncomeModel>> newState) {
+  void _safeSetState(AsyncValue<List<Income>> newState) {
     try {
       state = newState;
     } catch (_) {}
   }
 
-  Future<IncomeModel> createIncome(
+  Future<Income> createIncome(
     String idToken, {
     required String type,
     required double amount,
@@ -35,8 +52,8 @@ class IncomeNotifier extends AsyncNotifier<List<IncomeModel>> {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(incomeRepositoryProvider);
-      final income = await repository.createIncome(
+      final current = state.value ?? [];
+      final income = await ref.read(createIncomeUseCaseProvider)(
         idToken,
         type: type,
         amount: amount,
@@ -45,7 +62,8 @@ class IncomeNotifier extends AsyncNotifier<List<IncomeModel>> {
         date: date,
         categoryId: categoryId,
       );
-      _safeSetState(AsyncData([income]));
+      _safeSetState(AsyncData([...current, income]));
+      ref.invalidate(transactionProvider);
       return income;
     } catch (e, st) {
       if (e is UnauthorizedException) {
@@ -57,11 +75,10 @@ class IncomeNotifier extends AsyncNotifier<List<IncomeModel>> {
     }
   }
 
-  Future<List<IncomeModel>> fetchIncomes(String idToken) async {
+  Future<List<Income>> fetchIncomes(String idToken) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(incomeRepositoryProvider);
-      final incomes = await repository.getIncomes(idToken);
+      final incomes = await ref.read(getIncomesUseCaseProvider)(idToken);
       _safeSetState(AsyncData(incomes));
       return incomes;
     } catch (e, st) {

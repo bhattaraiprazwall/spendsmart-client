@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/category/data/models/category_model.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/category/domain/entities/category.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
-import 'package:spendsmart/features/transactions/data/models/transaction_model.dart';
+import 'package:spendsmart/features/transactions/domain/entities/transaction.dart';
 import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
 import 'package:spendsmart/features/transactions/presentation/widgets/transaction_ui.dart';
 
 class EditTransactionSheet extends ConsumerStatefulWidget {
-  final TransactionModel transaction;
+  final Transaction transaction;
 
   const EditTransactionSheet({super.key, required this.transaction});
 
@@ -58,7 +58,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
     Future.microtask(() async {
       final token = await ref.read(storageServiceProvider).getToken();
       if (token == null) return;
-      ref.read(categoryProvider.notifier).fetchCategories(token, type: t.type);
+      ref.read(categoriesProvider.notifier).fetchCategories(token, type: t.type);
     });
   }
 
@@ -79,7 +79,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
       builder: (ctx) {
         return Consumer(
           builder: (context, ref, _) {
-            final categoriesAsync = ref.watch(categoryProvider);
+            final categoriesAsync = ref.watch(categoriesProvider);
             return categoriesAsync.when(
               loading: () => const SizedBox(
                 height: 200,
@@ -110,7 +110,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
     );
   }
 
-  Widget _buildCategoryItem(CategoryModel cat, BuildContext ctx) {
+  Widget _buildCategoryItem(Category cat, BuildContext ctx) {
     final color = transactionHexToColor(cat.color);
     return ListTile(
       leading: CircleAvatar(
@@ -396,7 +396,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
 
 void showEditTransactionSheet(
   BuildContext context,
-  TransactionModel transaction, {
+  Transaction transaction, {
   required Future<void> Function() onSaved,
 }) {
   showModalBottomSheet(

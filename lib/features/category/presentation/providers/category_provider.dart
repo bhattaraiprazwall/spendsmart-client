@@ -1,22 +1,53 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/category/data/models/category_model.dart';
-import 'package:spendsmart/features/category/data/repositories/category_repository.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/category/data/datasources/category_remote_datasource.dart';
+import 'package:spendsmart/features/category/data/repositories/category_repository_impl.dart';
+import 'package:spendsmart/features/category/domain/entities/category.dart';
+import 'package:spendsmart/features/category/domain/repositories/category_repository.dart';
+import 'package:spendsmart/features/category/domain/usecases/create_category.dart';
+import 'package:spendsmart/features/category/domain/usecases/delete_category.dart';
+import 'package:spendsmart/features/category/domain/usecases/get_categories.dart';
+import 'package:spendsmart/features/category/domain/usecases/update_category.dart';
 part 'category_provider.g.dart';
 
 @riverpod
-CategoryRepository categoryRepository(Ref ref) {
-  return CategoryRepository();
+CategoryRemoteDataSource categoryRemoteDataSource(Ref ref) {
+  return CategoryRemoteDataSource();
 }
 
 @riverpod
-class Category extends _$Category {
-  @override
-  FutureOr<List<CategoryModel>> build() => const [];
+CategoryRepository categoryRepository(Ref ref) {
+  return CategoryRepositoryImpl(ref.watch(categoryRemoteDataSourceProvider));
+}
 
-  void _safeSetState(AsyncValue<List<CategoryModel>> newState) {
+@riverpod
+GetCategories getCategoriesUseCase(Ref ref) {
+  return GetCategories(ref.watch(categoryRepositoryProvider));
+}
+
+@riverpod
+CreateCategory createCategoryUseCase(Ref ref) {
+  return CreateCategory(ref.watch(categoryRepositoryProvider));
+}
+
+@riverpod
+UpdateCategory updateCategoryUseCase(Ref ref) {
+  return UpdateCategory(ref.watch(categoryRepositoryProvider));
+}
+
+@riverpod
+DeleteCategory deleteCategoryUseCase(Ref ref) {
+  return DeleteCategory(ref.watch(categoryRepositoryProvider));
+}
+
+@riverpod
+class Categories extends _$Categories {
+  @override
+  FutureOr<List<Category>> build() => const [];
+
+  void _safeSetState(AsyncValue<List<Category>> newState) {
     try {
       state = newState;
     } catch (_) {}
@@ -25,8 +56,8 @@ class Category extends _$Category {
   Future<void> fetchCategories(String idToken, {String? type}) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(categoryRepositoryProvider);
-      final data = await repository.getCategories(idToken, type: type);
+      final data = await ref
+          .read(getCategoriesUseCaseProvider)(idToken, type: type);
       _safeSetState(AsyncData(data));
     } catch (e, st) {
       if (e is UnauthorizedException) {
@@ -46,8 +77,7 @@ class Category extends _$Category {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(categoryRepositoryProvider);
-      await repository.createCategory(
+      await ref.read(createCategoryUseCaseProvider)(
         idToken,
         name: name,
         icon: icon,
@@ -67,8 +97,7 @@ class Category extends _$Category {
   Future<void> deleteCategory(String idToken, String categoryId) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(categoryRepositoryProvider);
-      await repository.deleteCategory(idToken, categoryId);
+      await ref.read(deleteCategoryUseCaseProvider)(idToken, categoryId);
       await fetchCategories(idToken);
     } catch (e, st) {
       if (e is UnauthorizedException) {
@@ -89,8 +118,7 @@ class Category extends _$Category {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(categoryRepositoryProvider);
-      await repository.updateCategory(
+      await ref.read(updateCategoryUseCaseProvider)(
         idToken,
         categoryId,
         name: name,

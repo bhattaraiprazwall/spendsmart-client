@@ -4,11 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/profile/domain/entities/profile.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
-  final Map<String, dynamic> profile;
+  final Profile profile;
   const EditProfileScreen({super.key, required this.profile});
 
   @override
@@ -28,8 +29,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     //   _nameController.text = profile?["data"]["name"] ?? "";
     //   _avatarController.text = profile?["data"]["avatarUrl"] ?? "";
     // });
-    _nameController.text = widget.profile["name"] ?? "";
-    _avatarController.text = widget.profile["avatarUrl"] ?? "";
+    _nameController.text = widget.profile.name;
+    _avatarController.text = widget.profile.avatarUrl ?? "";
   }
 
   @override

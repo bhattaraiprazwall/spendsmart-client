@@ -1,3 +1,5 @@
+import 'package:spendsmart/features/incomes/domain/entities/income.dart';
+
 class IncomeModel {
   final String id;
   final String type;
@@ -58,5 +60,23 @@ class IncomeModel {
       "date": date.toIso8601String(),
       "categoryId": categoryId,
     };
+  }
+
+  Income toEntity() {
+    return Income(
+      id: id,
+      type: type,
+      amount: amount,
+      title: title,
+      note: note,
+      paymentMethod: paymentMethod,
+      date: date,
+      categoryId: categoryId,
+      categoryName: categoryName,
+      categoryIcon: categoryIcon,
+      categoryColor: categoryColor,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
   }
 }

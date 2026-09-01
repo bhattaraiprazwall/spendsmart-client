@@ -1,29 +1,48 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/features/budget/presentation/providers/budget_provider.dart';
 import 'package:spendsmart/features/expenses/presentation/providers/expense_provider.dart';
 import 'package:spendsmart/features/home/presentation/providers/dashboard_provider.dart';
 import 'package:spendsmart/features/incomes/presentation/providers/income_provider.dart';
-import 'package:spendsmart/features/transactions/data/models/transaction_model.dart';
-import 'package:spendsmart/features/transactions/data/repositories/transaction_repository.dart';
+import 'package:spendsmart/features/transactions/data/datasources/transaction_remote_data_source.dart';
+import 'package:spendsmart/features/transactions/data/repositories/transaction_repository_impl.dart';
+import 'package:spendsmart/features/transactions/domain/entities/transaction.dart';
+import 'package:spendsmart/features/transactions/domain/repositories/transaction_repository.dart';
+import 'package:spendsmart/features/transactions/domain/usecases/delete_transaction.dart';
+import 'package:spendsmart/features/transactions/domain/usecases/update_transaction.dart';
 part 'transaction_provider.g.dart';
 
 @riverpod
 TransactionRepository transactionRepository(Ref ref) {
-  return TransactionRepository();
+  return TransactionRepositoryImpl(ref.watch(transactionRemoteDataSourceProvider));
 }
 
 @riverpod
-class Transaction extends _$Transaction {
-  @override
-  FutureOr<TransactionModel?> build() => null;
+TransactionRemoteDataSource transactionRemoteDataSource(Ref ref) {
+  return TransactionRemoteDataSource();
+}
 
-  void _safeSetState(AsyncValue<TransactionModel?> newState) {
-    try {
-      state = newState;
-    } catch (_) {}
+@riverpod
+UpdateTransaction updateTransaction(Ref ref) {
+  return UpdateTransaction(ref.watch(transactionRepositoryProvider));
+}
+
+@riverpod
+DeleteTransaction deleteTransaction(Ref ref) {
+  return DeleteTransaction(ref.watch(transactionRepositoryProvider));
+}
+
+@riverpod
+class TransactionNotifier extends _$TransactionNotifier {
+  @override
+  FutureOr<List<Transaction>> build() async {
+    final token = await ref.read(storageServiceProvider).getToken();
+    if (token == null) return [];
+    
+    final repository = ref.watch(transactionRepositoryProvider);
+    return await repository.getTransactions(token);
   }
 
   Future<void> _refreshDependents(String idToken) async {
@@ -38,7 +57,7 @@ class Transaction extends _$Transaction {
     ]);
   }
 
-  Future<TransactionModel?> updateTransaction(
+  Future<Transaction?> updateTransaction(
     String idToken,
     String transactionId, {
     String? type,
@@ -49,10 +68,9 @@ class Transaction extends _$Transaction {
     String? date,
     String? categoryId,
   }) async {
-    _safeSetState(const AsyncLoading());
+    state = const AsyncLoading();
     try {
-      final repository = ref.read(transactionRepositoryProvider);
-      final updated = await repository.updateTransaction(
+      final updated = await ref.read(updateTransactionProvider)(
         idToken,
         transactionId,
         type: type,
@@ -63,7 +81,8 @@ class Transaction extends _$Transaction {
         date: date,
         categoryId: categoryId,
       );
-      _safeSetState(AsyncData(updated));
+      ref.invalidateSelf();
+      await future;
       await _refreshDependents(idToken);
       return updated;
     } catch (e, st) {
@@ -71,24 +90,24 @@ class Transaction extends _$Transaction {
         await ref.read(storageServiceProvider).deleteToken();
         ref.read(authStateProvider.notifier).state = false;
       }
-      _safeSetState(AsyncError(e, st));
+      state = AsyncError(e, st);
       rethrow;
     }
   }
 
   Future<void> deleteTransaction(String idToken, String transactionId) async {
-    _safeSetState(const AsyncLoading());
+    state = const AsyncLoading();
     try {
-      final repository = ref.read(transactionRepositoryProvider);
-      await repository.deleteTransaction(idToken, transactionId);
-      _safeSetState(const AsyncData(null));
+      await ref.read(deleteTransactionProvider)(idToken, transactionId);
+      ref.invalidateSelf();
+      await future;
       await _refreshDependents(idToken);
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).deleteToken();
         ref.read(authStateProvider.notifier).state = false;
       }
-      _safeSetState(AsyncError(e, st));
+      state = AsyncError(e, st);
       rethrow;
     }
   }

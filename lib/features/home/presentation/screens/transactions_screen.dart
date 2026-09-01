@@ -4,12 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
-import 'package:spendsmart/core/widgets/navigation/spendsmart_appbar.dart';
-import 'package:spendsmart/features/expenses/data/models/expense.dart';
-import 'package:spendsmart/features/expenses/presentation/providers/expense_provider.dart';
-import 'package:spendsmart/features/incomes/data/models/income.dart';
-import 'package:spendsmart/features/incomes/presentation/providers/income_provider.dart';
-import 'package:spendsmart/features/transactions/data/models/transaction_model.dart';
+import 'package:spendsmart/features/transactions/domain/entities/transaction.dart';
+import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
 
 // ── Data model ────────────────────────────────────────────────────────────────
 class TransactionItem {
@@ -19,7 +15,7 @@ class TransactionItem {
   final double amount;
   final IconData icon;
   final Color color;
-  final TransactionModel transaction;
+  final Transaction transaction;
 
   const TransactionItem({
     required this.title,
@@ -60,52 +56,17 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     'Dec',
   ];
 
-  List<TransactionModel> get _allTransactions {
-    final list = <TransactionModel>[];
-    for (final e in ref.watch(expenseProvider).value ?? const <ExpenseModel>[]) {
-      list.add(TransactionModel(
-        id: e.id,
-        type: e.type,
-        amount: e.amount,
-        title: e.title,
-        note: e.note,
-        paymentMethod: e.paymentMethod,
-        date: e.date,
-        categoryId: e.categoryId,
-        categoryName: e.categoryName,
-        categoryIcon: e.categoryIcon,
-        categoryColor: e.categoryColor,
-        createdAt: e.createdAt,
-        updatedAt: e.updatedAt,
-      ));
-    }
-    for (final i in ref.watch(incomeProvider).value ?? const <IncomeModel>[]) {
-      list.add(TransactionModel(
-        id: i.id,
-        type: i.type,
-        amount: i.amount,
-        title: i.title,
-        note: i.note,
-        paymentMethod: i.paymentMethod,
-        date: i.date,
-        categoryId: i.categoryId,
-        categoryName: i.categoryName,
-        categoryIcon: i.categoryIcon,
-        categoryColor: i.categoryColor,
-        createdAt: i.createdAt,
-        updatedAt: i.updatedAt,
-      ));
-    }
-    return list;
-  }
-
-  Map<String, List<TransactionItem>> get _grouped {
+  Map<String, List<TransactionItem>> _groupTransactions(List<Transaction> allTransactions) {
     final grouped = <String, List<TransactionItem>>{};
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
 
-    for (final e in _allTransactions) {
+    // Sort by date descending
+    final sorted = List<Transaction>.from(allTransactions)
+      ..sort((a, b) => b.date.compareTo(a.date));
+
+    for (final e in sorted) {
       final date = DateTime(e.date.year, e.date.month, e.date.day);
       String label;
       if (date == today) {
@@ -120,7 +81,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     return grouped;
   }
 
-  TransactionItem _mapToTransactionItem(TransactionModel e) {
+  TransactionItem _mapToTransactionItem(Transaction e) {
     final hour = e.date.hour;
     final minute = e.date.minute;
     final amPm = hour >= 12 ? 'PM' : 'AM';
@@ -177,39 +138,50 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final transactionsAsync = ref.watch(transactionProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFFEEF0FB),
-      appBar: SpendsmartAppbar(onProfileTap: () {}, onMenuTap: () {}),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            _buildPageTitle(),
-            const SizedBox(height: 16),
-            _buildSearchBar(),
-            const SizedBox(height: 20),
-            Expanded(child: _buildTransactionList()),
-          ],
+      appBar: AppBar(
+        title: const Text('Transaction History'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(transactionProvider);
+          return ref.read(transactionProvider.future);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 16),
+              _buildSearchBar(),
+              const SizedBox(height: 20),
+              Expanded(
+                child: transactionsAsync.when(
+                  data: (transactions) {
+                    if (transactions.isEmpty) {
+                      return const Center(child: Text('No transactions found'));
+                    }
+                    final grouped = _groupTransactions(transactions);
+                    return _buildTransactionList(grouped);
+                  },
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(child: Text('Error: $e')),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // ── Page title ────────────────────────────────────────────────────────
-  Widget _buildPageTitle() {
-    return const Text(
-      'Transactions',
-      style: TextStyle(
-        fontSize: 26,
-        fontWeight: FontWeight.bold,
-        color: Colors.black87,
-      ),
-    );
-  }
-
-  // ── Search bar ────────────────────────────────────────────────────────
   Widget _buildSearchBar() {
     return Row(
       children: [
@@ -231,23 +203,14 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           ),
         ),
         const SizedBox(width: 10),
-        // Filter button
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(Icons.tune, color: Colors.blue, size: 22),
-        ),
       ],
     );
   }
 
-  // ── Full scrollable list ──────────────────────────────────────────────
-  Widget _buildTransactionList() {
+  Widget _buildTransactionList(Map<String, List<TransactionItem>> grouped) {
     return ListView(
-      children: _grouped.entries.map((entry) {
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: grouped.entries.map((entry) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -261,7 +224,6 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     );
   }
 
-  // ── "TODAY" / "YESTERDAY" label ───────────────────────────────────────
   Widget _buildGroupLabel(String label) {
     return Text(
       label,
@@ -274,13 +236,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     );
   }
 
-  // ── Single transaction card ───────────────────────────────────────────
   Widget _buildTransactionCard(TransactionItem item) {
     return GestureDetector(
-      onTap: () => context.push(
-        RoutePaths.transactionDetail,
-        extra: item.transaction,
-      ),
+      onTap: () =>
+          context.push(RoutePaths.transactionDetail, extra: item.transaction),
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -303,7 +262,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   Widget _buildIconCircle(TransactionItem item) {
     return CircleAvatar(
       radius: 24,
-      backgroundColor: item.color.withOpacity(0.15),
+      backgroundColor: item.color.withValues(alpha: 0.15),
       child: Icon(item.icon, color: item.color, size: 22),
     );
   }

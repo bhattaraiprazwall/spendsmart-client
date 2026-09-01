@@ -4,8 +4,8 @@
   import 'package:spendsmart/core/constants/category_constants.dart';
   import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
   import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
-  import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-  import 'package:spendsmart/features/category/data/models/category_model.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+  import 'package:spendsmart/features/category/domain/entities/category.dart';
   import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
   import 'package:spendsmart/features/category/presentation/screens/delete_category_confirmation.dart';
 
@@ -31,16 +31,16 @@
   }
 
   class _EditCategoryScreenState extends ConsumerState<EditCategoryScreen> {
-    CategoryModel? _foundCategory;
+    Category? _foundCategory;
 
     @override
     Widget build(BuildContext context) {
-      final categoriesAsync = ref.watch(categoryProvider);
+      final categoriesAsync = ref.watch(categoriesProvider);
 
       final loadedCategory = categoriesAsync.whenOrNull(
         data: (categories) => categories.firstWhere(
           (c) => c.id == widget.categoryId,
-          orElse: () => CategoryModel(
+          orElse: () => Category(
             id: '',
             name: 'Unknown',
             icon: 'category',
@@ -63,7 +63,7 @@
   }
 
   class _EditCategoryContent extends ConsumerStatefulWidget {
-    final CategoryModel category;
+    final Category category;
 
     const _EditCategoryContent({
       required this.category,
@@ -111,7 +111,7 @@
       if (token == null) return;
 
       await ref
-          .read(categoryProvider.notifier)
+          .read(categoriesProvider.notifier)
           .updateCategory(
             token,
             widget.category.id,
@@ -122,7 +122,7 @@
 
       if (!mounted) return;
 
-      final currentState = ref.read(categoryProvider);
+      final currentState = ref.read(categoriesProvider);
       if (currentState is AsyncError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${currentState.error}')),
@@ -138,7 +138,7 @@
 
     @override
     Widget build(BuildContext context) {
-      final isSaving = ref.watch(categoryProvider).isLoading;
+      final isSaving = ref.watch(categoriesProvider).isLoading;
 
       return Scaffold(
         backgroundColor: const Color(0xFFEEF0FB),
@@ -377,12 +377,12 @@
       }
 
       await ref
-          .read(categoryProvider.notifier)
+          .read(categoriesProvider.notifier)
           .deleteCategory(token, widget.category.id);
 
       if (!mounted) return;
 
-      final currentState = ref.read(categoryProvider);
+      final currentState = ref.read(categoriesProvider);
       if (currentState is AsyncError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

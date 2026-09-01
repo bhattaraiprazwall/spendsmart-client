@@ -10,7 +10,7 @@ import 'package:spendsmart/core/widgets/already_login_register.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/widgets/buttons/social_button.dart';
-import 'package:spendsmart/features/auth/presentation/providers/login_provider.dart';
+  import 'package:spendsmart/features/auth/presentation/providers/login_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -167,7 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       'assets/icons/apple.svg',
                       width: 15,
                       height: 15,
-                      color: Colors.white,
+                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                     ),
                     backgroundColor: AppColors.neutral,
                     textColor: Colors.white,

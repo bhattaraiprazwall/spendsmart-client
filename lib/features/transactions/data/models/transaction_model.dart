@@ -1,3 +1,5 @@
+import 'package:spendsmart/features/transactions/domain/entities/transaction.dart';
+
 class TransactionModel {
   final String id;
   final String type;
@@ -60,5 +62,23 @@ class TransactionModel {
       "date": date.toIso8601String(),
       "categoryId": categoryId,
     };
+  }
+
+  Transaction toEntity() {
+    return Transaction(
+      id: id,
+      type: type,
+      amount: amount,
+      title: title,
+      note: note,
+      paymentMethod: paymentMethod,
+      date: date,
+      categoryId: categoryId,
+      categoryName: categoryName,
+      categoryIcon: categoryIcon,
+      categoryColor: categoryColor,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
   }
 }

@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/category/data/models/category_model.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/category/domain/entities/category.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
 import 'package:spendsmart/features/category/presentation/screens/delete_category_confirmation.dart';
 
@@ -49,13 +49,13 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     Future.microtask(() async {
       final token = await ref.read(storageServiceProvider).getToken();
       if (token == null) return;
-      ref.read(categoryProvider.notifier).fetchCategories(token);
+      ref.read(categoriesProvider.notifier).fetchCategories(token);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final categoriesAsync = ref.watch(categoryProvider);
+    final categoriesAsync = ref.watch(categoriesProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFEEF0FB),
@@ -102,7 +102,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  Widget _buildTypeSection(String title, List<CategoryModel> typeList) {
+  Widget _buildTypeSection(String title, List<Category> typeList) {
     final custom = typeList.where((c) => !c.isDefault).toList();
     final defaults = typeList.where((c) => c.isDefault).toList();
 
@@ -142,7 +142,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  Widget _buildCustomCard(CategoryModel item) {
+  Widget _buildCustomCard(Category item) {
     final icon = _resolveIcon(item.icon);
     final color = _hexToColor(item.color);
     return Container(
@@ -193,7 +193,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  Widget _buildDefaultCard(CategoryModel item) {
+  Widget _buildDefaultCard(Category item) {
     final icon = _resolveIcon(item.icon);
     final color = _hexToColor(item.color);
     return Container(
@@ -222,7 +222,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  Widget _buildNameAndCount(CategoryModel item) {
+  Widget _buildNameAndCount(Category item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -283,7 +283,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     );
   }
 
-  void _showDeleteDialog(BuildContext context, CategoryModel item) async {
+  void _showDeleteDialog(BuildContext context, Category item) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => DeleteCategoryConfirmation(
@@ -294,9 +294,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     if (confirmed != true) return;
     final token = await ref.read(storageServiceProvider).getToken();
     if (token == null) return;
-    await ref.read(categoryProvider.notifier).deleteCategory(token, item.id);
+    await ref.read(categoriesProvider.notifier).deleteCategory(token, item.id);
     if (!mounted) return;
-    final currentState = ref.read(categoryProvider);
+    final currentState = ref.read(categoriesProvider);
     if (currentState is AsyncError) {
       ScaffoldMessenger.of(
         context,

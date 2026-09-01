@@ -5,10 +5,10 @@ import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/category/data/models/category_model.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/category/domain/entities/category.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
-import 'package:spendsmart/features/incomes/models/income_form_data.dart';
+import 'package:spendsmart/features/incomes/domain/entities/income_form_data.dart';
 import 'package:spendsmart/features/incomes/presentation/providers/income_provider.dart';
 import 'package:spendsmart/features/incomes/presentation/widgets/income_amount_display.dart';
 import 'package:spendsmart/features/incomes/presentation/widgets/income_form_card.dart';
@@ -69,7 +69,7 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
     Future.microtask(() async {
       final token = await ref.read(storageServiceProvider).getToken();
       if (token == null) return;
-      ref.read(categoryProvider.notifier).fetchCategories(token, type: 'INCOME');
+      ref.read(categoriesProvider.notifier).fetchCategories(token, type: 'INCOME');
     });
   }
 
@@ -97,7 +97,7 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
         return SafeArea(
           child: Consumer(
             builder: (context, ref, _) {
-              final categoriesAsync = ref.watch(categoryProvider);
+              final categoriesAsync = ref.watch(categoriesProvider);
           
               return categoriesAsync.when(
                 loading: () => const SizedBox(
@@ -130,7 +130,7 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
     );
   }
 
-  Widget _buildCategoryItem(CategoryModel cat, BuildContext ctx) {
+  Widget _buildCategoryItem(Category cat, BuildContext ctx) {
     final color = _hexToColor(cat.color);
     return ListTile(
       leading: CircleAvatar(
@@ -254,7 +254,7 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(categoryProvider);
+    ref.watch(categoriesProvider);
 
     return Scaffold(
       appBar: AppBar(

@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/budget/data/models/budget_category_model.dart';
-import 'package:spendsmart/features/budget/data/models/budget_model.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/budget/domain/entities/budget.dart';
+import 'package:spendsmart/features/budget/domain/entities/budget_category.dart';
 import 'package:spendsmart/features/budget/presentation/providers/budget_provider.dart';
 import 'package:spendsmart/features/budget/presentation/widgets/amount_input_dialog.dart';
 import 'package:spendsmart/features/budget/presentation/widgets/budget_status_widgets.dart';
-import 'package:spendsmart/features/category/data/models/category_model.dart';
+import 'package:spendsmart/features/category/domain/entities/category.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
 
 class BudgetScreen extends ConsumerStatefulWidget {
@@ -43,7 +43,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     await ref
         .read(budgetProvider.notifier)
         .fetchBudget(token, month: _month, year: _year);
-    await ref.read(categoryProvider.notifier).fetchCategories(token);
+    await ref.read(categoriesProvider.notifier).fetchCategories(token);
   }
 
   Future<void> _setMonth(int month, int year) async {
@@ -196,8 +196,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           )
         else
           ...status.categories
-              .map((c) => _buildCategoryCard(status, c))
-              .toList(),
+              .map((c) => _buildCategoryCard(status, c)),
       ],
     );
   }
@@ -262,7 +261,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -289,7 +288,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.12),
+                  color: statusColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -386,7 +385,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     );
   }
 
-  Widget _buildCategoryCard(BudgetStatus status, BudgetCategoryModel cat) {
+  Widget _buildCategoryCard(BudgetStatus status, BudgetCategory cat) {
     final color = budgetHexToColor(cat.color);
     final icon = budgetResolveIcon(cat.icon);
     final statusColor = budgetStatusColor(cat.status);
@@ -406,7 +405,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             children: [
               CircleAvatar(
                 radius: 22,
-                backgroundColor: color.withOpacity(0.15),
+                backgroundColor: color.withValues(alpha: 0.15),
                 child: Icon(icon, color: color, size: 22),
               ),
               const SizedBox(width: 12),
@@ -542,7 +541,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Future<void> _addCategoryBudget(BudgetStatus status) async {
-    final categoriesAsync = ref.read(categoryProvider);
+    final categoriesAsync = ref.read(categoriesProvider);
     final expenseCategories = categoriesAsync.value
             ?.where((c) => c.type == 'EXPENSE')
             .toList() ??
@@ -560,7 +559,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       return;
     }
 
-    final CategoryModel? selected = await showModalBottomSheet<CategoryModel>(
+    final Category? selected = await showModalBottomSheet<Category>(
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
@@ -586,7 +585,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                   final color = budgetHexToColor(c.color);
                   return ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: color.withOpacity(0.15),
+                      backgroundColor: color.withValues(alpha: 0.15),
                       child: Icon(
                         budgetResolveIcon(c.icon),
                         color: color,
@@ -605,6 +604,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     );
 
     if (selected == null) return;
+    if (!mounted) return;
     final limit = await showAmountInputDialog(
       context,
       ref,
@@ -625,7 +625,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
   Future<void> _editCategoryLimit(
     BudgetStatus status,
-    BudgetCategoryModel cat,
+    BudgetCategory cat,
   ) async {
     final limit = await showAmountInputDialog(
       context,
@@ -648,7 +648,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
   Future<void> _removeCategoryLimit(
     BudgetStatus status,
-    BudgetCategoryModel cat,
+    BudgetCategory cat,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,

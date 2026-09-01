@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
-import 'package:spendsmart/features/home/models/budget_item.dart';
+import 'package:spendsmart/features/home/domain/entities/budget_item.dart';
 
 class BudgetCard extends StatelessWidget {
   final BudgetItem item;
@@ -26,7 +26,7 @@ class BudgetCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: item.iconColor.withOpacity(0.1),
+                  color: item.iconColor.withValues(alpha: 0.1),
                 ),
                 child: Icon(item.icon, color: item.iconColor),
               ),

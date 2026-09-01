@@ -14,15 +14,11 @@ class Register extends _$Register {
   }) async {
     state = const AsyncLoading();
     try {
-      final repository = ref.read(authRepositoryProvider);
-      final response = await repository.register(
+      await ref.read(registerUseCaseProvider)(
         name: name,
         email: email,
         password: password,
       );
-      if (response["statusCode"] != 201) {
-        throw Exception(response["data"]["message"] ?? "Registration failed");
-      }
       state = const AsyncData(null);
     } catch (e, st) {
       state = AsyncError(e, st);

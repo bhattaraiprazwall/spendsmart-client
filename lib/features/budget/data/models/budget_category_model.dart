@@ -1,3 +1,5 @@
+import 'package:spendsmart/features/budget/domain/entities/budget_category.dart';
+
 class BudgetCategoryModel {
   final String categoryId;
   final String name;
@@ -37,6 +39,21 @@ class BudgetCategoryModel {
       usagePercentage: (json["usagePercentage"] as num?)?.toInt() ?? 0,
       isOverspent: json["isOverspent"] as bool? ?? false,
       status: json["status"] as String? ?? "OK",
+    );
+  }
+
+  BudgetCategory toEntity() {
+    return BudgetCategory(
+      categoryId: categoryId,
+      name: name,
+      icon: icon,
+      color: color,
+      limit: limit,
+      spent: spent,
+      remaining: remaining,
+      usagePercentage: usagePercentage,
+      isOverspent: isOverspent,
+      status: status,
     );
   }
 }

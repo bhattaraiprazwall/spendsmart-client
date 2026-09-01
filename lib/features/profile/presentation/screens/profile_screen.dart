@@ -6,7 +6,7 @@ import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -17,8 +17,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool _biometricLogin = true;
-
   @override
   void initState() {
     super.initState();
@@ -71,7 +69,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       _buildNavRow(
                         'Edit Profile',
                         onTap: () async {
-                          context.push(RoutePaths.editProfile, extra: profile.toJson());
+                          context.push(RoutePaths.editProfile, extra: profile);
                           final t = await ref
                               .read(storageServiceProvider)
                               .getToken();
@@ -169,19 +167,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         onTap: () => _showThresholdPicker(
                           profile.budgetAlertThreshold as int? ?? 80,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  _buildSection(
-                    icon: Icons.shield_outlined,
-                    title: 'Security',
-                    children: [
-                      _buildToggleRow(
-                        label: 'Biometric Login',
-                        subtitle: 'Use Touch ID or Face ID to unlock',
-                        value: _biometricLogin,
-                        onChanged: (v) => setState(() => _biometricLogin = v),
                       ),
                     ],
                   ),

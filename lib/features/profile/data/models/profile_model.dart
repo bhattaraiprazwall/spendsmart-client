@@ -1,3 +1,5 @@
+import 'package:spendsmart/features/profile/domain/entities/profile.dart';
+
 class ProfileModel {
   final String id;
   final String email;
@@ -47,5 +49,19 @@ class ProfileModel {
       "notificationsEnabled": notificationsEnabled,
       "budgetAlertThreshold": budgetAlertThreshold,
     };
+  }
+
+  Profile toEntity() {
+    return Profile(
+      id: id,
+      email: email,
+      name: name,
+      avatarUrl: avatarUrl,
+      currency: currency,
+      language: language,
+      theme: theme,
+      notificationsEnabled: notificationsEnabled,
+      budgetAlertThreshold: budgetAlertThreshold,
+    );
   }
 }

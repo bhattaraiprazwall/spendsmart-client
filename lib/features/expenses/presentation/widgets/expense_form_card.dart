@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:spendsmart/features/expenses/models/expense_form_data.dart';
+import 'package:spendsmart/features/expenses/domain/entities/expense_form_data.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/category_row.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/field_label.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/icon_text_row.dart';

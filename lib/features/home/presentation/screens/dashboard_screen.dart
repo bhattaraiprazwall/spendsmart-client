@@ -8,7 +8,7 @@ import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/sections/section_header.dart';
 import 'package:spendsmart/core/widgets/sections/smart_forecast_card.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
 import 'package:spendsmart/features/home/presentation/providers/dashboard_provider.dart';
 import 'package:spendsmart/features/home/presentation/widgets/dashboard_topbar.dart';

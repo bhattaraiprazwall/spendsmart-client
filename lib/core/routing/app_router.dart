@@ -12,15 +12,16 @@ import 'package:spendsmart/features/category/presentation/screens/categories_lis
 import 'package:spendsmart/features/category/presentation/screens/edit_category_screen.dart';
 import 'package:spendsmart/features/expenses/presentation/screens/add_expense_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/dashboard_screen.dart';
-import 'package:spendsmart/features/home/presentation/screens/insights_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/notification_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/transactions_screen.dart';
 import 'package:spendsmart/features/incomes/presentation/screens/add_income_screen.dart';
+import 'package:spendsmart/features/insights/presentation/screens/insights_screen.dart';
 import 'package:spendsmart/features/onboarding/presentation/screens/onboardingflow.dart';
 import 'package:spendsmart/features/profile/presentation/screens/change_password_screen.dart';
+import 'package:spendsmart/features/profile/domain/entities/profile.dart';
 import 'package:spendsmart/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:spendsmart/features/profile/presentation/screens/profile_screen.dart';
-import 'package:spendsmart/features/transactions/data/models/transaction_model.dart';
+import 'package:spendsmart/features/transactions/domain/entities/transaction.dart';
 import 'package:spendsmart/features/transactions/presentation/screens/transaction_detail_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -88,7 +89,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.editProfile,
         builder: (_, state) =>
-            EditProfileScreen(profile: state.extra as Map<String, dynamic>),
+            EditProfileScreen(profile: state.extra as Profile),
       ),
       GoRoute(
         path: RoutePaths.changePassword,
@@ -126,7 +127,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.transactionDetail,
         builder: (_, state) => TransactionDetailScreen(
-          transaction: state.extra as TransactionModel,
+          transaction: state.extra as Transaction,
         ),
       ),
     ],

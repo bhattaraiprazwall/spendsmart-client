@@ -1,13 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/features/home/data/repositories/dashboard_repository.dart';
-import 'package:spendsmart/features/home/models/dashboard_summary.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/home/data/datasources/dashboard_remote_data_source.dart';
+import 'package:spendsmart/features/home/data/repositories/dashboard_repository_impl.dart';
+import 'package:spendsmart/features/home/domain/entities/dashboard_summary.dart';
+import 'package:spendsmart/features/home/domain/repositories/dashboard_repository.dart';
+import 'package:spendsmart/features/home/domain/usecases/get_dashboard_summary.dart';
 import 'dart:async';
 
+final dashboardRemoteDataSourceProvider = Provider<DashboardRemoteDataSource>((ref) {
+  return DashboardRemoteDataSource();
+});
+
 final dashboardRepositoryProvider = Provider<DashboardRepository>((ref) {
-  return DashboardRepository();
+  return DashboardRepositoryImpl(ref.watch(dashboardRemoteDataSourceProvider));
+});
+
+final getDashboardSummaryUseCaseProvider = Provider<GetDashboardSummary>((ref) {
+  return GetDashboardSummary(ref.watch(dashboardRepositoryProvider));
 });
 
 final dashboardProvider =
@@ -34,8 +45,7 @@ class DashboardNotifier extends AsyncNotifier<DashboardSummary> {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final repository = ref.read(dashboardRepositoryProvider);
-      final summary = await repository.getSummary(
+      final summary = await ref.read(getDashboardSummaryUseCaseProvider)(
         idToken,
         month: month,
         year: year,

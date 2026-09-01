@@ -1,3 +1,5 @@
+import 'package:spendsmart/features/expenses/domain/entities/expense.dart';
+
 class ExpenseModel {
   final String id;
   final String type;
@@ -58,5 +60,23 @@ class ExpenseModel {
       "date": date.toIso8601String(),
       "categoryId": categoryId,
     };
+  }
+
+  Expense toEntity() {
+    return Expense(
+      id: id,
+      type: type,
+      amount: amount,
+      title: title,
+      note: note,
+      paymentMethod: paymentMethod,
+      date: date,
+      categoryId: categoryId,
+      categoryName: categoryName,
+      categoryIcon: categoryIcon,
+      categoryColor: categoryColor,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
   }
 }
