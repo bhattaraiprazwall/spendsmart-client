@@ -10,18 +10,20 @@ class TransactionDetailScreen extends StatelessWidget {
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildAmountCard(),
-            const SizedBox(height: 12),
-            _buildDetailsCard(),
-            const SizedBox(height: 12),
-            _buildBudgetCard(),
-            const SizedBox(height: 24),
-            _buildEditButton(),
-            const SizedBox(height: 8),
-            _buildDeleteButton(),
-          ],
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildAmountCard(),
+              const SizedBox(height: 12),
+              _buildDetailsCard(),
+              const SizedBox(height: 12),
+              _buildBudgetCard(),
+              const SizedBox(height: 24),
+              _buildEditButton(),
+              const SizedBox(height: 8),
+              _buildDeleteButton(),
+            ],
+          ),
         ),
       ),
     );

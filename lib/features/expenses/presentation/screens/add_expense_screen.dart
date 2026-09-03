@@ -59,9 +59,10 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   late final TextEditingController _amountController;
   late final FocusNode _amountFocusNode;
   bool _isSaving = false;
-  String? _predictedCategoryName;
-  IconData? _predictedCategoryIcon;
-  Color? _predictedCategoryColor;
+  Category? _suggestionCategory;
+  String? _suggestionConfidenceLabel;
+  String? _suggestionAlternative;
+  bool _showSuggestion = false;
   bool _isPredicting = false;
   Timer? _debounceTimer;
 
@@ -108,7 +109,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     _debounceTimer?.cancel();
     if (value.trim().isEmpty) {
       setState(() {
-        _predictedCategoryName = null;
+        _suggestionCategory = null;
+        _showSuggestion = false;
         _isPredicting = false;
       });
       return;
@@ -123,41 +125,63 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     try {
       final token = await ref.read(storageServiceProvider).getToken();
       if (token == null) return;
-      final response = await http.get(
-        Uri.parse('${ApiConstants.categories}/predict?title=$title&type=EXPENSE'),
+      final response = await http.post(
+        Uri.parse(ApiConstants.categoryPrediction),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
         },
+        body: jsonEncode({"title": title}),
       );
       if (!mounted) return;
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
         final data = body["data"] as Map<String, dynamic>?;
-        final predicted = data?["predictedCategory"] as Map<String, dynamic>?;
-        if (predicted != null) {
-          setState(() {
-            _predictedCategoryName = predicted["name"] as String?;
-            _predictedCategoryIcon = _mapCategoryIcon(
-              predicted["icon"] as String? ?? "",
-            );
-            _predictedCategoryColor = _hexToColor(
-              predicted["color"] as String? ?? "#3D5CFF",
-            );
-            _isPredicting = false;
-          });
-        } else {
-          setState(() {
-            _predictedCategoryName = null;
-            _isPredicting = false;
-          });
+        final shouldSuggest = data?["shouldSuggest"] as bool? ?? false;
+        final categoryData = data?["category"] as Map<String, dynamic>?;
+        final confidenceLabel = data?["confidenceLevel"] as String?;
+        final alternative = data?["alternative"] as Map<String, dynamic>?;
+
+        Category? matched;
+        if (categoryData != null) {
+          matched = Category(
+            id: categoryData["id"] as String? ?? "",
+            name: categoryData["name"] as String? ?? "",
+            icon: categoryData["icon"] as String? ?? "",
+            color: categoryData["color"] as String? ?? "",
+            isDefault: categoryData["isDefault"] as bool? ?? false,
+            canonicalKey: categoryData["canonicalKey"] as String?,
+            type: "EXPENSE",
+          );
         }
+
+        setState(() {
+          _suggestionCategory = matched;
+          _suggestionConfidenceLabel = confidenceLabel;
+          _suggestionAlternative =
+              alternative?["category"] as String?;
+          _showSuggestion =
+              (matched != null && shouldSuggest);
+          _isPredicting = false;
+        });
       } else {
         if (mounted) setState(() => _isPredicting = false);
       }
     } catch (e) {
       if (mounted) setState(() => _isPredicting = false);
     }
+  }
+
+  void _selectSuggestion(Category category) {
+    setState(() {
+      formData = formData.copyWith(
+        category: category.name,
+        categoryId: category.id,
+      );
+      _suggestionCategory = null;
+      _showSuggestion = false;
+      _categoryError = null;
+    });
   }
 
   void _showCategoryPicker() {
@@ -223,7 +247,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             categoryId: cat.id,
             date: _formatDate(formData.selectedDate ?? now),
           );
-          _predictedCategoryName = null;
+          _suggestionCategory = null;
+          _showSuggestion = false;
           _categoryError = null;
         });
         Navigator.of(ctx).pop();
@@ -413,10 +438,14 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 onNoteChanged: (note) =>
                     setState(() => formData = formData.copyWith(note: note)),
                 onTitleChanged: _onTitleChanged,
-                predictedCategoryName: _predictedCategoryName,
-                predictedCategoryIcon: _predictedCategoryIcon,
-                predictedCategoryColor: _predictedCategoryColor,
+                suggestionCategory: _suggestionCategory,
+                suggestionConfidenceLabel: _suggestionConfidenceLabel,
+                suggestionAlternative: _suggestionAlternative,
+                showSuggestion: _showSuggestion,
                 isPredicting: _isPredicting,
+                onSuggestionTap: _suggestionCategory == null
+                    ? null
+                    : () => _selectSuggestion(_suggestionCategory!),
               ),
               const SizedBox(height: 40),
 

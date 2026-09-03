@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -13,15 +14,15 @@ class BottomNavBar extends StatelessWidget {
     required this.onFabTap,
   });
 
-  final List<Map<String, dynamic>> _navItems = const [
-    {'icon': Icons.dashboard_rounded, 'label': 'DASHBOARD'},
-    {'icon': Icons.receipt_long_outlined, 'label': 'TRANSACTION'},
-    {'icon': Icons.insights_outlined, 'label': 'INSIGHTS'},
-    {'icon': Icons.person_outline, 'label': 'PROFILE'},
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, dynamic>> navItems = [
+      {'icon': Icons.dashboard_rounded, 'label': context.tr('dashboard')},
+      {'icon': Icons.receipt_long_outlined, 'label': context.tr('transaction')},
+      {'icon': Icons.insights_outlined, 'label': context.tr('insights')},
+      {'icon': Icons.person_outline, 'label': context.tr('profile')},
+    ];
+
     return SafeArea(
       child: Stack(
         clipBehavior: Clip.none,
@@ -40,8 +41,8 @@ class BottomNavBar extends StatelessWidget {
               ],
             ),
             child: Row(
-              children: List.generate(_navItems.length, (index) {
-                return Expanded(child: _navItem(index));
+              children: List.generate(navItems.length, (index) {
+                return Expanded(child: _navItem(context, navItems[index], index));
               }),
             ),
           ),
@@ -51,8 +52,7 @@ class BottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _navItem(int index) {
-    final item = _navItems[index];
+  Widget _navItem(BuildContext context, Map<String, dynamic> item, int index) {
     final bool isSelected = currentIndex == index;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

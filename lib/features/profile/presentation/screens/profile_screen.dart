@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/providers/locale_provider.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
@@ -450,12 +452,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     showDialog<String>(
       context: context,
       builder: (ctx) => SimpleDialog(
-        title: const Text("Select Language"),
+        title: Text(context.tr("language")),
         children: ["en", "es", "fr", "de", "ja", "zh"]
             .map(
               (l) => SimpleDialogOption(
                 onPressed: () async {
                   Navigator.of(ctx).pop();
+                  await ref.read(localeProvider.notifier).setLocale(l);
                   final t = await ref.read(storageServiceProvider).getToken();
                   if (t != null) {
                     ref

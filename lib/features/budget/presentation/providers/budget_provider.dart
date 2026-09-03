@@ -14,6 +14,7 @@ import 'package:spendsmart/features/budget/domain/usecases/get_budget_status.dar
 import 'package:spendsmart/features/budget/domain/usecases/remove_category_limit.dart';
 import 'package:spendsmart/features/budget/domain/usecases/update_budget.dart';
 import 'package:spendsmart/features/budget/domain/usecases/update_category_limit.dart';
+import 'package:spendsmart/features/home/presentation/providers/dashboard_provider.dart';
 part 'budget_provider.g.dart';
 
 @riverpod
@@ -140,6 +141,7 @@ class Budget extends _$Budget {
         categories: categories,
       );
       await fetchBudget(idToken, month: month, year: year);
+      ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).deleteToken();
@@ -162,6 +164,7 @@ class Budget extends _$Budget {
         totalAmount: totalAmount,
       );
       await fetchBudget(idToken, month: _month, year: _year);
+      ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).deleteToken();
@@ -176,6 +179,7 @@ class Budget extends _$Budget {
     try {
       await ref.read(deleteBudgetUseCaseProvider)(idToken, budgetId);
       _safeSetState(const AsyncData(null));
+      ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).deleteToken();
@@ -200,6 +204,7 @@ class Budget extends _$Budget {
         limit: limit,
       );
       await fetchBudget(idToken, month: _month, year: _year);
+      ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).deleteToken();
@@ -224,6 +229,7 @@ class Budget extends _$Budget {
         limit: limit,
       );
       await fetchBudget(idToken, month: _month, year: _year);
+      ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).deleteToken();
@@ -246,6 +252,7 @@ class Budget extends _$Budget {
         categoryId,
       );
       await fetchBudget(idToken, month: _month, year: _year);
+      ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).deleteToken();

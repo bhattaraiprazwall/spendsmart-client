@@ -12,6 +12,7 @@ import 'package:spendsmart/features/transactions/domain/entities/transaction.dar
 import 'package:spendsmart/features/transactions/domain/repositories/transaction_repository.dart';
 import 'package:spendsmart/features/transactions/domain/usecases/delete_transaction.dart';
 import 'package:spendsmart/features/transactions/domain/usecases/update_transaction.dart';
+import 'package:spendsmart/features/insights/presentation/providers/insights_provider.dart';
 part 'transaction_provider.g.dart';
 
 @riverpod
@@ -47,6 +48,7 @@ class TransactionNotifier extends _$TransactionNotifier {
 
   Future<void> _refreshDependents(String idToken) async {
     final now = DateTime.now();
+    ref.invalidate(insightsProvider);
     await Future.wait([
       ref.read(expenseProvider.notifier).fetchExpenses(idToken),
       ref.read(incomeProvider.notifier).fetchIncomes(idToken),

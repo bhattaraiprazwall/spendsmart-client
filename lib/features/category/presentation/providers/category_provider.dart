@@ -10,6 +10,10 @@ import 'package:spendsmart/features/category/domain/usecases/create_category.dar
 import 'package:spendsmart/features/category/domain/usecases/delete_category.dart';
 import 'package:spendsmart/features/category/domain/usecases/get_categories.dart';
 import 'package:spendsmart/features/category/domain/usecases/update_category.dart';
+import 'package:spendsmart/features/expenses/presentation/providers/expense_provider.dart';
+import 'package:spendsmart/features/incomes/presentation/providers/income_provider.dart';
+import 'package:spendsmart/features/insights/presentation/providers/insights_provider.dart';
+import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
 part 'category_provider.g.dart';
 
 @riverpod
@@ -68,6 +72,13 @@ class Categories extends _$Categories {
     }
   }
 
+  Future<void> _refreshDependents() async {
+    ref.invalidate(transactionProvider);
+    ref.invalidate(insightsProvider);
+    ref.invalidate(expenseProvider);
+    ref.invalidate(incomeProvider);
+  }
+
   Future<void> createCategory(
     String idToken, {
     required String name,
@@ -84,6 +95,7 @@ class Categories extends _$Categories {
         color: color,
         type: type,
       );
+      await _refreshDependents();
       await fetchCategories(idToken);
     } catch (e, st) {
       if (e is UnauthorizedException) {
@@ -98,6 +110,7 @@ class Categories extends _$Categories {
     _safeSetState(const AsyncLoading());
     try {
       await ref.read(deleteCategoryUseCaseProvider)(idToken, categoryId);
+      await _refreshDependents();
       await fetchCategories(idToken);
     } catch (e, st) {
       if (e is UnauthorizedException) {
@@ -126,6 +139,7 @@ class Categories extends _$Categories {
         color: color,
         type: type,
       );
+      await _refreshDependents();
       await fetchCategories(idToken);
     } catch (e, st) {
       if (e is UnauthorizedException) {

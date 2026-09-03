@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/providers/locale_provider.dart';
 import 'package:spendsmart/core/routing/app_router.dart';
 import 'package:spendsmart/core/services/local_storage_service.dart';
 import 'package:spendsmart/core/theme/app_theme.dart';
@@ -38,17 +39,20 @@ class _MyAppState extends ConsumerState<MyApp> {
     if (currency != null && currency.isNotEmpty) {
       ref.read(currencyProvider.notifier).state = currency;
     }
+    await ref.read(localeProvider.notifier).loadLocale();
   }
 
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(goRouterProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'SpendSmart',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       routerConfig: router,
+      locale: locale,
     );
   }
 }

@@ -251,95 +251,97 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Edit Transaction',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _amountController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                labelText: 'Amount',
-                errorText: _amountError,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 16),
+              const Text(
+                'Edit Transaction',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  labelText: 'Amount',
+                  errorText: _amountError,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: 'Title',
-                errorText: _titleError,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _titleController,
+                decoration: InputDecoration(
+                  labelText: 'Title',
+                  errorText: _titleError,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _noteController,
-              maxLines: 2,
-              decoration: InputDecoration(
-                labelText: 'Note',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _noteController,
+                maxLines: 2,
+                decoration: InputDecoration(
+                  labelText: 'Note',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            _buildFieldTile(
-              icon: Icons.category_outlined,
-              label: 'Category',
-              value: _categoryName ?? 'Select Category',
-              error: _categoryError,
-              onTap: _showCategoryPicker,
-            ),
-            const SizedBox(height: 12),
-            _buildFieldTile(
-              icon: Icons.calendar_today_outlined,
-              label: 'Date',
-              value: formatTransactionDate(_selectedDate ?? DateTime.now()),
-              onTap: _showDatePicker,
-            ),
-            const SizedBox(height: 12),
-            _buildFieldTile(
-              icon: Icons.credit_card_outlined,
-              label: 'Payment Method',
-              value: (_paymentMethod ?? 'CARD').replaceAll('_', ' '),
-              onTap: _showMethodPicker,
-            ),
-            const SizedBox(height: 24),
-            PrimaryButton(
-              onPressed: _handleSave,
-              label: _isSaving ? 'Saving...' : 'Save Changes',
-            ),
-          ],
+              const SizedBox(height: 12),
+              _buildFieldTile(
+                icon: Icons.category_outlined,
+                label: 'Category',
+                value: _categoryName ?? 'Select Category',
+                error: _categoryError,
+                onTap: _showCategoryPicker,
+              ),
+              const SizedBox(height: 12),
+              _buildFieldTile(
+                icon: Icons.calendar_today_outlined,
+                label: 'Date',
+                value: formatTransactionDate(_selectedDate ?? DateTime.now()),
+                onTap: _showDatePicker,
+              ),
+              const SizedBox(height: 12),
+              _buildFieldTile(
+                icon: Icons.credit_card_outlined,
+                label: 'Payment Method',
+                value: (_paymentMethod ?? 'CARD').replaceAll('_', ' '),
+                onTap: _showMethodPicker,
+              ),
+              const SizedBox(height: 24),
+              PrimaryButton(
+                onPressed: _handleSave,
+                label: _isSaving ? 'Saving...' : 'Save Changes',
+              ),
+            ],
+          ),
         ),
       ),
     );

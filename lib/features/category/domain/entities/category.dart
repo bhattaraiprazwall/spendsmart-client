@@ -5,6 +5,7 @@ class Category {
   final String color;
   final bool isDefault;
   final String type;
+  final String? canonicalKey;
 
   const Category({
     required this.id,
@@ -13,5 +14,6 @@ class Category {
     required this.color,
     required this.isDefault,
     this.type = 'EXPENSE',
+    this.canonicalKey,
   });
 }

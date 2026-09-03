@@ -8,6 +8,8 @@ import 'package:spendsmart/features/incomes/domain/entities/income.dart';
 import 'package:spendsmart/features/incomes/domain/repositories/income_repository.dart';
 import 'package:spendsmart/features/incomes/domain/usecases/create_income.dart';
 import 'package:spendsmart/features/incomes/domain/usecases/get_incomes.dart';
+import 'package:spendsmart/features/home/presentation/providers/dashboard_provider.dart';
+import 'package:spendsmart/features/insights/presentation/providers/insights_provider.dart';
 import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
 import 'dart:async';
 
@@ -62,8 +64,16 @@ class IncomeNotifier extends AsyncNotifier<List<Income>> {
         date: date,
         categoryId: categoryId,
       );
-      _safeSetState(AsyncData([...current, income]));
+      
+      // Invalidate dependent providers
       ref.invalidate(transactionProvider);
+      ref.invalidate(insightsProvider);
+      
+      // Refresh dashboard
+      final now = DateTime.now();
+      await ref.read(dashboardProvider.notifier).fetchSummary(idToken, month: now.month, year: now.year);
+      
+      await fetchIncomes(idToken);
       return income;
     } catch (e, st) {
       if (e is UnauthorizedException) {

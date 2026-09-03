@@ -8,6 +8,9 @@ import 'package:spendsmart/features/expenses/domain/entities/expense.dart';
 import 'package:spendsmart/features/expenses/domain/repositories/expense_repository.dart';
 import 'package:spendsmart/features/expenses/domain/usecases/create_expense.dart';
 import 'package:spendsmart/features/expenses/domain/usecases/get_expenses.dart';
+import 'package:spendsmart/features/budget/presentation/providers/budget_provider.dart';
+import 'package:spendsmart/features/home/presentation/providers/dashboard_provider.dart';
+import 'package:spendsmart/features/insights/presentation/providers/insights_provider.dart';
 import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
 import 'dart:async';
 
@@ -65,8 +68,17 @@ class ExpenseNotifier extends AsyncNotifier<List<Expense>> {
         date: date,
         categoryId: categoryId,
       );
-      _safeSetState(AsyncData([...current, expense]));
+      
+      // Invalidate dependent providers to trigger automatic UI updates
       ref.invalidate(transactionProvider);
+      ref.invalidate(insightsProvider);
+      ref.invalidate(budgetProvider);
+      
+      // Refresh dashboard
+      final now = DateTime.now();
+      await ref.read(dashboardProvider.notifier).fetchSummary(idToken, month: now.month, year: now.year);
+      
+      await fetchExpenses(idToken);
       return expense;
     } catch (e, st) {
       if (e is UnauthorizedException) {

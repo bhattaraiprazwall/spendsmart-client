@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
@@ -48,92 +47,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        _showExitConfirmation(context);
-      },
-      child: Scaffold(
-        appBar: DashboardTopBar(),
-        body: SafeArea(
-          child: _buildBody(context),
-        ),
+    return Scaffold(
+      appBar: DashboardTopBar(),
+      body: SafeArea(
+        child: _buildBody(context),
       ),
     );
-  }
-
-  Future<void> _showExitConfirmation(BuildContext context) async {
-    final shouldExit = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.white,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: const BoxDecoration(shape: BoxShape.circle),
-                child: const Icon(
-                  Icons.exit_to_app,
-                  color: AppColors.primary,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Exit App?',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Are you sure you want to exit?',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.5),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () => Navigator.pop(dialogContext, false),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFDDE0EF)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: const Text('No', style: TextStyle(color: Colors.black54)),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(dialogContext, true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: const Text('Yes', style: TextStyle(color: Colors.white)),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (shouldExit == true && context.mounted) {
-      SystemNavigator.pop();
-    }
   }
 
   Widget _buildBody(BuildContext context) {
@@ -192,8 +111,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   const RemainingBudgetSection(),
                   const SizedBox(height: 30),
                   SectionHeader(
-                    title: 'Recent Transactions',
-                    actionText: 'SEE ALL',
+                    title: context.tr('recent_transactions'),
+                    actionText: context.tr('see_all'),
                     onActionTap: () {
                       context.push(RoutePaths.transactions);
                     },

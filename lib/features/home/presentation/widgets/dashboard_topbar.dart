@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/features/profile/domain/entities/profile.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
@@ -21,7 +22,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       leading: _buildAvatar(profile),
       leadingWidth: 58,
-      title: _buildGreeting(profile),
+      title: _buildGreeting(profile,context),
       actions: [_buildBellIcon(context)],
     );
   }
@@ -67,7 +68,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildGreeting(Profile? profile) {
+  Widget _buildGreeting(Profile? profile,BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -76,7 +77,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
           children: [
             Flexible(
               child: Text(
-                'Hi, ${_firstName(profile)} 👋',
+                '${context.tr('hi')}, ${_firstName(profile)} 👋',
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: AppColors.neutral,

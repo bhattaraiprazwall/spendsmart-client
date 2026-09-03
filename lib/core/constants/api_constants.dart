@@ -27,5 +27,9 @@ class ApiConstants {
 
   //insight routes
   static const String insights = '$baseUrl/v1/insights';
+
+  //category prediction routes
+  static const String categoryPrediction =
+      '$baseUrl/v1/analytics/predict-category';
 }
 

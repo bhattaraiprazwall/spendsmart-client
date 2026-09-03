@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 
 void showQuickActionSheet(BuildContext context) {
@@ -27,12 +28,12 @@ class _QuickActionSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildLabel(),
+            _buildLabel(context),
             const SizedBox(height: 12),
             _buildItem(
               icon: Icons.arrow_downward_rounded,
               iconBg: Colors.red,
-              title: 'Add Expense',
+              title: context.tr('add_expense'),
               subtitle: 'With AI category prediction',
               isHighlighted: true,
               onTap: () {
@@ -43,7 +44,7 @@ class _QuickActionSheet extends StatelessWidget {
             _buildItem(
               icon: Icons.arrow_outward_rounded,
               iconBg: Colors.green,
-              title: 'Add Income',
+              title: context.tr('add_income'),
               subtitle: 'Stipend, allowance, freelance',
               onTap: () {Navigator.pop(context);
               context.push(RoutePaths.addIncome);},
@@ -52,7 +53,7 @@ class _QuickActionSheet extends StatelessWidget {
             _buildItem(
               icon: Icons.add_box_outlined,
               iconBg: Colors.blue,
-              title: 'New Category',
+              title: context.tr('new_category'),
               subtitle: 'Create custom spending category',
               onTap: () {Navigator.pop(context);
               context.push(RoutePaths.addCategory);},
@@ -62,7 +63,7 @@ class _QuickActionSheet extends StatelessWidget {
             _buildItem(
               icon: Icons.savings_outlined,
               iconBg: Colors.purple,
-              title: 'Manage Budget',
+              title: context.tr('manage_budget'),
               subtitle: 'Set monthly & category limits',
               onTap: () {Navigator.pop(context);
               context.push(RoutePaths.budget);},
@@ -74,10 +75,10 @@ class _QuickActionSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildLabel() {
-    return const Text(
-      'QUICK ACTION',
-      style: TextStyle(
+  Widget _buildLabel(BuildContext context) {
+    return Text(
+      context.tr('quick_action'),
+      style: const TextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w700,
         color: Colors.white54,
