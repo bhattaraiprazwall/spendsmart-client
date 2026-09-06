@@ -34,10 +34,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     await ref
         .read(registerProvider.notifier)
         .register(
-          name: _name.text.trim(),
-          email: _email.text.trim(),
-          password: _password.text,
-        );
+      name: _name.text.trim(),
+      email: _email.text.trim(),
+      password: _password.text,
+    );
 
     // if (success) {
     //   context.go('/login');
@@ -84,8 +84,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
+
       body: Container(
         padding: const EdgeInsets.all(10),
+
         child: Form(
           key: _formKey,
           child: Column(
@@ -157,7 +159,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 label: isLoading ? 'Please wait...' : 'Sign Up',
               ),
               const SizedBox(height: 30),
-               AlreadyLoginRegister(
+              AlreadyLoginRegister(
                 action:(){
                   context.go(RoutePaths.login);
 

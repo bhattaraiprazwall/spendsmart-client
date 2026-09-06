@@ -8,10 +8,13 @@ import 'package:spendsmart/core/routing/app_router.dart';
 import 'package:spendsmart/core/services/local_storage_service.dart';
 import 'package:spendsmart/core/theme/app_theme.dart';
 import 'package:spendsmart/firebase_options.dart';
+import 'package:spendsmart/core/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  final notificationService = NotificationService();
+  await notificationService.initialize();
   runApp(const ProviderScope(child: MyApp()));
 }
 

@@ -5,6 +5,8 @@ import 'package:spendsmart/features/insights/data/repositories/insights_reposito
 import 'package:spendsmart/features/insights/domain/entities/insight.dart';
 import 'package:spendsmart/features/insights/domain/repositories/insights_repository.dart';
 import 'package:spendsmart/features/insights/domain/usecases/get_insights.dart';
+import 'package:spendsmart/features/insights/domain/entities/spending_anomaly.dart';
+import 'package:spendsmart/features/insights/domain/usecases/get_spending_anomaly.dart';
 
 part 'insights_provider.g.dart';
 
@@ -21,6 +23,12 @@ InsightsRepository insightsRepository(Ref ref) {
 @riverpod
 GetInsights getInsights(Ref ref) {
   return GetInsights(ref.watch(insightsRepositoryProvider));
+}
+@riverpod
+GetSpendingAnomaly getSpendingAnomaly(Ref ref) {
+  return GetSpendingAnomaly(
+    ref.watch(insightsRepositoryProvider),
+  );
 }
 
 @riverpod
@@ -39,4 +47,18 @@ Future<Insight> insights(Ref ref) async {
   if (token == null) throw Exception('No token found');
 
   return ref.read(getInsightsProvider)(token, period);
+}
+@riverpod
+Future<SpendingAnomaly> spendingAnomaly(Ref ref) async {
+  final token = await ref
+      .read(storageServiceProvider)
+      .getToken();
+
+  if (token == null) {
+    throw Exception('No token found');
+  }
+
+  return ref
+      .read(getSpendingAnomalyProvider)
+      .call(token);
 }

@@ -489,7 +489,7 @@ final class BudgetProvider
   Budget create() => Budget();
 }
 
-String _$budgetHash() => r'43d97e9852bcfda5487d9a0c38eeb8ffb47709e9';
+String _$budgetHash() => r'f37f879f9ab61272267291269ce7d3404cfff48d';
 
 abstract class _$Budget extends $AsyncNotifier<BudgetStatus?> {
   FutureOr<BudgetStatus?> build();

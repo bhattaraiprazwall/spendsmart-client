@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/utils/icon_helper.dart';
 import '../providers/insights_provider.dart';
 import '../../domain/entities/insight.dart';
+import '../widgets/spending_anomaly_card.dart';
+import '../../domain/entities/spending_anomaly.dart';
 
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
@@ -11,13 +13,21 @@ class InsightsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final insightsAsync = ref.watch(insightsProvider);
+    final AsyncValue<SpendingAnomaly> anomalyAsync =
+    ref.watch(spendingAnomalyProvider);
     final selectedPeriod = ref.watch(insightsPeriodProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
       body: SafeArea(
         child: insightsAsync.when(
-          data: (data) => _buildContent(context, ref, data, selectedPeriod),
+          data: (data) => _buildContent(
+            context,
+            ref,
+            data,
+            selectedPeriod,
+            anomalyAsync,
+          ),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => Center(child: Text('Error: $error')),
         ),
@@ -25,26 +35,54 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, WidgetRef ref, Insight data, String selectedPeriod) {
+  Widget _buildContent(
+      BuildContext context,
+      WidgetRef ref,
+      Insight data,
+      String selectedPeriod,
+      AsyncValue<SpendingAnomaly> anomalyAsync,
+      ) {
     return RefreshIndicator(
-      onRefresh: () => ref.refresh(insightsProvider.future),
-      child: SingleChildScrollView(
+      onRefresh: () async {
+        await Future.wait([
+          ref.refresh(insightsProvider.future),
+          ref.refresh(spendingAnomalyProvider.future),
+        ]);
+      },      child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildPeriodSwitcher(ref, selectedPeriod),
+
             const SizedBox(height: 24),
+
             if (data.topInsight != null) ...[
               _buildInsightCard(data.topInsight!),
               const SizedBox(height: 24),
             ],
+
+            anomalyAsync.when(
+              data: (anomaly) => SpendingAnomalyCard(
+                anomaly: anomaly,
+              ),
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+              error: (error, _) => const SizedBox.shrink(),
+            ),
+
+            const SizedBox(height: 24),
+
             if (data.breakdown.isNotEmpty) ...[
               _buildChartCard(data),
               const SizedBox(height: 24),
               _buildBreakdownSection(data.breakdown),
-            ] else 
+            ] else
               const Center(
                 child: Text('No expense data for this period'),
               ),
@@ -304,4 +342,8 @@ class InsightsScreen extends ConsumerWidget {
     final h = hex.replaceFirst('#', '');
     return Color(int.parse(h.length == 6 ? 'FF$h' : h, radix: 16));
   }
+
+
 }
+
+

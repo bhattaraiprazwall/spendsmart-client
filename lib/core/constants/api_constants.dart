@@ -1,10 +1,12 @@
 class ApiConstants {
   // static const String baseUrl = 'http://localhost:5000/api';
-  static const String baseUrl = 'http://192.168.1.22:5000/api';
+  static const String baseUrl = 'http://192.168.1.30:5000/api';
 
   static const String register = '$baseUrl/v1/auth/register';
 
   static const String login = "$baseUrl/v1/auth/login";
+
+  static const String refresh = "$baseUrl/v1/auth/refresh";
 
 //profile page routes
   static const String profile = "$baseUrl/v1/users/me";
@@ -31,5 +33,12 @@ class ApiConstants {
   //category prediction routes
   static const String categoryPrediction =
       '$baseUrl/v1/analytics/predict-category';
+
+  // spending anomaly routes
+  static const String spendingAnomaly =
+      '$baseUrl/v1/analytics/spending-anomaly';
+
+  static const String fcmToken =
+      '$baseUrl/v1/users/me/fcm-token';
 }
 

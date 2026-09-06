@@ -32,4 +32,8 @@ class LocalStorageService {
   }
 
   Future<void> clearAll() => _storage.deleteAll();
+  Future<void> saveRefreshToken(String token) =>
+      _storage.write(key: StorageConstants.refreshToken, value: token);
+
+  Future<String?> getRefreshToken() => _storage.read(key: StorageConstants.refreshToken);
 }

@@ -146,6 +146,54 @@ final class GetInsightsProvider
 
 String _$getInsightsHash() => r'3a771cf39ba96b3d7ae5032d17f3c539f8ae6214';
 
+@ProviderFor(getSpendingAnomaly)
+final getSpendingAnomalyProvider = GetSpendingAnomalyProvider._();
+
+final class GetSpendingAnomalyProvider
+    extends
+        $FunctionalProvider<
+          GetSpendingAnomaly,
+          GetSpendingAnomaly,
+          GetSpendingAnomaly
+        >
+    with $Provider<GetSpendingAnomaly> {
+  GetSpendingAnomalyProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'getSpendingAnomalyProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$getSpendingAnomalyHash();
+
+  @$internal
+  @override
+  $ProviderElement<GetSpendingAnomaly> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  GetSpendingAnomaly create(Ref ref) {
+    return getSpendingAnomaly(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GetSpendingAnomaly value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GetSpendingAnomaly>(value),
+    );
+  }
+}
+
+String _$getSpendingAnomalyHash() =>
+    r'699f8ba23d65342466649a6599195c0941d1229f';
+
 @ProviderFor(InsightsPeriod)
 final insightsPeriodProvider = InsightsPeriodProvider._();
 
@@ -230,3 +278,42 @@ final class InsightsProvider
 }
 
 String _$insightsHash() => r'57f76e27fb4f95342d28fd658a1ba50658544ab8';
+
+@ProviderFor(spendingAnomaly)
+final spendingAnomalyProvider = SpendingAnomalyProvider._();
+
+final class SpendingAnomalyProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<SpendingAnomaly>,
+          SpendingAnomaly,
+          FutureOr<SpendingAnomaly>
+        >
+    with $FutureModifier<SpendingAnomaly>, $FutureProvider<SpendingAnomaly> {
+  SpendingAnomalyProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'spendingAnomalyProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$spendingAnomalyHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<SpendingAnomaly> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<SpendingAnomaly> create(Ref ref) {
+    return spendingAnomaly(ref);
+  }
+}
+
+String _$spendingAnomalyHash() => r'51df73d3abdcc966211c0439c5d8455840c3ed80';
