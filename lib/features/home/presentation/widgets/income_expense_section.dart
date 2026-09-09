@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/cards/summary_card.dart';
 import 'package:spendsmart/features/home/domain/entities/summary_item.dart';
@@ -17,6 +18,7 @@ class IncomeExpenseSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Row(
       children: [
         SummaryCard(
@@ -34,9 +36,9 @@ class IncomeExpenseSection extends StatelessWidget {
             title: 'EXPENSE',
             amount: CurrencyUtil.format(expense, currency),
             icon: Icons.arrow_upward,
-            iconBg: const Color(0xFFE5E7EB),
-            iconColor: Colors.black,
-            titleColor: Colors.grey,
+            iconBg: c.border,
+            iconColor: c.textPrimary,
+            titleColor: c.textSecondary,
           ),
         ),
       ],

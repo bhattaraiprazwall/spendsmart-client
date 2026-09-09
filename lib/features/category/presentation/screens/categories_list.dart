@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/features/category/domain/entities/category.dart';
@@ -55,10 +56,11 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final categoriesAsync = ref.watch(categoriesProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF0FB),
+      backgroundColor: c.surface,
       appBar: const AppTopBar(title: 'Categories'),
       body: categoriesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -77,13 +79,13 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
                   const SizedBox(height: 20),
                   _buildTypeSection('INCOME CATEGORIES', income),
                   if (categories.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 40),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 40),
                       child: Center(
                         child: Text(
                           'No categories yet.\nTap + to create one.',
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.black45, fontSize: 15),
+                          style: TextStyle(color: c.textSecondary, fontSize: 15),
                         ),
                       ),
                     ),
@@ -103,6 +105,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   }
 
   Widget _buildTypeSection(String title, List<Category> typeList) {
+    final c = context.colors;
     final custom = typeList.where((c) => !c.isDefault).toList();
     final defaults = typeList.where((c) => c.isDefault).toList();
 
@@ -123,7 +126,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
             padding: const EdgeInsets.only(top: 4, bottom: 4),
             child: Text(
               'No categories of this type yet.',
-              style: const TextStyle(color: Colors.black38, fontSize: 13),
+              style: TextStyle(color: c.textMuted, fontSize: 13),
             ),
           ),
       ],
@@ -131,25 +134,27 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   }
 
   Widget _buildSectionLabel(String text) {
+    final c = context.colors;
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w700,
-        color: Colors.black54,
+        color: c.textSecondary,
         letterSpacing: 0.8,
       ),
     );
   }
 
   Widget _buildCustomCard(Category item) {
+    final c = context.colors;
     final icon = _resolveIcon(item.icon);
     final color = _hexToColor(item.color);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -158,9 +163,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
           const SizedBox(width: 14),
           Expanded(child: _buildNameAndCount(item)),
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.edit_outlined,
-              color: Colors.black45,
+              color: c.textSecondary,
               size: 20,
             ),
             onPressed: () async {
@@ -179,9 +184,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(
+            icon: Icon(
               Icons.delete_outline,
-              color: Colors.black45,
+              color: c.textSecondary,
               size: 20,
             ),
             onPressed: () {
@@ -194,13 +199,14 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   }
 
   Widget _buildDefaultCard(Category item) {
+    final c = context.colors;
     final icon = _resolveIcon(item.icon);
     final color = _hexToColor(item.color);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -223,6 +229,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   }
 
   Widget _buildNameAndCount(Category item) {
+    final c = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -237,9 +244,9 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
           ],
         ),
         const SizedBox(height: 2),
-        const Text(
+        Text(
           '0 transactions',
-          style: TextStyle(fontSize: 13, color: Colors.black45),
+          style: TextStyle(fontSize: 13, color: c.textSecondary),
         ),
       ],
     );
@@ -266,17 +273,18 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   }
 
   Widget _buildDefaultBadge() {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8EAF6),
+        color: c.surface,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Text(
+      child: Text(
         'Default',
         style: TextStyle(
           fontSize: 12,
-          color: Colors.black54,
+          color: c.textSecondary,
           fontWeight: FontWeight.w500,
         ),
       ),

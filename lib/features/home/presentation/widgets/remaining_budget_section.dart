@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/cards/budget_card.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
@@ -85,24 +86,25 @@ class _EmptyBudgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'No budget set for this month',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: c.textPrimary),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             'Manage budgets from the quick action menu.',
-            style: TextStyle(fontSize: 13, color: Colors.black45),
+            style: TextStyle(fontSize: 13, color: c.textSecondary),
           ),
         ],
       ),

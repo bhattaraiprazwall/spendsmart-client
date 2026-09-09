@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/features/category/domain/entities/category.dart';
@@ -114,7 +115,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
     final color = transactionHexToColor(cat.color);
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: color.withOpacity(0.15),
+        backgroundColor: color.withValues(alpha: 0.15),
         child: Icon(transactionResolveIcon(cat.icon), color: color, size: 20),
       ),
       title: Text(cat.name),
@@ -251,6 +252,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -269,7 +271,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: c.border,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -354,6 +356,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
     String? error,
     required VoidCallback onTap,
   }) {
+    final c = context.colors;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -361,13 +364,13 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
           border: Border.all(
-            color: error != null ? Colors.red : Colors.grey.shade400,
+            color: error != null ? Colors.red : c.border,
           ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: Colors.black45),
+            Icon(icon, size: 20, color: c.textSecondary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -375,20 +378,20 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
                 children: [
                   Text(
                     label,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 12, color: c.textSecondary),
                   ),
                   Text(
                     value,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: error != null ? Colors.red : Colors.black87,
+                      color: error != null ? Colors.red : c.textPrimary,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.black38),
+            Icon(Icons.chevron_right, color: c.chevron),
           ],
         ),
       ),
@@ -404,7 +407,7 @@ void showEditTransactionSheet(
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: const Color(0xFFEEF0FB),
+    backgroundColor: context.colors.surface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),

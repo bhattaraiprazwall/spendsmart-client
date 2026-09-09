@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 
 class IconTextRow extends StatelessWidget {
   final IconData icon;
@@ -18,7 +19,7 @@ class IconTextRow extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          Icon(icon, size: 16, color: Colors.grey.shade500),
+          Icon(icon, size: 16, color: context.colors.textSecondary),
           const SizedBox(width: 6),
           Text(
             text,

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/validators.dart';
 import 'package:spendsmart/core/widgets/already_login_register.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
@@ -157,8 +158,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 15,
                       height: 15,
                     ),
-                    backgroundColor: Colors.white,
-                    textColor: Colors.black,
+                    backgroundColor: context.colors.card,
+                    textColor: context.colors.textPrimary,
                   ),
                   const SizedBox(height: 10),
                   SocialButton(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/features/transactions/domain/entities/transaction.dart';
 import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
@@ -141,11 +142,11 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final transactionsAsync = ref.watch(transactionProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF0FB),
+      backgroundColor: context.colors.surface,
       appBar: AppBar(
         title: const Text('Transaction History'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
+        backgroundColor: context.colors.surface,
+        foregroundColor: context.colors.textPrimary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -183,6 +184,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   }
 
   Widget _buildSearchBar() {
+    final c = context.colors;
     return Row(
       children: [
         Expanded(
@@ -190,10 +192,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             controller: _searchController,
             decoration: InputDecoration(
               hintText: 'Search transactions...',
-              hintStyle: const TextStyle(color: Colors.black38, fontSize: 14),
-              prefixIcon: const Icon(Icons.search, color: Colors.black38),
+              hintStyle: TextStyle(color: c.textMuted, fontSize: 14),
+              prefixIcon: Icon(Icons.search, color: c.textMuted),
               filled: true,
-              fillColor: Colors.white,
+              fillColor: c.card,
               contentPadding: const EdgeInsets.symmetric(vertical: 0),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -227,10 +229,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   Widget _buildGroupLabel(String label) {
     return Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w700,
-        color: Colors.black45,
+        color: context.colors.textSecondary,
         letterSpacing: 0.8,
       ),
     );
@@ -244,7 +246,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.colors.card,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -273,12 +275,12 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       children: [
         Text(
           item.title,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
         ),
         const SizedBox(height: 3),
         Text(
           '${item.time}  •  ${item.category}',
-          style: const TextStyle(fontSize: 12, color: Colors.black45),
+          style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
         ),
       ],
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
@@ -73,10 +74,11 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final budgetAsync = ref.watch(budgetProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF0FB),
+      backgroundColor: c.surface,
       appBar: const AppTopBar(title: 'Budget'),
       body: SafeArea(
         child: Column(
@@ -97,17 +99,18 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Widget _buildError(Object e) {
+    final c = context.colors;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.black38),
+            Icon(Icons.error_outline, size: 48, color: c.textMuted),
             const SizedBox(height: 12),
             Text(
               'Unable to load budget',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: c.textSecondary),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -155,6 +158,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Widget _buildContent(BudgetStatus? status) {
+    final c = context.colors;
     if (status == null) {
       return _buildEmptyState();
     }
@@ -166,12 +170,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'CATEGORY BUDGETS',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Colors.black54,
+                color: c.textSecondary,
                 letterSpacing: 0.8,
               ),
             ),
@@ -184,13 +188,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           ],
         ),
         if (status.categories.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
             child: Center(
               child: Text(
                 'No category budgets set yet.\nTap Add to manage a category limit.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.black54, fontSize: 14),
+                style: TextStyle(color: c.textSecondary, fontSize: 14),
               ),
             ),
           )
@@ -202,16 +206,17 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Widget _buildEmptyState() {
+    final c = context.colors;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.savings_outlined,
               size: 56,
-              color: Colors.black26,
+              color: c.textMuted,
             ),
             const SizedBox(height: 16),
             const Text(
@@ -222,10 +227,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Create a monthly budget to track your spending.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black54, fontSize: 13),
+              style: TextStyle(color: c.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -250,6 +255,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Widget _buildBudgetSummaryCard(BudgetStatus status) {
+    final c = context.colors;
     final symbol = CurrencyUtil.symbolFor(ref.watch(currencyProvider));
     final statusColor = budgetStatusColor(status.status);
     final progress = status.usagePercentage.clamp(0, 100) / 100;
@@ -257,7 +263,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -273,12 +279,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'MONTHLY BUDGET',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black54,
+                  color: c.textSecondary,
                   letterSpacing: 0.8,
                 ),
               ),
@@ -316,7 +322,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 8,
-              backgroundColor: const Color(0xFFE5E7EB),
+              backgroundColor: c.border,
               valueColor: AlwaysStoppedAnimation(statusColor),
             ),
           ),
@@ -364,6 +370,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Widget _buildStat(String label, String value, String? symbol) {
+    final c = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -379,13 +386,14 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: Colors.black45),
+          style: TextStyle(fontSize: 12, color: c.textSecondary),
         ),
       ],
     );
   }
 
   Widget _buildCategoryCard(BudgetStatus status, BudgetCategory cat) {
+    final c = context.colors;
     final color = budgetHexToColor(cat.color);
     final icon = budgetResolveIcon(cat.icon);
     final statusColor = budgetStatusColor(cat.status);
@@ -395,7 +403,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -423,9 +431,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                     const SizedBox(height: 2),
                     Text(
                       '${CurrencyUtil.format(cat.spent, statusBudgetCurrency())} spent of ${CurrencyUtil.format(cat.limit, statusBudgetCurrency())}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Colors.black45,
+                        color: c.textSecondary,
                       ),
                     ),
                   ],
@@ -435,13 +443,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.edit_outlined,
-                        color: Colors.black45, size: 20),
+                    icon: Icon(Icons.edit_outlined,
+                        color: c.textSecondary, size: 20),
                     onPressed: () => _editCategoryLimit(status, cat),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline,
-                        color: Colors.black45, size: 20),
+                    icon: Icon(Icons.delete_outline,
+                        color: c.textSecondary, size: 20),
                     onPressed: () => _removeCategoryLimit(status, cat),
                   ),
                 ],
@@ -454,7 +462,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 6,
-              backgroundColor: const Color(0xFFE5E7EB),
+              backgroundColor: c.border,
               valueColor: AlwaysStoppedAnimation(statusColor),
             ),
           ),
@@ -472,7 +480,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               ),
               Text(
                 '${cat.usagePercentage}%',
-                style: const TextStyle(fontSize: 12, color: Colors.black45),
+                style: TextStyle(fontSize: 12, color: c.textSecondary),
               ),
             ],
           ),
@@ -561,7 +569,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
     final Category? selected = await showModalBottomSheet<Category>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

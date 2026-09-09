@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/category_row.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/field_label.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/icon_text_row.dart';
@@ -26,10 +27,11 @@ class IncomeFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -50,14 +52,14 @@ class IncomeFormCard extends StatelessWidget {
               style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ],
-          const Divider(height: 24),
+          Divider(height: 24, color: c.divider),
           const FieldLabel(label: 'TITLE'),
           const SizedBox(height: 8),
           TextField(
             onChanged: onTitleChanged,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: 'Where did this come from?',
-              hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+              hintStyle: TextStyle(color: c.textMuted, fontSize: 14),
               border: OutlineInputBorder(),
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 12,
@@ -74,7 +76,7 @@ class IncomeFormCard extends StatelessWidget {
               style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ],
-          const Divider(height: 24),
+          Divider(height: 24, color: c.divider),
           const FieldLabel(label: 'DATE'),
           const SizedBox(height: 6),
           IconTextRow(
@@ -82,14 +84,14 @@ class IncomeFormCard extends StatelessWidget {
             text: formData.date,
             onTap: onDateTap,
           ),
-          const Divider(height: 24),
+          Divider(height: 24, color: c.divider),
           const FieldLabel(label: 'NOTE'),
           const SizedBox(height: 6),
           TextField(
             onChanged: onNoteChanged,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: 'What was this for?',
-              hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+              hintStyle: TextStyle(color: c.textMuted, fontSize: 13),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
               isDense: true,

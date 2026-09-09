@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 
 class TransactionDetailScreen extends StatelessWidget {
   const TransactionDetailScreen({super.key});
@@ -6,18 +7,18 @@ class TransactionDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF0FB),
+      backgroundColor: context.colors.surface,
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: SafeArea(
           child: Column(
             children: [
-              _buildAmountCard(),
+              _buildAmountCard(context),
               const SizedBox(height: 12),
-              _buildDetailsCard(),
+              _buildDetailsCard(context),
               const SizedBox(height: 12),
-              _buildBudgetCard(),
+              _buildBudgetCard(context),
               const SizedBox(height: 24),
               _buildEditButton(),
               const SizedBox(height: 8),
@@ -31,38 +32,40 @@ class TransactionDetailScreen extends StatelessWidget {
 
   // ── AppBar ────────────────────────────────────────────────────────────
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final c = context.colors;
     return AppBar(
-      backgroundColor: const Color(0xFFEEF0FB),
+      backgroundColor: context.colors.surface,
       elevation: 0,
-      leading: const BackButton(color: Colors.black),
-      title: const Text(
+      leading: BackButton(color: c.textPrimary),
+      title: Text(
         'Transaction Details',
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+        style: TextStyle(color: c.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
       ),
     );
   }
 
   // ── Top amount card ───────────────────────────────────────────────────
-  Widget _buildAmountCard() {
+  Widget _buildAmountCard(BuildContext context) {
+    final c = context.colors;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 28),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           _buildCategoryIcon(),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             '\$42.50',
-            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.black87),
+            style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: c.textPrimary),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             'Lunch at Cafe',
-            style: TextStyle(fontSize: 14, color: Colors.black45),
+            style: TextStyle(fontSize: 14, color: c.textSecondary),
           ),
           const SizedBox(height: 12),
           _buildStatusBadge(),
@@ -76,7 +79,7 @@ class TransactionDetailScreen extends StatelessWidget {
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: Colors.blue.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: const Icon(Icons.restaurant, color: Colors.blue, size: 26),
@@ -87,7 +90,7 @@ class TransactionDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: Colors.blue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -105,71 +108,74 @@ class TransactionDetailScreen extends StatelessWidget {
   }
 
   // ── Details card ──────────────────────────────────────────────────────
-  Widget _buildDetailsCard() {
+  Widget _buildDetailsCard(BuildContext context) {
+    final c = context.colors;
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: c.card,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Details',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c.textPrimary),
             ),
             const SizedBox(height: 12),
-            _buildDetailRow(Icons.category_outlined,       'Category',       'Food & Dining'),
-            _buildDivider(),
-            _buildDetailRow(Icons.calendar_today_outlined, 'Date',           'Oct 24, 2023'),
-            _buildDivider(),
-            _buildDetailRow(Icons.access_time_outlined,    'Time',           '1:15 PM'),
-            _buildDivider(),
-            _buildDetailRow(Icons.credit_card_outlined,    'Payment Method', 'Visa ending in 4242'),
-            _buildDivider(),
-            _buildNoteRow(),
+            _buildDetailRow(context, Icons.category_outlined,       'Category',       'Food & Dining'),
+            _buildDivider(context),
+            _buildDetailRow(context, Icons.calendar_today_outlined, 'Date',           'Oct 24, 2023'),
+            _buildDivider(context),
+            _buildDetailRow(context, Icons.access_time_outlined,    'Time',           '1:15 PM'),
+            _buildDivider(context),
+            _buildDetailRow(context, Icons.credit_card_outlined,    'Payment Method', 'Visa ending in 4242'),
+            _buildDivider(context),
+            _buildNoteRow(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value) {
+  Widget _buildDetailRow(BuildContext context, IconData icon, String label, String value) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: Colors.black45),
+          Icon(icon, size: 18, color: c.textSecondary),
           const SizedBox(width: 10),
-          Text(label, style: const TextStyle(color: Colors.black54, fontSize: 14)),
+          Text(label, style: TextStyle(color: c.textSecondary, fontSize: 14)),
           const Spacer(),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(value, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: c.textPrimary)),
         ],
       ),
     );
   }
 
-  Widget _buildNoteRow() {
+  Widget _buildNoteRow(BuildContext context) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           Row(
             children: [
-              Icon(Icons.notes_outlined, size: 18, color: Colors.black45),
-              SizedBox(width: 10),
-              Text('Note', style: TextStyle(color: Colors.black54, fontSize: 14)),
+              Icon(Icons.notes_outlined, size: 18, color: c.textSecondary),
+              const SizedBox(width: 10),
+              Text('Note', style: TextStyle(color: c.textSecondary, fontSize: 14)),
             ],
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Padding(
-            padding: EdgeInsets.only(left: 28),
+            padding: const EdgeInsets.only(left: 28),
             child: Text(
               'Business lunch with client regarding Q4 marketing strategy.',
-              style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.5),
+              style: TextStyle(fontSize: 13, color: c.textSecondary, height: 1.5),
             ),
           ),
         ],
@@ -177,12 +183,13 @@ class TransactionDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDivider() {
-    return const Divider(height: 1, color: Color(0xFFF2F3F7));
+  Widget _buildDivider(BuildContext context) {
+    return Divider(height: 1, color: context.colors.divider);
   }
 
   // ── Budget card ───────────────────────────────────────────────────────
-  Widget _buildBudgetCard() {
+  Widget _buildBudgetCard(BuildContext context) {
+    final c = context.colors;
     const double spent = 320;
     const double total = 400;
     final double percent = spent / total;
@@ -190,7 +197,7 @@ class TransactionDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -198,21 +205,21 @@ class TransactionDetailScreen extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text('Food & Dining Budget',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: c.textPrimary)),
               Text('Oct 2023',
-                  style: TextStyle(color: Colors.black45, fontSize: 12)),
+                  style: TextStyle(color: c.textSecondary, fontSize: 12)),
             ],
           ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text('Spent: \$320.00',
-                  style: TextStyle(color: Colors.black54, fontSize: 12)),
+                  style: TextStyle(color: c.textSecondary, fontSize: 12)),
               Text('Total: \$400.00',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: c.textPrimary)),
             ],
           ),
           const SizedBox(height: 8),
@@ -221,15 +228,15 @@ class TransactionDetailScreen extends StatelessWidget {
             child: LinearProgressIndicator(
               value: percent,
               minHeight: 8,
-              backgroundColor: Colors.grey.shade200,
+              backgroundColor: c.border,
               color: Colors.blue,
             ),
           ),
           const SizedBox(height: 6),
-          const Align(
+          Align(
             alignment: Alignment.centerRight,
             child: Text('80% Used',
-                style: TextStyle(color: Colors.black45, fontSize: 12)),
+                style: TextStyle(color: c.textSecondary, fontSize: 12)),
           ),
         ],
       ),

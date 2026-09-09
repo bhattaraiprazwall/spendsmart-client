@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/features/home/domain/entities/notification.dart';
 
 class NotificationsScreen extends StatelessWidget {
@@ -37,17 +38,18 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _buildAppBar(),
+      backgroundColor: c.background,
+      appBar: _buildAppBar(c),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSubtitle(),
+          _buildSubtitle(c),
           Expanded(
             child: ListView.builder(
               itemCount: _notifications.length,
-              itemBuilder: (_, i) => _buildNotificationCard(_notifications[i]),
+              itemBuilder: (_, i) => _buildNotificationCard(_notifications[i], c),
             ),
           ),
         ],
@@ -56,39 +58,39 @@ class NotificationsScreen extends StatelessWidget {
   }
 
   // ── AppBar ────────────────────────────────────────────────────────────
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(AppColorsPalette c) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: c.background,
       elevation: 0,
-      leading: const BackButton(color: Colors.black),
-      title: const Text(
+      leading: BackButton(color: c.textPrimary),
+      title: Text(
         'Notifications',
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+        style: TextStyle(color: c.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
       ),
     );
   }
 
   // ── Subtitle ──────────────────────────────────────────────────────────
-  Widget _buildSubtitle() {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(16, 4, 16, 8),
+  Widget _buildSubtitle(AppColorsPalette c) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
       child: Text(
         'Stay updated on your financial journey.',
-        style: TextStyle(color: Colors.black45, fontSize: 13),
+        style: TextStyle(color: c.textSecondary, fontSize: 13),
       ),
     );
   }
 
   // ── Single notification card ──────────────────────────────────────────
-  Widget _buildNotificationCard(NotificationItem item) {
+  Widget _buildNotificationCard(NotificationItem item, AppColorsPalette c) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(12),
         border: Border(left: BorderSide(color: item.color, width: 4)), // ← colored left bar
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 2)),
         ],
       ),
       child: Padding(
@@ -98,7 +100,7 @@ class NotificationsScreen extends StatelessWidget {
           children: [
             _buildIconBox(item),
             const SizedBox(width: 12),
-            Expanded(child: _buildContent(item)),
+            Expanded(child: _buildContent(item, c)),
             _buildFadedIcon(item),
           ],
         ),
@@ -112,7 +114,7 @@ class NotificationsScreen extends StatelessWidget {
       width: 38,
       height: 38,
       decoration: BoxDecoration(
-        color: item.color.withOpacity(0.12),
+        color: item.color.withValues(alpha: 0.12),
         shape: BoxShape.circle,
       ),
       child: Icon(item.icon, color: item.color, size: 20),
@@ -120,7 +122,7 @@ class NotificationsScreen extends StatelessWidget {
   }
 
   // ── Type + message + time ─────────────────────────────────────────────
-  Widget _buildContent(NotificationItem item) {
+  Widget _buildContent(NotificationItem item, AppColorsPalette c) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -135,12 +137,12 @@ class NotificationsScreen extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           item.message,
-          style: const TextStyle(color: Colors.black87, fontSize: 13, height: 1.4),
+          style: TextStyle(color: c.textPrimary, fontSize: 13, height: 1.4),
         ),
         const SizedBox(height: 6),
         Text(
           item.time,
-          style: const TextStyle(color: Colors.black38, fontSize: 11),
+          style: TextStyle(color: c.textMuted, fontSize: 11),
         ),
       ],
     );
@@ -148,6 +150,6 @@ class NotificationsScreen extends StatelessWidget {
 
   // ── Faded background icon (top right of card) ─────────────────────────
   Widget _buildFadedIcon(NotificationItem item) {
-    return Icon(item.icon, color: item.color.withOpacity(0.12), size: 36);
+    return Icon(item.icon, color: item.color.withValues(alpha: 0.12), size: 36);
   }
 } 

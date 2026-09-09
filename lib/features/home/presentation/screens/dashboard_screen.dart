@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/sections/section_header.dart';
 import 'package:spendsmart/core/widgets/sections/smart_forecast_card.dart';
@@ -66,7 +67,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             Text(
               'Unable to load dashboard',
-              style: TextStyle(color: Colors.grey.shade600),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
             const SizedBox(height: 12),
             ElevatedButton(

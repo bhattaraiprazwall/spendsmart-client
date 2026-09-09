@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
@@ -255,10 +255,11 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
   @override
   Widget build(BuildContext context) {
     ref.watch(categoriesProvider);
+    final c = context.colors;
 
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: AppColors.neutral),
+        iconTheme: IconThemeData(color: c.textPrimary),
         centerTitle: true,
         title: const Text('Add Income', style: AppTextStyles.body),
       ),

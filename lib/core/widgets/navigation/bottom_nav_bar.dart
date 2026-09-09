@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/localization/localization_extension.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -23,6 +24,8 @@ class BottomNavBar extends StatelessWidget {
       {'icon': Icons.person_outline, 'label': context.tr('profile')},
     ];
 
+    final c = context.colors;
+
     return SafeArea(
       child: Stack(
         clipBehavior: Clip.none,
@@ -31,7 +34,7 @@ class BottomNavBar extends StatelessWidget {
           Container(
             height: MediaQuery.of(context).size.height * 0.10,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: c.card,
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.shade300,
@@ -42,7 +45,7 @@ class BottomNavBar extends StatelessWidget {
             ),
             child: Row(
               children: List.generate(navItems.length, (index) {
-                return Expanded(child: _navItem(context, navItems[index], index));
+                return Expanded(child: _navItem(context, navItems[index], index, c));
               }),
             ),
           ),
@@ -52,7 +55,7 @@ class BottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _navItem(BuildContext context, Map<String, dynamic> item, int index) {
+  Widget _navItem(BuildContext context, Map<String, dynamic> item, int index, AppColorsPalette c) {
     final bool isSelected = currentIndex == index;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -65,7 +68,7 @@ class BottomNavBar extends StatelessWidget {
           children: [
             Icon(
               item['icon'] as IconData,
-              color: isSelected ? Colors.blue : Colors.grey.shade400,
+              color: isSelected ? Colors.blue : c.textMuted,
               size: 24,
             ),
             const SizedBox(height: 4),
@@ -74,7 +77,7 @@ class BottomNavBar extends StatelessWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.primary : AppColors.neutral,
+                color: isSelected ? AppColors.primary : c.textSecondary,
               ),
             ),
           ],

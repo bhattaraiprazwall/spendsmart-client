@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/features/home/domain/entities/transaction_item.dart';
 
@@ -13,6 +14,7 @@ class TransactionCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final code = ref.watch(currencyProvider);
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Row(
@@ -43,7 +45,7 @@ class TransactionCard extends ConsumerWidget {
 
                 Text(
                   '${item.category} • ${item.day}',
-                  style: TextStyle(color: Colors.grey.shade500),
+                  style: TextStyle(color: c.textSecondary),
                 ),
               ],
             ),
@@ -53,7 +55,7 @@ class TransactionCard extends ConsumerWidget {
             CurrencyUtil.signed(item.amount, code),
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: item.isPositive ? Colors.green : Colors.black,
+              color: item.isPositive ? Colors.green : c.textPrimary,
             ),
           ),
         ],

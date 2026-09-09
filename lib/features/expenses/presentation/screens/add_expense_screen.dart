@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:spendsmart/core/constants/api_constants.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
@@ -406,10 +407,11 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   @override
   Widget build(BuildContext context) {
     ref.watch(categoriesProvider);
+    final c = context.colors;
 
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: AppColors.neutral),
+        iconTheme: IconThemeData(color: c.textPrimary),
         centerTitle: true,
         title: const Text('Add Expense', style: AppTextStyles.body),
       ),

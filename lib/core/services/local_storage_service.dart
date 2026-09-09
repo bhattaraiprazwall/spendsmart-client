@@ -36,4 +36,9 @@ class LocalStorageService {
       _storage.write(key: StorageConstants.refreshToken, value: token);
 
   Future<String?> getRefreshToken() => _storage.read(key: StorageConstants.refreshToken);
+
+  Future<void> saveTheme(String theme) =>
+      _storage.write(key: StorageConstants.theme, value: theme);
+
+  Future<String?> getTheme() => _storage.read(key: StorageConstants.theme);
 }

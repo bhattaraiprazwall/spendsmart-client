@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 
 class SocialButton extends StatelessWidget {
   final String text;
@@ -24,7 +25,7 @@ class SocialButton extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

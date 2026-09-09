@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 
 class SmartForecastCard extends StatelessWidget {
   final String title;
@@ -14,11 +15,12 @@ class SmartForecastCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(30, 41, 59, 0.05),
+        color: c.surface,
         borderRadius: BorderRadius.circular(20),
       ),
 

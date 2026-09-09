@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
@@ -82,9 +83,10 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final isSaving = ref.watch(categoriesProvider).isLoading;
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF0FB),
+      backgroundColor: c.surface,
       appBar: AppTopBar(
         title: 'Create Category',
         useCloseIcon: true,
@@ -136,11 +138,12 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
   }
 
   Widget _buildPreviewCard() {
+    final c = context.colors;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -159,18 +162,20 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
   }
 
   Widget _buildLabel(String text) {
+    final c = context.colors;
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w700,
-        color: Colors.black54,
+        color: c.textSecondary,
         letterSpacing: 0.8,
       ),
     );
   }
 
   Widget _buildNameField() {
+    final c = context.colors;
     return TextFormField(
       controller: _nameController,
       validator: (v) =>
@@ -178,16 +183,16 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
       onChanged: (_) => setState(() {}),
       decoration: InputDecoration(
         hintText: 'e.g., Groceries, Transport',
-        hintStyle: const TextStyle(color: Colors.black38),
+        hintStyle: TextStyle(color: c.textMuted),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: c.card,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFDDE0EF)),
+          borderSide: BorderSide(color: c.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFFDDE0EF)),
+          borderSide: BorderSide(color: c.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -225,31 +230,32 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
     required String type,
   }) {
     final isSelected = _selectedType == type;
+    final c = context.colors;
     return GestureDetector(
       onTap: () => setState(() => _selectedType = type),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: isSelected
-              ? _selectedColor.withOpacity(0.15)
-              : Colors.white,
+              ? _selectedColor.withValues(alpha: 0.15)
+              : c.card,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? _selectedColor : const Color(0xFFDDE0EF),
+            color: isSelected ? _selectedColor : c.border,
             width: 1.5,
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: isSelected ? _selectedColor : Colors.black54),
+            Icon(icon, color: isSelected ? _selectedColor : c.textSecondary),
             const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? _selectedColor : Colors.black54,
+                color: isSelected ? _selectedColor : c.textSecondary,
               ),
             ),
           ],
@@ -259,10 +265,11 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
   }
 
   Widget _buildIconGrid() {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(12),
       ),
       child: GridView.count(
@@ -280,13 +287,14 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
 
   Widget _buildIconCell(String iconName, IconData icon) {
     final isSelected = _selectedIconName == iconName;
+    final c = context.colors;
     return GestureDetector(
       onTap: () => setState(() => _selectedIconName = iconName),
       child: Container(
         decoration: BoxDecoration(
           color: isSelected
-              ? _selectedColor.withOpacity(0.15)
-              : const Color(0xFFF5F6FA),
+              ? _selectedColor.withValues(alpha: 0.15)
+              : c.surface,
           borderRadius: BorderRadius.circular(8),
           border: isSelected
               ? Border.all(color: _selectedColor, width: 1.5)
@@ -295,7 +303,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
         child: Icon(
           icon,
           size: 24,
-          color: isSelected ? _selectedColor : Colors.black54,
+          color: isSelected ? _selectedColor : c.textSecondary,
         ),
       ),
     );

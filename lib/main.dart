@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/providers/locale_provider.dart';
+import 'package:spendsmart/core/providers/theme_provider.dart';
 import 'package:spendsmart/core/routing/app_router.dart';
 import 'package:spendsmart/core/services/local_storage_service.dart';
 import 'package:spendsmart/core/theme/app_theme.dart';
@@ -35,7 +36,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   Future<void> _loadPreferencesOnStart() async {
     final storage = LocalStorageService();
     final token = await storage.getToken();
-    if (token != null) {
+    if (token != null) {  
       ref.read(authStateProvider.notifier).state = true;
     }
     final currency = await storage.getCurrency();
@@ -43,17 +44,21 @@ class _MyAppState extends ConsumerState<MyApp> {
       ref.read(currencyProvider.notifier).state = currency;
     }
     await ref.read(localeProvider.notifier).loadLocale();
+    await ref.read(themeProvider.notifier).loadTheme();
   }
 
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(goRouterProvider);
     final locale = ref.watch(localeProvider);
+    final themeMode = ref.watch(themeProvider);
 
     return MaterialApp.router(
       title: 'SpendSmart',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       routerConfig: router,
       locale: locale,
     );

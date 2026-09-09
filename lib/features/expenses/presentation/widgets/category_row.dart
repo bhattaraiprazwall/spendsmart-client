@@ -35,7 +35,7 @@ class CategoryRow extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: (categoryColor ?? Colors.blue).withOpacity(0.1),
+                  color: (categoryColor ?? Colors.blue).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -66,7 +66,9 @@ class CategoryRow extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                color: (predictedCategoryColor ?? Colors.blue).withOpacity(0.1),
+                color: (predictedCategoryColor ?? Colors.blue).withValues(
+                  alpha: 0.1,
+                ),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(

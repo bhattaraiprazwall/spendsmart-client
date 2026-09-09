@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/localization/localization_extension.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 
 class ExitConfirmationDialog extends StatelessWidget {
   const ExitConfirmationDialog({super.key});
@@ -19,11 +20,12 @@ class ExitConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return AlertDialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: c.card,
       contentPadding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -31,7 +33,7 @@ class ExitConfirmationDialog extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -43,19 +45,19 @@ class ExitConfirmationDialog extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             context.tr('exit_app'),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
+              color: c.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             context.tr('exit_confirmation'),
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: Color(0xFF64748B),
+              color: c.textSecondary,
               height: 1.5,
             ),
           ),
@@ -66,7 +68,7 @@ class ExitConfirmationDialog extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () => Navigator.pop(context, false),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    side: BorderSide(color: c.border),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -74,8 +76,8 @@ class ExitConfirmationDialog extends StatelessWidget {
                   ),
                   child: Text(
                     context.tr('cancel'),
-                    style: const TextStyle(
-                      color: Color(0xFF64748B),
+                    style: TextStyle(
+                      color: c.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

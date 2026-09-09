@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 
 class AlreadyLoginRegister extends StatefulWidget {
   final String text1;
@@ -29,7 +30,7 @@ class _AlreadyLoginRegisterState extends State<AlreadyLoginRegister> {
               TextSpan(
                 text: widget.text1,
                 // style: TextStyle(color: Colors.black, fontSize: 17),
-                style: AppTextStyles.body.copyWith(color: Colors.black),
+                style: AppTextStyles.body.copyWith(color: context.colors.textPrimary),
               ),
               TextSpan(
                 text: widget.text2,

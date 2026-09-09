@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/features/profile/domain/entities/profile.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
 
@@ -16,11 +17,12 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(profileProvider).value;
+    final c = context.colors;
     return AppBar(
-      backgroundColor: AppColors.background,
+      backgroundColor: c.background,
       elevation: 0,
       automaticallyImplyLeading: false,
-      leading: _buildAvatar(profile),
+      leading: _buildAvatar(profile, context),
       leadingWidth: 58,
       title: _buildGreeting(profile,context),
       actions: [_buildBellIcon(context)],
@@ -43,7 +45,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
     return parts.first[0].toUpperCase();
   }
 
-  Widget _buildAvatar(Profile? profile) {
+  Widget _buildAvatar(Profile? profile, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 12),
       child: Container(
@@ -52,7 +54,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: AppColors.primary, width: 1.5),
-          color: AppColors.primary.withOpacity(0.1),
+          color: AppColors.primary.withValues(alpha: 0.1),
         ),
         child: Center(
           child: Text(
@@ -69,6 +71,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
   }
 
   Widget _buildGreeting(Profile? profile,BuildContext context) {
+    final c = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -79,8 +82,8 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
               child: Text(
                 '${context.tr('hi')}, ${_firstName(profile)} 👋',
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.neutral,
+                style: TextStyle(
+                  color: c.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                 ),
@@ -94,7 +97,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
         Text(
           profile?.email ?? '',
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppColors.subtitleColor, fontSize: 12),
+          style: TextStyle(color: c.textSecondary, fontSize: 12),
         ),
       ],
     );
@@ -110,7 +113,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.12),
+        color: AppColors.primary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -125,6 +128,7 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
   }
 
   Widget _buildBellIcon(BuildContext context) {
+    final c = context.colors;
     return GestureDetector(
       onTap: () => context.push(RoutePaths.notifications),
       child: Padding(
@@ -134,12 +138,12 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
           height: 38,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white,
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            color: c.card,
+            border: Border.all(color: c.border),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.notifications_none,
-            color: AppColors.neutral,
+            color: c.textPrimary,
             size: 20,
           ),
         ),

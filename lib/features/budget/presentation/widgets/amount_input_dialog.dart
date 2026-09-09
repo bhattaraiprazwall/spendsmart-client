@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 
 Future<double?> showAmountInputDialog(
@@ -21,6 +22,7 @@ Future<double?> showAmountInputDialog(
     context: context,
     barrierDismissible: true,
     builder: (ctx) {
+      final c = ctx.colors;
       return AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(title),
@@ -31,7 +33,7 @@ Future<double?> showAmountInputDialog(
             if (helperText != null) ...[
               Text(
                 helperText,
-                style: const TextStyle(fontSize: 13, color: Colors.black54),
+                style: TextStyle(fontSize: 13, color: c.textSecondary),
               ),
               const SizedBox(height: 16),
             ],

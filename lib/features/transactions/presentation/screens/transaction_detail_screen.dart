@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
@@ -102,7 +103,7 @@ class _TransactionDetailScreenState
     final budgetAsync = ref.watch(budgetProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF0FB),
+      backgroundColor: context.colors.surface,
       appBar: _buildAppBar(context),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -125,24 +126,26 @@ class _TransactionDetailScreenState
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final c = context.colors;
     return AppBar(
-      backgroundColor: const Color(0xFFEEF0FB),
+      backgroundColor: context.colors.surface,
       elevation: 0,
-      leading: const BackButton(color: Colors.black),
-      title: const Text(
+      leading: BackButton(color: c.textPrimary),
+      title: Text(
         'Transaction Details',
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+        style: TextStyle(color: c.textPrimary, fontWeight: FontWeight.bold, fontSize: 18),
       ),
     );
   }
 
   Widget _buildAmountCard(String currency) {
+    final c = context.colors;
     final color = _transaction.isIncome ? Colors.green : Colors.red;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 28),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -160,7 +163,7 @@ class _TransactionDetailScreenState
           const SizedBox(height: 4),
           Text(
             _transaction.title,
-            style: const TextStyle(fontSize: 14, color: Colors.black45),
+            style: TextStyle(fontSize: 14, color: c.textSecondary),
           ),
           const SizedBox(height: 12),
           _buildStatusBadge(),
@@ -175,7 +178,7 @@ class _TransactionDetailScreenState
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Icon(transactionResolveIcon(_transaction.categoryIcon), color: color, size: 26),
@@ -188,7 +191,7 @@ class _TransactionDetailScreenState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -206,18 +209,19 @@ class _TransactionDetailScreenState
   }
 
   Widget _buildDetailsCard() {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Details',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c.textPrimary),
           ),
           const SizedBox(height: 12),
           _buildDetailRow(Icons.category_outlined, 'Category', _transaction.categoryName),
@@ -237,31 +241,33 @@ class _TransactionDetailScreenState
   }
 
   Widget _buildDetailRow(IconData icon, String label, String value) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: Colors.black45),
+          Icon(icon, size: 18, color: c.textSecondary),
           const SizedBox(width: 10),
-          Text(label, style: const TextStyle(color: Colors.black54, fontSize: 14)),
+          Text(label, style: TextStyle(color: c.textSecondary, fontSize: 14)),
           const Spacer(),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+          Text(value, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: c.textPrimary)),
         ],
       ),
     );
   }
 
   Widget _buildNoteRow(String note) {
+    final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.notes_outlined, size: 18, color: Colors.black45),
-              SizedBox(width: 10),
-              Text('Note', style: TextStyle(color: Colors.black54, fontSize: 14)),
+              Icon(Icons.notes_outlined, size: 18, color: c.textSecondary),
+              const SizedBox(width: 10),
+              Text('Note', style: TextStyle(color: c.textSecondary, fontSize: 14)),
             ],
           ),
           const SizedBox(height: 6),
@@ -269,7 +275,7 @@ class _TransactionDetailScreenState
             padding: const EdgeInsets.only(left: 28),
             child: Text(
               note,
-              style: const TextStyle(fontSize: 13, color: Colors.black54, height: 1.5),
+              style: TextStyle(fontSize: 13, color: c.textSecondary, height: 1.5),
             ),
           ),
         ],
@@ -278,7 +284,7 @@ class _TransactionDetailScreenState
   }
 
   Widget _buildDivider() {
-    return const Divider(height: 1, color: Color(0xFFF2F3F7));
+    return Divider(height: 1, color: context.colors.divider);
   }
 
   Widget _buildBudgetCard(AsyncValue<BudgetStatus?> budgetAsync, String currency) {
@@ -294,20 +300,20 @@ class _TransactionDetailScreenState
         ),
       ),
       error: (e, _) => _budgetContainer(
-        child: const Padding(
-          padding: EdgeInsets.all(24),
-          child: Center(child: Text('Could not load budget', style: TextStyle(color: Colors.black45))),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(child: Text('Could not load budget', style: TextStyle(color: context.colors.textSecondary))),
         ),
       ),
       data: (status) {
         if (status == null) {
           return _budgetContainer(
-            child: const Padding(
-              padding: EdgeInsets.all(24),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
               child: Center(
                 child: Text(
                   'No budget set for this month',
-                  style: TextStyle(color: Colors.black45, fontSize: 13),
+                  style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
                 ),
               ),
             ),
@@ -319,12 +325,12 @@ class _TransactionDetailScreenState
         ).firstOrNull;
         if (cat == null) {
           return _budgetContainer(
-            child: const Padding(
-              padding: EdgeInsets.all(24),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
               child: Center(
                 child: Text(
                   'No budget limit for this category',
-                  style: TextStyle(color: Colors.black45, fontSize: 13),
+                  style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
                 ),
               ),
             ),
@@ -340,7 +346,7 @@ class _TransactionDetailScreenState
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: child,
@@ -348,13 +354,14 @@ class _TransactionDetailScreenState
   }
 
   Widget _buildBudgetProgress(BudgetCategory cat, String currency) {
+    final c = context.colors;
     final color = budgetStatusColor(cat.status);
     final percent = (cat.usagePercentage / 100).clamp(0.0, 1.0);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -365,7 +372,7 @@ class _TransactionDetailScreenState
             children: [
               Text(
                 '${cat.name} Budget',
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: c.textPrimary),
               ),
               Icon(budgetResolveIcon(cat.icon), color: color, size: 18),
             ],
@@ -376,11 +383,11 @@ class _TransactionDetailScreenState
             children: [
               Text(
                 'Spent: ${CurrencyUtil.format(cat.spent, currency)}',
-                style: const TextStyle(color: Colors.black54, fontSize: 12),
+                style: TextStyle(color: c.textSecondary, fontSize: 12),
               ),
               Text(
                 'Total: ${CurrencyUtil.format(cat.limit, currency)}',
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: c.textPrimary),
               ),
             ],
           ),
@@ -390,7 +397,7 @@ class _TransactionDetailScreenState
             child: LinearProgressIndicator(
               value: percent,
               minHeight: 8,
-              backgroundColor: Colors.grey.shade200,
+              backgroundColor: c.border,
               color: color,
             ),
           ),

@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/core/providers/theme_provider.dart';
 import 'package:spendsmart/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:spendsmart/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:spendsmart/features/profile/domain/entities/profile.dart';
@@ -46,6 +48,12 @@ class ProfileNotifier extends _$ProfileNotifier {
     try {
       final Profile data = await ref.read(getProfileProvider)(idToken);
       state = AsyncData(data);
+      final localTheme = await ref.read(storageServiceProvider).getTheme();
+      if (localTheme == null && data.theme.isNotEmpty) {
+        await ref.read(themeProvider.notifier).setTheme(
+          data.theme == 'dark' ? ThemeMode.dark : ThemeMode.light,
+        );
+      }
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).deleteToken();
