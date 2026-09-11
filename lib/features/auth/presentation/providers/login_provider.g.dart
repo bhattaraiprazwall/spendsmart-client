@@ -32,7 +32,7 @@ final class LoginProvider extends $AsyncNotifierProvider<Login, void> {
   Login create() => Login();
 }
 
-String _$loginHash() => r'9b34b4a3af7bf15491877a2ea087b14b479a318e';
+String _$loginHash() => r'c2f2235c98f06b5c75a75fe133354d0ef62bcac6';
 
 abstract class _$Login extends $AsyncNotifier<void> {
   FutureOr<void> build();

@@ -6,8 +6,9 @@ import 'package:spendsmart/core/routing/route_paths.dart';
 void showQuickActionSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
+    isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (ctx) => _QuickActionSheet(),
+    builder: (ctx) => const _QuickActionSheet(),
   );
 }
 
@@ -19,57 +20,64 @@ class _QuickActionSheet extends StatelessWidget {
     return SafeArea(
       child: Container(
         margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
           color: const Color(0xFF1A1F2E),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildLabel(context),
-            const SizedBox(height: 12),
-            _buildItem(
-              icon: Icons.arrow_downward_rounded,
-              iconBg: Colors.red,
-              title: context.tr('add_expense'),
-              subtitle: 'With AI category prediction',
-              isHighlighted: true,
-              onTap: () {
-                context.pop(); // Close the bottom sheet
-                context.push(RoutePaths.addExpense);},
-            ),
-            const SizedBox(height: 8),
-            _buildItem(
-              icon: Icons.arrow_outward_rounded,
-              iconBg: Colors.green,
-              title: context.tr('add_income'),
-              subtitle: 'Stipend, allowance, freelance',
-              onTap: () {Navigator.pop(context);
-              context.push(RoutePaths.addIncome);},
-            ),
-            const SizedBox(height: 8),
-            _buildItem(
-              icon: Icons.add_box_outlined,
-              iconBg: Colors.blue,
-              title: context.tr('new_category'),
-              subtitle: 'Create custom spending category',
-              onTap: () {Navigator.pop(context);
-              context.push(RoutePaths.addCategory);},
-
-            ),
-            const SizedBox(height: 8),
-            _buildItem(
-              icon: Icons.savings_outlined,
-              iconBg: Colors.purple,
-              title: context.tr('manage_budget'),
-              subtitle: 'Set monthly & category limits',
-              onTap: () {Navigator.pop(context);
-              context.push(RoutePaths.budget);},
-
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildLabel(context),
+              const SizedBox(height: 12),
+              _buildItem(
+                icon: Icons.arrow_downward_rounded,
+                iconBg: Colors.red,
+                title: context.tr('add_expense'),
+                subtitle: context.tr('quick_action_expense_desc'),
+                isHighlighted: true,
+                onTap: () {
+                  context.pop(); // Close the bottom sheet
+                  context.push(RoutePaths.addExpense);
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildItem(
+                icon: Icons.arrow_outward_rounded,
+                iconBg: Colors.green,
+                title: context.tr('add_income'),
+                subtitle: context.tr('quick_action_income_desc'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push(RoutePaths.addIncome);
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildItem(
+                icon: Icons.add_box_outlined,
+                iconBg: Colors.blue,
+                title: context.tr('new_category'),
+                subtitle: context.tr('quick_action_category_desc'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push(RoutePaths.addCategory);
+                },
+              ),
+              const SizedBox(height: 8),
+              _buildItem(
+                icon: Icons.savings_outlined,
+                iconBg: Colors.purple,
+                title: context.tr('manage_budget'),
+                subtitle: context.tr('quick_action_budget_desc'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push(RoutePaths.budget);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -99,19 +107,19 @@ class _QuickActionSheet extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           // first item has a slightly brighter bg to show it's "active"
           color: isHighlighted
-              ? Colors.white.withOpacity(0.08)
-              : Colors.white.withOpacity(0.04),
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.white.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
             _buildIconBox(icon, iconBg),
             const SizedBox(width: 14),
-            _buildText(title, subtitle),
+            Expanded(child: _buildText(title, subtitle)),
           ],
         ),
       ),

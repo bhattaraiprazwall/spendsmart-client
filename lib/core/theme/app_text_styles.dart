@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:spendsmart/core/constants/app_colors.dart';
 
 class AppTextStyles {
+  // NB: colors intentionally inherit the ambient themed text color.
   static const TextStyle headline = TextStyle(
     fontFamily: 'Manrope',
     fontSize: 24,
     fontWeight: FontWeight.bold,
-    color: AppColors.neutral
 
   );
 
   static const TextStyle body=TextStyle(
     fontFamily: 'Manrope',
     fontSize: 16,
-    color: AppColors.neutral
   );
 
   static const TextStyle label=TextStyle(

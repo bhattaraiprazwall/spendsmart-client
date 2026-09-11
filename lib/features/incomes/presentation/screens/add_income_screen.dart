@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/features/category/domain/entities/category.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
 import 'package:spendsmart/features/incomes/domain/entities/income_form_data.dart';
@@ -90,6 +91,7 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
   void _showCategoryPicker() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: context.colors.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -98,7 +100,7 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
           child: Consumer(
             builder: (context, ref, _) {
               final categoriesAsync = ref.watch(categoriesProvider);
-          
+
               return categoriesAsync.when(
                 loading: () => const SizedBox(
                   height: 200,
@@ -106,15 +108,19 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
                 ),
                 error: (e, _) => SizedBox(
                   height: 200,
-                  child: Center(child: Text('Failed to load categories')),
+                  child: Center(child: Text(ctx.tr('failed_to_load_categories'))),
                 ),
                 data: (categories) => ListView(
                   shrinkWrap: true,
                   padding: const EdgeInsets.all(16),
                   children: [
-                    const Text(
-                      'Select Category',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                    Text(
+                      ctx.tr('select_category'),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: ctx.colors.textPrimary,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     ...categories
@@ -134,10 +140,13 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
     final color = _hexToColor(cat.color);
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: color.withOpacity(0.15),
+        backgroundColor: color.withValues(alpha: 0.15),
         child: Icon(_mapCategoryIcon(cat.icon), color: color, size: 20),
       ),
-      title: Text(cat.name),
+      title: Text(
+        cat.name,
+        style: TextStyle(color: ctx.colors.textPrimary),
+      ),
       trailing: formData.categoryId == cat.id
           ? const Icon(Icons.check, color: Colors.green)
           : null,
@@ -199,13 +208,13 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
 
     setState(() {
       _amountError = (amount == null || amount <= 0)
-          ? 'Please enter a valid amount'
+          ? context.tr('valid_amount_error')
           : null;
       _titleError = formData.title.trim().isEmpty
-          ? 'Please enter a title'
+          ? context.tr('title_required_error')
           : null;
       _categoryError = formData.categoryId == null
-          ? 'Please select a category'
+          ? context.tr('category_required_error')
           : null;
     });
 
@@ -240,7 +249,7 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Income added successfully')),
+        SnackBar(content: Text(context.tr('income_added'))),
       );
       context.go(RoutePaths.dashboard);
     } catch (e) {
@@ -248,19 +257,20 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to add income: $e')));
+      ).showSnackBar(SnackBar(content: Text('${context.tr('failed_to_add_income')}: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     ref.watch(categoriesProvider);
+    final c = context.colors;
 
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: AppColors.neutral),
+        iconTheme: IconThemeData(color: c.textPrimary),
         centerTitle: true,
-        title: const Text('Add Income', style: AppTextStyles.body),
+        title: Text(context.tr('add_income'), style: AppTextStyles.body),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -297,7 +307,7 @@ class _AddIncomeScreenState extends ConsumerState<AddIncomeScreen> {
           padding: const EdgeInsets.all(8.0),
           child: PrimaryButton(
             onPressed: _handleSave,
-            label: _isSaving ? 'Saving...' : 'Save Income',
+            label: _isSaving ? context.tr('saving') : context.tr('save_income'),
           ),
         ),
       ),

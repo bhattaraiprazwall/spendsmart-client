@@ -1,24 +1,33 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
+import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/utils/icon_helper.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import '../providers/insights_provider.dart';
 import '../../domain/entities/insight.dart';
 import '../widgets/spending_anomaly_card.dart';
 import '../../domain/entities/spending_anomaly.dart';
+import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/features/forecast/presentation/providers/forecast_provider.dart';
 
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
     final insightsAsync = ref.watch(insightsProvider);
     final AsyncValue<SpendingAnomaly> anomalyAsync =
     ref.watch(spendingAnomalyProvider);
     final selectedPeriod = ref.watch(insightsPeriodProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFF),
+      backgroundColor: c.background,
       body: SafeArea(
         child: insightsAsync.when(
           data: (data) => _buildContent(
@@ -42,6 +51,7 @@ class InsightsScreen extends ConsumerWidget {
       String selectedPeriod,
       AsyncValue<SpendingAnomaly> anomalyAsync,
       ) {
+    final currency = ref.watch(currencyProvider);
     return RefreshIndicator(
       onRefresh: () async {
         await Future.wait([
@@ -54,12 +64,12 @@ class InsightsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildPeriodSwitcher(ref, selectedPeriod),
+            _buildPeriodSwitcher(context, ref, selectedPeriod),
 
             const SizedBox(height: 24),
 
             if (data.topInsight != null) ...[
-              _buildInsightCard(data.topInsight!),
+              _buildInsightCard(context, data.topInsight!),
               const SizedBox(height: 24),
             ],
 
@@ -78,13 +88,17 @@ class InsightsScreen extends ConsumerWidget {
 
             const SizedBox(height: 24),
 
+            _buildForecastSummaryCard(context, ref),
+
+            const SizedBox(height: 24),
+
             if (data.breakdown.isNotEmpty) ...[
-              _buildChartCard(data),
+              _buildChartCard(context, data, currency),
               const SizedBox(height: 24),
-              _buildBreakdownSection(data.breakdown),
+              _buildBreakdownSection(context, data.breakdown, currency),
             ] else
-              const Center(
-                child: Text('No expense data for this period'),
+              Center(
+                child: Text(context.tr('no_expense_period')),
               ),
           ],
         ),
@@ -92,23 +106,35 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPeriodSwitcher(WidgetRef ref, String selectedPeriod) {
+  Widget _buildPeriodSwitcher(
+      BuildContext context,
+      WidgetRef ref,
+      String selectedPeriod,
+    ) {
+    final c = context.colors;
+    final periods = [
+      {'key': 'Weekly', 'label': context.tr('weekly')},
+      {'key': 'Monthly', 'label': context.tr('monthly')},
+      {'key': 'Yearly', 'label': context.tr('yearly')},
+    ];
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8EEFF),
+        color: c.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
-        children: ['Weekly', 'Monthly', 'Yearly'].map((period) {
-          final isSelected = selectedPeriod == period;
+        children: periods.map((periodItem) {
+          final periodKey = periodItem['key']!;
+          final periodLabel = periodItem['label']!;
+          final isSelected = selectedPeriod == periodKey;
           return Expanded(
             child: GestureDetector(
-              onTap: () => ref.read(insightsPeriodProvider.notifier).setPeriod(period),
+              onTap: () => ref.read(insightsPeriodProvider.notifier).setPeriod(periodKey),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : Colors.transparent,
+                  color: isSelected ? c.card : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: isSelected
                       ? [
@@ -122,9 +148,9 @@ class InsightsScreen extends ConsumerWidget {
                 ),
                 child: Center(
                   child: Text(
-                    period,
+                    periodLabel,
                     style: TextStyle(
-                      color: isSelected ? const Color(0xFF2D5BFF) : const Color(0xFF64748B),
+                      color: isSelected ? const Color(0xFF2D5BFF) : c.textSecondary,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                       fontSize: 14,
                     ),
@@ -138,13 +164,14 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildInsightCard(TopInsight insight) {
+  Widget _buildInsightCard(BuildContext context, TopInsight insight) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: c.border),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,10 +193,10 @@ class InsightsScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Top Spending Insight',
+                Text(
+                  context.tr('top_spending_insight'),
                   style: TextStyle(
-                    color: Color(0xFF64748B),
+                    color: c.textSecondary,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -177,8 +204,8 @@ class InsightsScreen extends ConsumerWidget {
                 const SizedBox(height: 8),
                 RichText(
                   text: TextSpan(
-                    style: const TextStyle(
-                      color: Color(0xFF1E293B),
+                    style: TextStyle(
+                      color: c.textPrimary,
                       fontSize: 15,
                       height: 1.5,
                       fontFamily: 'Manrope',
@@ -188,7 +215,7 @@ class InsightsScreen extends ConsumerWidget {
                         text: insight.name,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      const TextSpan(text: ' is your highest expense this month, making up '),
+                      TextSpan(text: ' ${context.tr('highest_expense_desc_1')} '),
                       TextSpan(
                         text: '${insight.percentage}%',
                         style: TextStyle(
@@ -196,7 +223,7 @@ class InsightsScreen extends ConsumerWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const TextSpan(text: ' of your total spend.'),
+                      TextSpan(text: ' ${context.tr('highest_expense_desc_2')}'),
                     ],
                   ),
                 ),
@@ -208,14 +235,194 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildChartCard(Insight data) {
+  Widget _buildForecastSummaryCard(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final forecastAsync = ref.watch(monthlyForecastProvider);
+
+    return GestureDetector(
+      onTap: () => context.push(RoutePaths.forecast),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: c.card,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: c.border),
+        ),
+        child: forecastAsync.when(
+          loading: () => Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2D5BFF).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.trending_up,
+                  color: Color(0xFF2D5BFF),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.tr('spending_forecast'),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: c.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 14,
+                      width: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: c.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          error: (_, _) => const SizedBox.shrink(),
+          data: (forecast) {
+            if (forecast.status == 'INSUFFICIENT_DATA') {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2D5BFF).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.trending_up,
+                      color: Color(0xFF2D5BFF),
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.tr('spending_forecast'),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: c.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          context.tr('keep_tracking_insights_hint'),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: c.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: c.chevron,
+                  ),
+                ],
+              );
+            }
+
+            final monthLabel = _formatMonth(
+              forecast.forecastMonth,
+              forecast.forecastYear,
+            );
+            final amount = CurrencyUtil.format(forecast.forecast ?? 0, ref.watch(currencyProvider));
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2D5BFF).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.trending_up,
+                    color: Color(0xFF2D5BFF),
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.tr('spending_forecast'),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: c.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      if (monthLabel.isNotEmpty) ...[
+                        Text(
+                          monthLabel,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: c.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                      ],
+                      Text(
+                        amount,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: c.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: c.chevron,
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  String _formatMonth(int? month, int? year) {
+    if (month == null || year == null) return '';
+    return DateFormat('MMMM yyyy').format(DateTime(year, month));
+  }
+
+  Widget _buildChartCard(BuildContext context, Insight data, String currency) {
+    final c = context.colors;
     return Container(
       height: 320,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: c.border),
       ),
       child: Stack(
         alignment: Alignment.center,
@@ -238,20 +445,20 @@ class InsightsScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Total Spent',
+                context.tr('total_spent'),
                 style: TextStyle(
-                  color: Colors.grey.shade500,
+                  color: c.textSecondary,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                '\$${data.totalSpent}',
-                style: const TextStyle(
+                CurrencyUtil.format(data.totalSpent, currency),
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
+                  color: c.textPrimary,
                 ),
               ),
             ],
@@ -261,33 +468,39 @@ class InsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBreakdownSection(List<CategoryBreakdown> breakdown) {
+  Widget _buildBreakdownSection(
+      BuildContext context,
+      List<CategoryBreakdown> breakdown,
+      String currency,
+    ) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: c.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Breakdown',
+          Text(
+            context.tr('breakdown'),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
+              color: c.textPrimary,
             ),
           ),
           const SizedBox(height: 20),
-          ...breakdown.map((item) => _buildBreakdownItem(item)),
+          ...breakdown.map((item) => _buildBreakdownItem(context, item, currency)),
         ],
       ),
     );
   }
 
-  Widget _buildBreakdownItem(CategoryBreakdown item) {
+  Widget _buildBreakdownItem(BuildContext context, CategoryBreakdown item, String currency) {
+    final c = context.colors;
     final color = _hexToColor(item.color);
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
@@ -308,29 +521,29 @@ class InsightsScreen extends ConsumerWidget {
               children: [
                 Text(
                   item.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
+                    color: c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${(item.percentage * 100).toInt()}%',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF64748B),
+                    color: c.textSecondary,
                   ),
                 ),
               ],
             ),
           ),
           Text(
-            '\$${item.amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-            style: const TextStyle(
+            CurrencyUtil.format(item.amount, currency),
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
+              color: c.textPrimary,
             ),
           ),
         ],

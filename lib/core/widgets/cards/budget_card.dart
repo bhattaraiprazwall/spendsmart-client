@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/features/home/domain/entities/budget_item.dart';
 
 class BudgetCard extends StatelessWidget {
@@ -9,12 +10,13 @@ class BudgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       width: 180,
       margin: const EdgeInsets.only(right: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(

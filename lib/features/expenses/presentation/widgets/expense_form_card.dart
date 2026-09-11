@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/features/category/domain/entities/category.dart';
 import 'package:spendsmart/features/expenses/domain/entities/expense_form_data.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/category_row.dart';
@@ -41,24 +43,25 @@ class ExpenseFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const FieldLabel(label: 'TITLE'),
+          FieldLabel(label: context.tr('title').toUpperCase()),
           const SizedBox(height: 8),
           TextField(
             onChanged: onTitleChanged,
-            decoration: const InputDecoration(
-              hintText: 'What did you spend on?',
-              hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(
+            decoration: InputDecoration(
+              hintText: context.tr('what_did_you_spend_on'),
+              hintStyle: TextStyle(color: c.textMuted, fontSize: 14),
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 10,
               ),
@@ -73,9 +76,9 @@ class ExpenseFormCard extends StatelessWidget {
               style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ],
-          const Divider(height: 24),
+          Divider(height: 24, color: c.divider),
 
-          const FieldLabel(label: 'CATEGORY'),
+          FieldLabel(label: context.tr('category').toUpperCase()),
           const SizedBox(height: 8),
           CategoryRow(
             category: formData.category,
@@ -91,20 +94,20 @@ class ExpenseFormCard extends StatelessWidget {
             ),
           ],
           if (isPredicting)
-            const Padding(
-              padding: EdgeInsets.only(top: 12),
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
               child: Row(
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
-                    'Predicting category...',
+                    context.tr('predicting_category'),
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: c.textMuted,
                       fontSize: 12,
                     ),
                   ),
@@ -121,7 +124,7 @@ class ExpenseFormCard extends StatelessWidget {
                 onTap: onSuggestionTap,
               ),
             ),
-          const Divider(height: 24),
+          Divider(height: 24, color: c.divider),
           IntrinsicHeight(
             child: Row(
               children: [
@@ -129,7 +132,7 @@ class ExpenseFormCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const FieldLabel(label: 'DATE'),
+                      FieldLabel(label: context.tr('date').toUpperCase()),
                       const SizedBox(height: 6),
                       IconTextRow(
                         icon: Icons.calendar_today_outlined,
@@ -139,16 +142,16 @@ class ExpenseFormCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const VerticalDivider(
+                VerticalDivider(
                   thickness: 1,
                   width: 20,
-                  color: Colors.grey,
+                  color: c.divider,
                 ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const FieldLabel(label: 'METHOD'),
+                      FieldLabel(label: context.tr('method')),
                       const SizedBox(height: 6),
                       IconTextRow(
                         icon: Icons.credit_card_outlined,
@@ -161,14 +164,14 @@ class ExpenseFormCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 24),
-          const FieldLabel(label: 'NOTE'),
+          Divider(height: 24, color: c.divider),
+          FieldLabel(label: context.tr('note').toUpperCase()),
           const SizedBox(height: 6),
           TextField(
             onChanged: onNoteChanged,
-            decoration: const InputDecoration(
-              hintText: 'What was this for?',
-              hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+            decoration: InputDecoration(
+              hintText: context.tr('what_was_this_for'),
+              hintStyle: TextStyle(color: c.textMuted, fontSize: 13),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
               isDense: true,
@@ -198,6 +201,7 @@ class _SuggestionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final color = _hexToColor(category.color);
 
     return GestureDetector(
@@ -206,9 +210,9 @@ class _SuggestionTile extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -225,10 +229,10 @@ class _SuggestionTile extends StatelessWidget {
                   Text.rich(
                     TextSpan(
                       children: [
-                        const TextSpan(
-                          text: 'Suggested: ',
+                        TextSpan(
+                          text: context.tr('suggested'),
                           style: TextStyle(
-                            color: Colors.grey,
+                            color: c.textMuted,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -246,12 +250,12 @@ class _SuggestionTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       [
-                        if (alternative != null) 'or $alternative',
+                        if (alternative != null) '${context.tr('or')} $alternative',
                         if (confidenceLabel != null)
-                          'confidence: $confidenceLabel',
+                          '${context.tr('confidence')}$confidenceLabel',
                       ].join(' • '),
-                      style: const TextStyle(
-                        color: Colors.grey,
+                      style: TextStyle(
+                        color: c.textMuted,
                         fontSize: 12,
                       ),
                     ),

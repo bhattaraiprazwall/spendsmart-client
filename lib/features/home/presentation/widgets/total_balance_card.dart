@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 
@@ -28,7 +29,7 @@ class TotalBalanceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'TOTAL BALANCE',
+            context.tr('total_balance').toUpperCase(),
             style: AppTextStyles.body.copyWith(
               color: Colors.white70,
               fontWeight: FontWeight.w600,

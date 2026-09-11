@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 
 class FieldLabel extends StatelessWidget {
   final String label;
@@ -15,7 +16,7 @@ class FieldLabel extends StatelessWidget {
       style: TextStyle(
         fontSize: 10,
         fontWeight: FontWeight.w600,
-        color: Colors.grey.shade500,
+        color: context.colors.textSecondary,
         letterSpacing: 0.8,
       ),
     );

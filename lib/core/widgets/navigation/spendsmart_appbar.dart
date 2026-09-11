@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 
 class SpendsmartAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String? profileImageUrl;
@@ -19,9 +20,10 @@ class SpendsmartAppbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return AppBar(
       leading: IconButton(
-        color: Colors.black,
+        color: c.textPrimary,
         onPressed: onMenuTap,
         icon: Icon(Icons.menu),
       ),
@@ -40,7 +42,7 @@ class SpendsmartAppbar extends StatelessWidget implements PreferredSizeWidget {
           onTap: onProfileTap,
           child: CircleAvatar(
             radius: 15,
-            backgroundColor: Colors.grey.shade200,
+            backgroundColor: c.surface,
             // backgroundImage: _hasValidImage ? NetworkImage(profileImageUrl!) : null,
             // child: _hasValidImage ? null : const Icon(Icons.person,size: 16,),
             child: ClipOval(

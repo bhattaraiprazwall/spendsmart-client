@@ -117,7 +117,7 @@ class Budget extends _$Budget {
       _safeSetState(AsyncData(status));
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));
@@ -144,7 +144,7 @@ class Budget extends _$Budget {
       ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));
@@ -167,7 +167,7 @@ class Budget extends _$Budget {
       ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));
@@ -182,7 +182,7 @@ class Budget extends _$Budget {
       ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));
@@ -207,7 +207,7 @@ class Budget extends _$Budget {
       ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));
@@ -232,7 +232,7 @@ class Budget extends _$Budget {
       ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));
@@ -255,7 +255,7 @@ class Budget extends _$Budget {
       ref.invalidate(dashboardProvider);
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));

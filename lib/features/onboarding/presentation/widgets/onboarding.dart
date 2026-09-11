@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 
 class Onboarding extends StatelessWidget {
@@ -40,7 +41,7 @@ class Onboarding extends StatelessWidget {
             ),
           ),
         ],
-        backgroundColor: AppColors.background,
+        backgroundColor: context.colors.background,
         elevation: 0,
       ),
       //BODY SECTION
@@ -87,7 +88,7 @@ class Onboarding extends StatelessWidget {
               ),
             ),
             //ZONE 2 DOT INDICATORS
-            _buildDotIndicators(),
+            _buildDotIndicators(context),
             const SizedBox(height: 24),
             //ZONE 3 NEXT BUTTON
             PrimaryButton(
@@ -104,19 +105,19 @@ class Onboarding extends StatelessWidget {
   }
 
   //DOT INDICATOR BUILDER
-  Widget _buildDotIndicators() {
+  Widget _buildDotIndicators(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ...List.generate(
           totalPages,
-          (index) => _buildDot(isActive: index == currentPage),
+          (index) => _buildDot(isActive: index == currentPage, context: context),
         ),
       ],
     );
   }
 
-  Widget _buildDot({required bool isActive}) {
+  Widget _buildDot({required bool isActive, required BuildContext context}) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       margin: EdgeInsets.symmetric(horizontal: 4),
@@ -125,7 +126,7 @@ class Onboarding extends StatelessWidget {
       // ── Active dot is wider, inactive is a small circle ─────
       width: isActive ? 24 : 8,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.primary : Colors.grey.shade300,
+        color: isActive ? AppColors.primary : context.colors.textMuted,
         borderRadius: BorderRadius.circular(4),
       ),
     );

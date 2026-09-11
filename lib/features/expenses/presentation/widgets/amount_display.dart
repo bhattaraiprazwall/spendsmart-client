@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 
 class AmountDisplay extends ConsumerWidget {
   final TextEditingController controller;
@@ -19,6 +20,7 @@ class AmountDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
     final symbol = ref.watch(currencySymbolProvider);
     return Column(
       children: [
@@ -66,13 +68,13 @@ class AmountDisplay extends ConsumerWidget {
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                     ],
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: '0.00',
                       hintStyle: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+                        color: c.textMuted,
                       ),
                     ),
                   ),

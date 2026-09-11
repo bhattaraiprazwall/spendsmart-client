@@ -89,7 +89,7 @@ class TransactionNotifier extends _$TransactionNotifier {
       return updated;
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       state = AsyncError(e, st);
@@ -106,7 +106,7 @@ class TransactionNotifier extends _$TransactionNotifier {
       await _refreshDependents(idToken);
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       state = AsyncError(e, st);

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/features/category/domain/entities/category.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
 import 'package:spendsmart/features/transactions/domain/entities/transaction.dart';
@@ -85,17 +88,17 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
                 height: 200,
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (e, _) => const SizedBox(
+              error: (e, _) => SizedBox(
                 height: 200,
-                child: Center(child: Text('Failed to load categories')),
+                child: Center(child: Text(ctx.tr('failed_to_load_categories'))),
               ),
               data: (categories) => ListView(
                 shrinkWrap: true,
                 padding: const EdgeInsets.all(16),
                 children: [
-                  const Text(
-                    'Select Category',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  Text(
+                    ctx.tr('select_category'),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 12),
                   ...categories
@@ -114,7 +117,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
     final color = transactionHexToColor(cat.color);
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: color.withOpacity(0.15),
+        backgroundColor: color.withValues(alpha: 0.15),
         child: Icon(transactionResolveIcon(cat.icon), color: color, size: 20),
       ),
       title: Text(cat.name),
@@ -155,9 +158,9 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
           shrinkWrap: true,
           padding: const EdgeInsets.all(16),
           children: [
-            const Text(
-              'Select Payment Method',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            Text(
+              context.tr('select_payment_method'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             ..._paymentMethods.map(
@@ -199,12 +202,12 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
 
     setState(() {
       _amountError = (amount == null || amount <= 0)
-          ? 'Please enter a valid amount'
+          ? context.tr('valid_amount_error')
           : null;
       _titleError = _titleController.text.trim().isEmpty
-          ? 'Please enter a title'
+          ? context.tr('title_required_error')
           : null;
-      _categoryError = _categoryId == null ? 'Please select a category' : null;
+      _categoryError = _categoryId == null ? context.tr('category_required_error') : null;
     });
 
     if (amount == null ||
@@ -244,13 +247,15 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
       if (!mounted) return;
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update transaction: $e')),
+        SnackBar(content: Text('${context.tr('failed_to_update_transaction')}: $e')),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final symbol = ref.watch(currencySymbolProvider);
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -269,22 +274,23 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: c.border,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'Edit Transaction',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              Text(
+                context.tr('edit_transaction'),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 20),
               TextField(
                 controller: _amountController,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
-                  labelText: 'Amount',
+                  labelText: context.tr('amount'),
+                  prefixText: '$symbol ',
                   errorText: _amountError,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -295,7 +301,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
               TextField(
                 controller: _titleController,
                 decoration: InputDecoration(
-                  labelText: 'Title',
+                  labelText: context.tr('title'),
                   errorText: _titleError,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -307,7 +313,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
                 controller: _noteController,
                 maxLines: 2,
                 decoration: InputDecoration(
-                  labelText: 'Note',
+                  labelText: context.tr('note'),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -316,29 +322,29 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
               const SizedBox(height: 12),
               _buildFieldTile(
                 icon: Icons.category_outlined,
-                label: 'Category',
-                value: _categoryName ?? 'Select Category',
+                label: context.tr('category'),
+                value: _categoryName ?? context.tr('select_category'),
                 error: _categoryError,
                 onTap: _showCategoryPicker,
               ),
               const SizedBox(height: 12),
               _buildFieldTile(
                 icon: Icons.calendar_today_outlined,
-                label: 'Date',
+                label: context.tr('date'),
                 value: formatTransactionDate(_selectedDate ?? DateTime.now()),
                 onTap: _showDatePicker,
               ),
               const SizedBox(height: 12),
               _buildFieldTile(
                 icon: Icons.credit_card_outlined,
-                label: 'Payment Method',
+                label: context.tr('payment_method'),
                 value: (_paymentMethod ?? 'CARD').replaceAll('_', ' '),
                 onTap: _showMethodPicker,
               ),
               const SizedBox(height: 24),
               PrimaryButton(
                 onPressed: _handleSave,
-                label: _isSaving ? 'Saving...' : 'Save Changes',
+                label: _isSaving ? context.tr('saving') : context.tr('save_changes'),
               ),
             ],
           ),
@@ -354,6 +360,7 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
     String? error,
     required VoidCallback onTap,
   }) {
+    final c = context.colors;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -361,13 +368,13 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
           border: Border.all(
-            color: error != null ? Colors.red : Colors.grey.shade400,
+            color: error != null ? Colors.red : c.border,
           ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 20, color: Colors.black45),
+            Icon(icon, size: 20, color: c.textSecondary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -375,20 +382,20 @@ class _EditTransactionSheetState extends ConsumerState<EditTransactionSheet> {
                 children: [
                   Text(
                     label,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 12, color: c.textSecondary),
                   ),
                   Text(
                     value,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: error != null ? Colors.red : Colors.black87,
+                      color: error != null ? Colors.red : c.textPrimary,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.black38),
+            Icon(Icons.chevron_right, color: c.chevron),
           ],
         ),
       ),
@@ -404,7 +411,7 @@ void showEditTransactionSheet(
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: const Color(0xFFEEF0FB),
+    backgroundColor: context.colors.surface,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),

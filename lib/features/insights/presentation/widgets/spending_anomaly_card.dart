@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import '../../domain/entities/spending_anomaly.dart';
 
 class SpendingAnomalyCard extends ConsumerStatefulWidget {
@@ -27,14 +29,14 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
       case 'INSUFFICIENT_DATA':
         return _buildInfoCard(
           icon: Icons.insights_outlined,
-          title: 'Spending Insights',
+          title: context.tr('spending_insights'),
           message: widget.anomaly.message,
         );
 
       case 'TOO_EARLY':
         return _buildInfoCard(
           icon: Icons.schedule_outlined,
-          title: 'Spending Analysis',
+          title: context.tr('spending_analysis'),
           message: widget.anomaly.message,
         );
 
@@ -44,6 +46,7 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
   }
 
   Widget _buildAnalyzedCard(String currencySymbol) {
+    final c = context.colors;
     final isAnomaly = widget.anomaly.isAnomaly ?? false;
 
     final average = widget.anomaly.mean ?? 0;
@@ -62,13 +65,13 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
         : Icons.check_circle_outline;
 
     final statusTitle = isAnomaly
-        ? 'Unusual Spending Detected'
-        : 'Spending Looks Normal';
+        ? context.tr('unusual_spending_detected')
+        : context.tr('spending_looks_normal');
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: statusColor.withValues(alpha: 0.2)),
       ),
@@ -90,10 +93,10 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
               Expanded(
                 child: Text(
                   statusTitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: c.textPrimary,
                   ),
                 ),
               ),
@@ -105,10 +108,10 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
           // Main message
           Text(
             widget.anomaly.message,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               height: 1.5,
-              color: Color(0xFF64748B),
+              color: c.textSecondary,
             ),
           ),
 
@@ -116,13 +119,13 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
           if (isAnomaly && average > 0) ...[
             const SizedBox(height: 12),
             Text(
-              'You spent ${percentageAboveAverage.toStringAsFixed(1)}% '
-              'more than your usual spending '
-              '($currencySymbol${difference.toStringAsFixed(0)} above average).',
-              style: const TextStyle(
+              '${context.tr('you_spent')} ${percentageAboveAverage.toStringAsFixed(1)}% '
+              '${context.tr('more_than_usual')} '
+              '($currencySymbol${difference.toStringAsFixed(0)} ${context.tr('above_average')}).',
+              style: TextStyle(
                 fontSize: 14,
                 height: 1.5,
-                color: Color(0xFF475569),
+                color: c.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -135,14 +138,14 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
             children: [
               Expanded(
                 child: _buildStat(
-                  label: 'Current',
+                  label: context.tr('current'),
                   value:
                       '$currencySymbol${widget.anomaly.currentSpending.toStringAsFixed(0)}',
                 ),
               ),
               Expanded(
                 child: _buildStat(
-                  label: 'Average',
+                  label: context.tr('average'),
                   value: average > 0
                       ? '$currencySymbol${average.toStringAsFixed(0)}'
                       : '--',
@@ -165,19 +168,19 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.analytics_outlined,
                     size: 18,
-                    color: Color(0xFF64748B),
+                    color: c.textSecondary,
                   ),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Analysis Details',
+                      context.tr('analysis_details'),
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF475569),
+                        color: c.textSecondary,
                       ),
                     ),
                   ),
@@ -185,7 +188,7 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
                     _showDetails
                         ? Icons.keyboard_arrow_up
                         : Icons.keyboard_arrow_down,
-                    color: const Color(0xFF64748B),
+                    color: c.chevron,
                   ),
                 ],
               ),
@@ -207,29 +210,30 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
   }
 
   Widget _buildAnalysisDetails(String currencySymbol) {
+    final c = context.colors;
     return Container(
       margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFF),
+        color: c.surface,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Statistical Analysis',
+          Text(
+            context.tr('statistical_analysis'),
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
+              color: c.textPrimary,
             ),
           ),
 
           const SizedBox(height: 14),
 
           _buildDetailRow(
-            'Historical Average',
+            context.tr('historical_average'),
             widget.anomaly.mean != null
                 ? '$currencySymbol${widget.anomaly.mean!.toStringAsFixed(2)}'
                 : '--',
@@ -238,7 +242,7 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
           const SizedBox(height: 10),
 
           _buildDetailRow(
-            'Standard Deviation',
+            context.tr('standard_deviation'),
             widget.anomaly.standardDeviation != null
                 ? widget.anomaly.standardDeviation!.toStringAsFixed(2)
                 : '--',
@@ -247,33 +251,34 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
           const SizedBox(height: 10),
 
           _buildDetailRow(
-            'Z-Score',
+            context.tr('z_score'),
             widget.anomaly.zScore?.toStringAsFixed(2) ?? '--',
           ),
 
           const SizedBox(height: 10),
 
-          _buildDetailRow('Detection Threshold', '> 2.00'),
+          _buildDetailRow(context.tr('detection_threshold'), '> 2.00'),
         ],
       ),
     );
   }
 
   Widget _buildDetailRow(String label, String value) {
+    final c = context.colors;
     return Row(
       children: [
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+            style: TextStyle(fontSize: 13, color: c.textSecondary),
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
+            color: c.textPrimary,
           ),
         ),
       ],
@@ -281,23 +286,24 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
   }
 
   Widget _buildStat({required String label, required String value}) {
+    final c = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
-            color: Color(0xFF94A3B8),
+            color: c.textMuted,
             fontWeight: FontWeight.w500,
           ),
         ),
         const SizedBox(height: 5),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
-            color: Color(0xFF1E293B),
+            color: c.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -310,12 +316,13 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
     required String title,
     required String message,
   }) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: c.border),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,7 +330,7 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFE8EEFF),
+              color: c.surface,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: const Color(0xFF2D5BFF), size: 24),
@@ -335,19 +342,19 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   message,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     height: 1.5,
-                    color: Color(0xFF64748B),
+                    color: c.textSecondary,
                   ),
                 ),
               ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/widgets/cards/transaction_card.dart';
 import 'package:spendsmart/features/expenses/domain/entities/expense.dart';
 import 'package:spendsmart/features/home/domain/entities/transaction_item.dart';
@@ -13,24 +14,25 @@ class RecentTransactionsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     if (transactions.isEmpty) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: c.card,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           'No transactions yet',
-          style: TextStyle(color: Colors.grey.shade500),
+          style: TextStyle(color: c.textSecondary),
         ),
       );
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
       ),
 
@@ -49,7 +51,7 @@ class RecentTransactionsSection extends StatelessWidget {
                 if (!isLast)
                   Divider(
                     height: 1,
-                    color: Colors.grey.shade200,
+                    color: c.divider,
                   ),
               ],
             );
@@ -73,7 +75,7 @@ class RecentTransactionsSection extends StatelessWidget {
       day: day,
       amount: e.type == 'INCOME' ? e.amount : -e.amount,
       iconColor: _hexToColor(e.categoryColor),
-      iconBg: _hexToColor(e.categoryColor).withOpacity(0.1),
+      iconBg: _hexToColor(e.categoryColor).withValues(alpha: 0.1),
     );
   }
 

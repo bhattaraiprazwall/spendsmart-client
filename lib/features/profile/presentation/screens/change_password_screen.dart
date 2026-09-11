@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/validators.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 
@@ -35,7 +37,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_newPasswordController.text == _currentPassController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: const Text("This password is already used..")),
+        SnackBar(content: Text(context.tr('password_already_used'))),
       );
       return;
     }
@@ -53,7 +55,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: const Text("Password changed successfully..")),
+          SnackBar(content: Text(context.tr('password_changed'))),
         );
         context.pop();
       }
@@ -76,80 +78,82 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: AppColors.neutral),
+        iconTheme: IconThemeData(color: context.colors.textPrimary),
         centerTitle: true,
-        title: const Text('Change Password', style: AppTextStyles.body),
+        title: Text(context.tr('change_password'), style: AppTextStyles.body),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Text(
-                'First let\'s verify its you ',
-                style: AppTextStyles.headline,
-              ),
-              const SizedBox(height: 24),
-              CustomTextField(
-                controller: _currentPassController,
-                label: "Current Password",
-                validator: Validators.validatePassword,
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: _newPasswordController,
-                label: "New Password",
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return "Please enter a new password";
-                  }
-                  if (v.trim().length < 6) {
-                    return "Password must be at least 6 characters";
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-              CustomTextField(
-                controller: _confirmNewPasswordController,
-                label: "Confirm new Password",
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return "Re-enter your new password";
-                  }
-                  if (v.trim() != _newPasswordController.text.trim()) {
-                    return "Passwords do not match";
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saving ? null : _save,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: _saving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          "Save",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Text(
+                  context.tr('verify_identity'),
+                  style: AppTextStyles.headline,
                 ),
-              ),
-            ],
+                const SizedBox(height: 24),
+                CustomTextField(
+                  controller: _currentPassController,
+                  label: context.tr('current_password'),
+                  validator: Validators.validatePassword,
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: _newPasswordController,
+                  label: context.tr('new_password'),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return "Please enter a new password";
+                    }
+                    if (v.trim().length < 6) {
+                      return "Password must be at least 6 characters";
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+                CustomTextField(
+                  controller: _confirmNewPasswordController,
+                  label: context.tr('confirm_password'),
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) {
+                      return "Re-enter your new password";
+                    }
+                    if (v.trim() != _newPasswordController.text.trim()) {
+                      return "Passwords do not match";
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _saving ? null : _save,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: _saving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            context.tr('save'),
+                            style: const TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

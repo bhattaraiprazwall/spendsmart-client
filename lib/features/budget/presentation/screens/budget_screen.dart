@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/features/budget/domain/entities/budget.dart';
 import 'package:spendsmart/features/budget/domain/entities/budget_category.dart';
 import 'package:spendsmart/features/budget/presentation/providers/budget_provider.dart';
@@ -73,11 +75,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final budgetAsync = ref.watch(budgetProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF0FB),
-      appBar: const AppTopBar(title: 'Budget'),
+      backgroundColor: c.surface,
+      appBar: AppTopBar(title: context.tr('budget')),
       body: SafeArea(
         child: Column(
           children: [
@@ -97,17 +100,18 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Widget _buildError(Object e) {
+    final c = context.colors;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.black38),
+            Icon(Icons.error_outline, size: 48, color: c.textMuted),
             const SizedBox(height: 12),
             Text(
-              'Unable to load budget',
-              style: TextStyle(color: Colors.grey.shade600),
+              context.tr('unable_to_load_budget'),
+              style: TextStyle(color: c.textSecondary),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -120,7 +124,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                       .fetchBudget(token, month: _month, year: _year);
                 }
               },
-              child: const Text('Retry'),
+              child: Text(context.tr('retry')),
             ),
           ],
         ),
@@ -155,6 +159,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Widget _buildContent(BudgetStatus? status) {
+    final c = context.colors;
     if (status == null) {
       return _buildEmptyState();
     }
@@ -166,12 +171,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'CATEGORY BUDGETS',
+            Text(
+              context.tr('category_budgets'),
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Colors.black54,
+                color: c.textSecondary,
                 letterSpacing: 0.8,
               ),
             ),
@@ -179,18 +184,18 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               onPressed: () => _addCategoryBudget(status),
               style: TextButton.styleFrom(foregroundColor: Colors.blue),
               icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add'),
+              label: Text(context.tr('add')),
             ),
           ],
         ),
         if (status.categories.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
             child: Center(
               child: Text(
-                'No category budgets set yet.\nTap Add to manage a category limit.',
+                context.tr('no_category_budgets_hint'),
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.black54, fontSize: 14),
+                style: TextStyle(color: c.textSecondary, fontSize: 14),
               ),
             ),
           )
@@ -202,30 +207,31 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Widget _buildEmptyState() {
+    final c = context.colors;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.savings_outlined,
               size: 56,
-              color: Colors.black26,
+              color: c.textMuted,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'No budget set for this month',
-              style: TextStyle(
+            Text(
+              context.tr('no_budget_set'),
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Create a monthly budget to track your spending.',
+            Text(
+              context.tr('create_budget_hint'),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black54, fontSize: 13),
+              style: TextStyle(color: c.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
@@ -238,9 +244,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                 ),
               ),
               icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text(
-                'Set Budget',
-                style: TextStyle(color: Colors.white),
+              label: Text(
+                context.tr('set_budget'),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
           ],
@@ -250,6 +256,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Widget _buildBudgetSummaryCard(BudgetStatus status) {
+    final c = context.colors;
     final symbol = CurrencyUtil.symbolFor(ref.watch(currencyProvider));
     final statusColor = budgetStatusColor(status.status);
     final progress = status.usagePercentage.clamp(0, 100) / 100;
@@ -257,7 +264,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -273,12 +280,12 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'MONTHLY BUDGET',
+              Text(
+                context.tr('monthly_budget').toUpperCase(),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black54,
+                  color: c.textSecondary,
                   letterSpacing: 0.8,
                 ),
               ),
@@ -316,7 +323,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 8,
-              backgroundColor: const Color(0xFFE5E7EB),
+              backgroundColor: c.border,
               valueColor: AlwaysStoppedAnimation(statusColor),
             ),
           ),
@@ -324,10 +331,10 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildStat('Spent', status.totalSpent, symbol),
-              _buildStat('Remaining', status.remaining, symbol),
+              _buildStat(context.tr('spent'), status.totalSpent, symbol),
+              _buildStat(context.tr('remaining_budget'), status.remaining, symbol),
               _buildStat(
-                'Usage',
+                context.tr('usage'),
                 '${status.usagePercentage}%',
                 null,
               ),
@@ -339,7 +346,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => _setTotalBudget(status),
-                  child: const Text('Edit Budget'),
+                  child: Text(context.tr('edit_budget')),
                 ),
               ),
               const SizedBox(width: 12),
@@ -349,7 +356,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFFE53935),
                   ),
-                  child: const Text('Delete'),
+                  child: Text(context.tr('delete')),
                 ),
               ),
             ],
@@ -364,6 +371,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
   }
 
   Widget _buildStat(String label, String value, String? symbol) {
+    final c = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -379,13 +387,14 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: Colors.black45),
+          style: TextStyle(fontSize: 12, color: c.textSecondary),
         ),
       ],
     );
   }
 
   Widget _buildCategoryCard(BudgetStatus status, BudgetCategory cat) {
+    final c = context.colors;
     final color = budgetHexToColor(cat.color);
     final icon = budgetResolveIcon(cat.icon);
     final statusColor = budgetStatusColor(cat.status);
@@ -395,7 +404,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
@@ -423,9 +432,9 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                     const SizedBox(height: 2),
                     Text(
                       '${CurrencyUtil.format(cat.spent, statusBudgetCurrency())} spent of ${CurrencyUtil.format(cat.limit, statusBudgetCurrency())}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Colors.black45,
+                        color: c.textSecondary,
                       ),
                     ),
                   ],
@@ -435,13 +444,13 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.edit_outlined,
-                        color: Colors.black45, size: 20),
+                    icon: Icon(Icons.edit_outlined,
+                        color: c.textSecondary, size: 20),
                     onPressed: () => _editCategoryLimit(status, cat),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline,
-                        color: Colors.black45, size: 20),
+                    icon: Icon(Icons.delete_outline,
+                        color: c.textSecondary, size: 20),
                     onPressed: () => _removeCategoryLimit(status, cat),
                   ),
                 ],
@@ -454,7 +463,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 6,
-              backgroundColor: const Color(0xFFE5E7EB),
+              backgroundColor: c.border,
               valueColor: AlwaysStoppedAnimation(statusColor),
             ),
           ),
@@ -463,7 +472,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${CurrencyUtil.format(cat.remaining, statusBudgetCurrency())} left',
+                '${CurrencyUtil.format(cat.remaining, statusBudgetCurrency())} ${context.tr('left')}',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -472,7 +481,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
               ),
               Text(
                 '${cat.usagePercentage}%',
-                style: const TextStyle(fontSize: 12, color: Colors.black45),
+                style: TextStyle(fontSize: 12, color: c.textSecondary),
               ),
             ],
           ),
@@ -485,8 +494,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     final value = await showAmountInputDialog(
       context,
       ref,
-      title: existing == null ? 'Set Monthly Budget' : 'Edit Monthly Budget',
-      confirmLabel: 'Save',
+      title: existing == null ? context.tr('set_budget') : context.tr('edit_budget'),
+      confirmLabel: context.tr('save'),
       initialValue: existing != null
           ? double.tryParse(existing.totalAmount)
           : null,
@@ -515,19 +524,19 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Budget?'),
-        content: const Text(
-          'This removes the budget for this month, including all category limits.',
+        title: Text(ctx.tr('delete_budget_title')),
+        content: Text(
+          ctx.tr('delete_budget_confirm'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(ctx.tr('cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete',
-                style: TextStyle(color: Color(0xFFE53935))),
+            child: Text(ctx.tr('delete'),
+                style: const TextStyle(color: Color(0xFFE53935))),
           ),
         ],
       ),
@@ -552,8 +561,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
     if (available.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('All expense categories already have a budget limit.'),
+        SnackBar(
+          content: Text(context.tr('all_categories_budgeted')),
         ),
       );
       return;
@@ -561,7 +570,7 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
 
     final Category? selected = await showModalBottomSheet<Category>(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -569,11 +578,11 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(16),
+            Padding(
+              padding: const EdgeInsets.all(16),
               child: Text(
-                'Choose a category',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ctx.tr('choose_category'),
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
             ),
             Flexible(
@@ -608,8 +617,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     final limit = await showAmountInputDialog(
       context,
       ref,
-      title: 'Budget for ${selected.name}',
-      confirmLabel: 'Add',
+      title: '${context.tr('budget')} - ${selected.name}',
+      confirmLabel: context.tr('add'),
       helperText: 'Set a spending limit for this category.',
     );
     if (limit == null) return;
@@ -630,8 +639,8 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     final limit = await showAmountInputDialog(
       context,
       ref,
-      title: 'Edit ${cat.name} budget',
-      confirmLabel: 'Save',
+      title: '${context.tr('edit_budget')} - ${cat.name}',
+      confirmLabel: context.tr('save'),
       initialValue: double.tryParse(cat.limit),
       helperText: 'Update the spending limit for this category.',
     );
@@ -653,19 +662,19 @@ class _BudgetScreenState extends ConsumerState<BudgetScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove category budget?'),
+        title: Text(ctx.tr('remove_category_budget_title')),
         content: Text(
-          'Remove the budget limit for "${cat.name}".',
+          '${ctx.tr('remove_category_budget_confirm')} "${cat.name}".',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel'),
+            child: Text(ctx.tr('cancel')),
           ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Remove',
-                style: TextStyle(color: Color(0xFFE53935))),
+            child: Text(ctx.tr('remove'),
+                style: const TextStyle(color: Color(0xFFE53935))),
           ),
         ],
       ),

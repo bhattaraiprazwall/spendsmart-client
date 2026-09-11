@@ -54,7 +54,7 @@ class DashboardNotifier extends AsyncNotifier<DashboardSummary> {
       return summary;
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));

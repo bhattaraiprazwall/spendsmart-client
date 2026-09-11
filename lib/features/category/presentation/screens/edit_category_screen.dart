@@ -2,9 +2,11 @@
   import 'package:flutter_riverpod/flutter_riverpod.dart';
   import 'package:go_router/go_router.dart';
   import 'package:spendsmart/core/constants/category_constants.dart';
+  import 'package:spendsmart/core/theme/app_theme_extension.dart';
   import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
   import 'package:spendsmart/core/widgets/navigation/apptopbar.dart';
-import 'package:spendsmart/core/providers/core_providers.dart';
+  import 'package:spendsmart/core/providers/core_providers.dart';
+  import 'package:spendsmart/core/localization/localization_extension.dart';
   import 'package:spendsmart/features/category/domain/entities/category.dart';
   import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
   import 'package:spendsmart/features/category/presentation/screens/delete_category_confirmation.dart';
@@ -131,18 +133,19 @@ import 'package:spendsmart/core/providers/core_providers.dart';
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Category updated successfully')),
+        SnackBar(content: Text(context.tr('category_updated'))),
       );
       if (mounted) context.pop();
     }
 
     @override
     Widget build(BuildContext context) {
+      final c = context.colors;
       final isSaving = ref.watch(categoriesProvider).isLoading;
 
       return Scaffold(
-        backgroundColor: const Color(0xFFEEF0FB),
-        appBar: const AppTopBar(title: 'Edit Category'),
+        backgroundColor: c.surface,
+        appBar: AppTopBar(title: context.tr('edit_category')),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -170,12 +173,13 @@ import 'package:spendsmart/core/providers/core_providers.dart';
     }
 
     Widget _buildTypeCard() {
+      final c = context.colors;
       final isIncome = widget.category.type == 'INCOME';
       final color = isIncome ? const Color(0xFF15803D) : const Color(0xFFB91C1C);
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: c.card,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -192,17 +196,17 @@ import 'package:spendsmart/core/providers/core_providers.dart';
               ),
             ),
             const SizedBox(width: 12),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Category Type',
-                  style: TextStyle(fontSize: 13, color: Colors.black45),
+                  context.tr('category_type'),
+                  style: TextStyle(fontSize: 13, color: c.textSecondary),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'Type is fixed and cannot be changed once set.',
-                  style: TextStyle(fontSize: 11, color: Colors.black38),
+                  context.tr('type_fixed_notice'),
+                  style: TextStyle(fontSize: 11, color: c.textMuted),
                 ),
               ],
             ),
@@ -214,7 +218,7 @@ import 'package:spendsmart/core/providers/core_providers.dart';
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                isIncome ? 'Income' : 'Expense',
+                isIncome ? context.tr('income') : context.tr('expense'),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -228,10 +232,11 @@ import 'package:spendsmart/core/providers/core_providers.dart';
     }
 
     Widget _buildNameCard() {
+      final c = context.colors;
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: c.card,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -249,9 +254,9 @@ import 'package:spendsmart/core/providers/core_providers.dart';
             Expanded(
               child: CustomTextField(
                 controller: _nameController,
-                label: 'Category Name',
+                label: context.tr('category_name'),
                 validator: (v) =>
-                    v == null || v.trim().isEmpty ? "Name is required" : null,
+                    v == null || v.trim().isEmpty ? context.tr('category_name_required') : null,
               ),
             ),
           ],
@@ -260,18 +265,19 @@ import 'package:spendsmart/core/providers/core_providers.dart';
     }
 
     Widget _buildIconCard() {
+      final c = context.colors;
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: c.card,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Select Icon',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              context.tr('select_icon'),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             GridView.count(
@@ -291,11 +297,12 @@ import 'package:spendsmart/core/providers/core_providers.dart';
 
     Widget _buildIconTile(String iconName, IconData icon) {
       final isSelected = _selectedIconName == iconName;
+      final c = context.colors;
       return GestureDetector(
         onTap: () => setState(() => _selectedIconName = iconName),
         child: Container(
           decoration: BoxDecoration(
-            color: isSelected ? _selectedColor : const Color(0xFFE8EAF6),
+            color: isSelected ? _selectedColor : c.surface,
             borderRadius: BorderRadius.circular(10),
             border: isSelected
                 ? Border.all(color: _selectedColor, width: 2)
@@ -304,25 +311,26 @@ import 'package:spendsmart/core/providers/core_providers.dart';
           child: Icon(
             icon,
             size: 22,
-            color: isSelected ? Colors.white : Colors.black54,
+            color: isSelected ? Colors.white : c.textSecondary,
           ),
         ),
       );
     }
 
     Widget _buildColorCard() {
+      final c = context.colors;
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: c.card,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Select Color',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            Text(
+              context.tr('select_color'),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             SingleChildScrollView(
@@ -336,6 +344,7 @@ import 'package:spendsmart/core/providers/core_providers.dart';
 
     Widget _buildColorCircle(Color color) {
       final isSelected = _selectedColor == color;
+      final c = context.colors;
       return GestureDetector(
         onTap: () => setState(() => _selectedColor = color),
         child: Container(
@@ -346,7 +355,7 @@ import 'package:spendsmart/core/providers/core_providers.dart';
             color: color,
             shape: BoxShape.circle,
             border: isSelected
-                ? Border.all(color: Colors.black87, width: 2.5)
+                ? Border.all(color: c.textPrimary, width: 2.5)
                 : null,
           ),
           child: isSelected
@@ -398,12 +407,13 @@ import 'package:spendsmart/core/providers/core_providers.dart';
     }
 
     Widget _buildDeleteButton() {
+      final c = context.colors;
       return SizedBox(
         width: double.infinity,
         child: ElevatedButton(
           onPressed: _isDeleting ? null : _deleteCategory,
           style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFF0F0),
+              backgroundColor: c.dangerBg,
               elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
@@ -419,14 +429,14 @@ import 'package:spendsmart/core/providers/core_providers.dart';
                       color: Colors.red,
                     ),
                   )
-                : const Row(
+                : Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.delete_outline, color: Colors.red),
-                      SizedBox(width: 8),
+                      const Icon(Icons.delete_outline, color: Colors.red),
+                      const SizedBox(width: 8),
                       Text(
-                        'Delete Category',
-                        style: TextStyle(
+                        context.tr('delete_category'),
+                        style: const TextStyle(
                           color: Colors.red,
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
@@ -459,9 +469,9 @@ import 'package:spendsmart/core/providers/core_providers.dart';
                     color: Colors.white,
                   ),
                 )
-              : const Text(
-                  'Update Category',
-                  style: TextStyle(
+              : Text(
+                  context.tr('update_category'),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,

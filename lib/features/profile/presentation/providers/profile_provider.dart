@@ -1,7 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/providers/locale_provider.dart';
+import 'package:spendsmart/core/providers/theme_provider.dart';
 import 'package:spendsmart/features/profile/data/datasources/profile_remote_data_source.dart';
 import 'package:spendsmart/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:spendsmart/features/profile/domain/entities/profile.dart';
@@ -46,9 +50,23 @@ class ProfileNotifier extends _$ProfileNotifier {
     try {
       final Profile data = await ref.read(getProfileProvider)(idToken);
       state = AsyncData(data);
+      if (data.currency.isNotEmpty) {
+        ref.read(currencyProvider.notifier).state = data.currency;
+        await ref.read(storageServiceProvider).saveCurrency(data.currency);
+      }
+      final localTheme = await ref.read(storageServiceProvider).getTheme();
+      if (localTheme == null && data.theme.isNotEmpty) {
+        await ref.read(themeProvider.notifier).setTheme(
+          data.theme == 'dark' ? ThemeMode.dark : ThemeMode.light,
+        );
+      }
+      final localLanguage = await ref.read(storageServiceProvider).getLanguage();
+      if (localLanguage == null && data.language.isNotEmpty) {
+        await ref.read(localeProvider.notifier).setLocale(data.language);
+      }
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       state = AsyncError(e, st);
@@ -69,7 +87,7 @@ class ProfileNotifier extends _$ProfileNotifier {
       await fetchProfile(idToken);
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       state = AsyncError(e, st);
@@ -96,7 +114,7 @@ class ProfileNotifier extends _$ProfileNotifier {
       await fetchProfile(idToken);
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       state = AsyncError(e, st);

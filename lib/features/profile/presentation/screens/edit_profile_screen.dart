@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/features/profile/domain/entities/profile.dart';
 import 'package:spendsmart/features/profile/presentation/providers/profile_provider.dart';
 
@@ -24,11 +26,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   final profile = ref.read(profileProvider).asData?.value;
-    //   _nameController.text = profile?["data"]["name"] ?? "";
-    //   _avatarController.text = profile?["data"]["avatarUrl"] ?? "";
-    // });
     _nameController.text = widget.profile.name;
     _avatarController.text = widget.profile.avatarUrl ?? "";
   }
@@ -55,10 +52,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ? null
               : _avatarController.text.trim(),
         );
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
-        content: const Text('Profile Updated Successfully'),
+        content: Text(context.tr('profile_updated')),
       ),
     );
     if (mounted) context.pop();
@@ -70,9 +68,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: AppColors.neutral),
+        iconTheme: IconThemeData(color: context.colors.textPrimary),
         centerTitle: true,
-        title: const Text('Edit Profile', style: AppTextStyles.body),
+        title: Text(context.tr('edit_profile'), style: AppTextStyles.body),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -82,14 +80,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             children: [
               CustomTextField(
                 controller: _nameController,
-                label: "Name",
+                label: context.tr('name'),
                 validator: (v) =>
-                    v == null || v.trim().isEmpty ? "Name is required" : null,
+                    v == null || v.trim().isEmpty ? context.tr('name_required') : null,
               ),
               const SizedBox(height: 16),
               CustomTextField(
                 controller: _avatarController,
-                label: "Avatar URL (optional)",
+                label: context.tr('avatar_url_optional'),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -109,9 +107,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          "Save",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
+                      : Text(
+                          context.tr('save'),
+                          style: const TextStyle(fontSize: 16, color: Colors.white),
                         ),
                 ),
               ),

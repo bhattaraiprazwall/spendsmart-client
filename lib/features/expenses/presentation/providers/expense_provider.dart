@@ -57,7 +57,6 @@ class ExpenseNotifier extends AsyncNotifier<List<Expense>> {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final current = state.value ?? [];
       final expense = await ref.read(createExpenseUseCaseProvider)(
         idToken,
         type: type,
@@ -82,7 +81,7 @@ class ExpenseNotifier extends AsyncNotifier<List<Expense>> {
       return expense;
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));
@@ -99,7 +98,7 @@ class ExpenseNotifier extends AsyncNotifier<List<Expense>> {
       return expenses;
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));

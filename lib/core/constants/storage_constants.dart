@@ -4,4 +4,5 @@ class StorageConstants {
   static const String biometricEnabled = 'biometric_enabled';
   static const String language = 'language';
   static const String refreshToken = 'refresh_token';
+  static const String theme = 'theme';
 }

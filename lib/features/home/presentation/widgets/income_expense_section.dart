@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/cards/summary_card.dart';
 import 'package:spendsmart/features/home/domain/entities/summary_item.dart';
@@ -17,26 +19,28 @@ class IncomeExpenseSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Row(
       children: [
         SummaryCard(
           item: SummaryItem(
-            title: 'INCOME',
+            title: context.tr('income').toUpperCase(),
             amount: CurrencyUtil.format(income, currency),
-            icon: Icons.arrow_downward,
-            iconBg: const Color.fromARGB(255, 187, 251, 119),
-            iconColor: Colors.green,
-            titleColor: const Color.fromARGB(255, 77, 143, 2),
+            icon: Icons.arrow_downward_rounded,
+            iconBg: const Color(0xFF10B981).withValues(alpha: 0.12),
+            iconColor: const Color(0xFF10B981),
+            titleColor: c.textSecondary,
           ),
         ),
+        const SizedBox(width: 12),
         SummaryCard(
           item: SummaryItem(
-            title: 'EXPENSE',
+            title: context.tr('expense').toUpperCase(),
             amount: CurrencyUtil.format(expense, currency),
-            icon: Icons.arrow_upward,
-            iconBg: const Color(0xFFE5E7EB),
-            iconColor: Colors.black,
-            titleColor: Colors.grey,
+            icon: Icons.arrow_upward_rounded,
+            iconBg: const Color(0xFFEF4444).withValues(alpha: 0.12),
+            iconColor: const Color(0xFFEF4444),
+            titleColor: c.textSecondary,
           ),
         ),
       ],

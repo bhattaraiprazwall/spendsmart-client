@@ -15,5 +15,6 @@ class RoutePaths {
   static const addIncome = '/income/add';
   static const notifications = '/notifications';
   static const budget = '/budget';
+  static const forecast = '/forecast';
   static const transactionDetail = '/transactions/:id';
 }

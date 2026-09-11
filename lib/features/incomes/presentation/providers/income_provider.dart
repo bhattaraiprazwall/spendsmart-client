@@ -54,7 +54,6 @@ class IncomeNotifier extends AsyncNotifier<List<Income>> {
   }) async {
     _safeSetState(const AsyncLoading());
     try {
-      final current = state.value ?? [];
       final income = await ref.read(createIncomeUseCaseProvider)(
         idToken,
         type: type,
@@ -77,7 +76,7 @@ class IncomeNotifier extends AsyncNotifier<List<Income>> {
       return income;
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));
@@ -93,7 +92,7 @@ class IncomeNotifier extends AsyncNotifier<List<Income>> {
       return incomes;
     } catch (e, st) {
       if (e is UnauthorizedException) {
-        await ref.read(storageServiceProvider).deleteToken();
+        await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
       }
       _safeSetState(AsyncError(e, st));

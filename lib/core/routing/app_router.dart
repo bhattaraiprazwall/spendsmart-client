@@ -12,7 +12,7 @@ import 'package:spendsmart/features/category/presentation/screens/categories_lis
 import 'package:spendsmart/features/category/presentation/screens/edit_category_screen.dart';
 import 'package:spendsmart/features/expenses/presentation/screens/add_expense_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/dashboard_screen.dart';
-import 'package:spendsmart/features/home/presentation/screens/notification_screen.dart';
+import 'package:spendsmart/features/notifications/presentation/screens/notification_screen.dart';
 import 'package:spendsmart/features/home/presentation/screens/transactions_screen.dart';
 import 'package:spendsmart/features/incomes/presentation/screens/add_income_screen.dart';
 import 'package:spendsmart/features/insights/presentation/screens/insights_screen.dart';
@@ -23,6 +23,7 @@ import 'package:spendsmart/features/profile/presentation/screens/edit_profile_sc
 import 'package:spendsmart/features/profile/presentation/screens/profile_screen.dart';
 import 'package:spendsmart/features/transactions/domain/entities/transaction.dart';
 import 'package:spendsmart/features/transactions/presentation/screens/transaction_detail_screen.dart';
+import 'package:spendsmart/features/forecast/presentation/screens/forecast_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final goRouter = GoRouter(
@@ -112,23 +113,25 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.addExpense,
         builder: (_, _) => const AddExpenseScreen(),
       ),
-       GoRoute(
+      GoRoute(
         path: RoutePaths.addIncome,
         builder: (_, _) => const AddIncomeScreen(),
       ),
       GoRoute(
         path: RoutePaths.notifications,
-        builder: (_, _) => const NotificationsScreen()
+        builder: (_, _) => const NotificationsScreen(),
       ),
-      GoRoute(
-        path: RoutePaths.budget,
-        builder: (_, _) => const BudgetScreen(),
-      ),
+      GoRoute(path: RoutePaths.budget, builder: (_, _) => const BudgetScreen()),
       GoRoute(
         path: RoutePaths.transactionDetail,
-        builder: (_, state) => TransactionDetailScreen(
-          transaction: state.extra as Transaction,
-        ),
+        builder: (_, state) =>
+            TransactionDetailScreen(transaction: state.extra as Transaction),
+      ),
+      GoRoute(
+        path: RoutePaths.forecast,
+        builder: (context, state) {
+          return const ForecastScreen();
+        },
       ),
     ],
   );

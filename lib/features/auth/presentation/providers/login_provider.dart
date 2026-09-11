@@ -2,7 +2,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
-import 'package:spendsmart/core/services/notification_service.dart';
 import 'package:spendsmart/core/providers/notification_provider.dart';
 
 part 'login_provider.g.dart';

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/widgets/cards/budget_card.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
@@ -44,7 +46,7 @@ class _RemainingBudgetSectionState
         height: 120,
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (_, __) => const _EmptyBudgetCard(),
+      error: (_, _) => const _EmptyBudgetCard(),
       data: (status) {
         if (status == null || status.categories.isEmpty) {
           return const _EmptyBudgetCard();
@@ -56,7 +58,7 @@ class _RemainingBudgetSectionState
             itemCount: status.categories.length,
             itemBuilder: (context, index) {
               return BudgetCard(
-                item: _toBudgetItem(status.categories[index], currency),
+                item: _toBudgetItem(context, status.categories[index], currency),
               );
             },
           ),
@@ -65,13 +67,13 @@ class _RemainingBudgetSectionState
     );
   }
 
-  BudgetItem _toBudgetItem(BudgetCategory cat, String currency) {
+  BudgetItem _toBudgetItem(BuildContext context, BudgetCategory cat, String currency) {
     final color = budgetStatusColor(cat.status);
     final icon = budgetResolveIcon(cat.icon);
     return BudgetItem(
       icon: icon,
       amount:
-          '${CurrencyUtil.format(cat.remaining, currency)} left',
+          '${CurrencyUtil.format(cat.remaining, currency)} ${context.tr('left')}',
       label: cat.name.toUpperCase(),
       progress: (cat.usagePercentage.clamp(0, 100)) / 100,
       color: color,
@@ -85,24 +87,25 @@ class _EmptyBudgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'No budget set for this month',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            context.tr('no_budget_set'),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: c.textPrimary),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
-            'Manage budgets from the quick action menu.',
-            style: TextStyle(fontSize: 13, color: Colors.black45),
+            context.tr('manage_budgets_hint'),
+            style: TextStyle(fontSize: 13, color: c.textSecondary),
           ),
         ],
       ),

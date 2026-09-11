@@ -30,26 +30,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       return;
     }
 
-    // final success =
     await ref
         .read(registerProvider.notifier)
         .register(
       name: _name.text.trim(),
-      email: _email.text.trim(),
+      email: _email.text.trim().toLowerCase(),
       password: _password.text,
     );
-
-    // if (success) {
-    //   context.go('/login');
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(
-    //       content: Text(
-    //         'Registration Successful',
-    //         style: TextStyle(color: Colors.green),
-    //       ),
-    //     ),
-    //   );
-    // }
   }
 
   @override
@@ -73,9 +60,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
       next.whenOrNull(
         error: (error, stackTrace) {
+          final message = error.toString().replaceFirst("Exception: ", "");
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(error.toString())));
+          ).showSnackBar(SnackBar(content: Text(message)));
         },
       );
     });

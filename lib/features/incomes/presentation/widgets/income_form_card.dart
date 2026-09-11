@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/category_row.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/field_label.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/icon_text_row.dart';
@@ -26,16 +28,17 @@ class IncomeFormCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: c.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const FieldLabel(label: 'CATEGORY'),
+          FieldLabel(label: context.tr('category').toUpperCase()),
           const SizedBox(height: 8),
           CategoryRow(
             category: formData.category,
@@ -50,16 +53,16 @@ class IncomeFormCard extends StatelessWidget {
               style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ],
-          const Divider(height: 24),
-          const FieldLabel(label: 'TITLE'),
+          Divider(height: 24, color: c.divider),
+          FieldLabel(label: context.tr('title').toUpperCase()),
           const SizedBox(height: 8),
           TextField(
             onChanged: onTitleChanged,
-            decoration: const InputDecoration(
-              hintText: 'Where did this come from?',
-              hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(
+            decoration: InputDecoration(
+              hintText: context.tr('where_did_this_come_from'),
+              hintStyle: TextStyle(color: c.textMuted, fontSize: 14),
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 10,
               ),
@@ -74,22 +77,22 @@ class IncomeFormCard extends StatelessWidget {
               style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ],
-          const Divider(height: 24),
-          const FieldLabel(label: 'DATE'),
+          Divider(height: 24, color: c.divider),
+          FieldLabel(label: context.tr('date').toUpperCase()),
           const SizedBox(height: 6),
           IconTextRow(
             icon: Icons.calendar_today_outlined,
             text: formData.date,
             onTap: onDateTap,
           ),
-          const Divider(height: 24),
-          const FieldLabel(label: 'NOTE'),
+          Divider(height: 24, color: c.divider),
+          FieldLabel(label: context.tr('note').toUpperCase()),
           const SizedBox(height: 6),
           TextField(
             onChanged: onNoteChanged,
-            decoration: const InputDecoration(
-              hintText: 'What was this for?',
-              hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+            decoration: InputDecoration(
+              hintText: context.tr('what_was_this_for'),
+              hintStyle: TextStyle(color: c.textMuted, fontSize: 13),
               border: InputBorder.none,
               contentPadding: EdgeInsets.zero,
               isDense: true,

@@ -8,7 +8,7 @@ class Logout {
   Logout(this._ref);
 
   Future<void> call() async {
-    await _ref.read(storageServiceProvider).deleteToken();
+    await _ref.read(storageServiceProvider).clearAuth();
     _ref.read(authStateProvider.notifier).state = false;
   }
 }

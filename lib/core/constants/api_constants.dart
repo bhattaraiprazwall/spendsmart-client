@@ -1,6 +1,6 @@
 class ApiConstants {
   // static const String baseUrl = 'http://localhost:5000/api';
-  static const String baseUrl = 'http://192.168.1.30:5000/api';
+  static const String baseUrl = 'http://192.168.0.102:5000/api';
 
   static const String register = '$baseUrl/v1/auth/register';
 
@@ -8,7 +8,7 @@ class ApiConstants {
 
   static const String refresh = "$baseUrl/v1/auth/refresh";
 
-//profile page routes
+  //profile page routes
   static const String profile = "$baseUrl/v1/users/me";
 
   static const String changePassword = '$baseUrl/v1/auth/change-password';
@@ -38,7 +38,8 @@ class ApiConstants {
   static const String spendingAnomaly =
       '$baseUrl/v1/analytics/spending-anomaly';
 
-  static const String fcmToken =
-      '$baseUrl/v1/users/me/fcm-token';
-}
+  static const String fcmToken = '$baseUrl/v1/users/me/fcm-token';
 
+  static const String monthlyForecast = '$baseUrl/v1/forecast/monthly-forecast';
+  static const String notifications = '$baseUrl/v1/notifications';
+}

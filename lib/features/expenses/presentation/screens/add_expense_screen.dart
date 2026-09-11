@@ -1,15 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
 import 'package:spendsmart/core/constants/api_constants.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/services/api_service.dart';
+import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/features/category/domain/entities/category.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
 import 'package:spendsmart/features/expenses/domain/entities/expense_form_data.dart';
@@ -89,7 +90,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     Future.microtask(() async {
       final token = await ref.read(storageServiceProvider).getToken();
       if (token == null) return;
-      ref.read(categoriesProvider.notifier).fetchCategories(token, type: 'EXPENSE');
+      ref
+          .read(categoriesProvider.notifier)
+          .fetchCategories(token, type: 'EXPENSE');
     });
   }
 
@@ -125,17 +128,17 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     try {
       final token = await ref.read(storageServiceProvider).getToken();
       if (token == null) return;
-      final response = await http.post(
-        Uri.parse(ApiConstants.categoryPrediction),
+      final response = await ApiService().post(
+        ApiConstants.categoryPrediction,
+        {"title": title},
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
         },
-        body: jsonEncode({"title": title}),
       );
       if (!mounted) return;
-      if (response.statusCode == 200) {
-        final body = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response["statusCode"] == 200) {
+        final body = response["data"] as Map<String, dynamic>;
         final data = body["data"] as Map<String, dynamic>?;
         final shouldSuggest = data?["shouldSuggest"] as bool? ?? false;
         final categoryData = data?["category"] as Map<String, dynamic>?;
@@ -158,10 +161,8 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         setState(() {
           _suggestionCategory = matched;
           _suggestionConfidenceLabel = confidenceLabel;
-          _suggestionAlternative =
-              alternative?["category"] as String?;
-          _showSuggestion =
-              (matched != null && shouldSuggest);
+          _suggestionAlternative = alternative?["category"] as String?;
+          _showSuggestion = (matched != null && shouldSuggest);
           _isPredicting = false;
         });
       } else {
@@ -187,42 +188,49 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   void _showCategoryPicker() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: context.colors.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
-        return Consumer(
-          // ← gives access to ref INSIDE the modal
-          builder: (context, ref, _) {
-            final categoriesAsync = ref.watch(
-              categoriesProvider,
-            ); // ← watch, not read
+        return SafeArea(
+          child: Consumer(
+            // ← gives access to ref INSIDE the modal
+            builder: (context, ref, _) {
+              final categoriesAsync = ref.watch(
+                categoriesProvider,
+              ); // ← watch, not read
 
-            return categoriesAsync.when(
-              loading: () => const SizedBox(
-                height: 200,
-                child: Center(child: CircularProgressIndicator()),
-              ),
-              error: (e, _) => SizedBox(
-                height: 200,
-                child: Center(child: Text('Failed to load categories')),
-              ),
-              data: (categories) => ListView(
-                shrinkWrap: true,
-                padding: const EdgeInsets.all(16),
-                children: [
-                  const Text(
-                    'Select Category',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 12),
-                  ...categories
-                      .where((cat) => cat.type == 'EXPENSE')
-                      .map((cat) => _buildCategoryItem(cat, ctx)),
-                ],
-              ),
-            );
-          },
+              return categoriesAsync.when(
+                loading: () => const SizedBox(
+                  height: 200,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (e, _) => SizedBox(
+                  height: 200,
+                  child: Center(child: Text(ctx.tr('failed_to_load_categories'))),
+                ),
+                data: (categories) => ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    Text(
+                      ctx.tr('select_category'),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: ctx.colors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ...categories
+                        .where((cat) => cat.type == 'EXPENSE')
+                        .map((cat) => _buildCategoryItem(cat, ctx)),
+                  ],
+                ),
+              );
+            },
+          ),
         );
       },
     );
@@ -232,10 +240,13 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
     final color = _hexToColor(cat.color);
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: color.withOpacity(0.15),
+        backgroundColor: color.withValues(alpha: 0.15),
         child: Icon(_mapCategoryIcon(cat.icon), color: color, size: 20),
       ),
-      title: Text(cat.name),
+      title: Text(
+        cat.name,
+        style: TextStyle(color: ctx.colors.textPrimary),
+      ),
       trailing: formData.categoryId == cat.id
           ? const Icon(Icons.check, color: Colors.blue)
           : null,
@@ -295,48 +306,58 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   void _showMethodPicker() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: context.colors.card,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
-        return ListView(
-          shrinkWrap: true,
-          padding: const EdgeInsets.all(16),
-          children: [
-            const Text(
-              'Select Payment Method',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 12),
-            ..._paymentMethods.map(
-              (method) => ListTile(
-                leading: Icon(
-                  method == 'CASH'
-                      ? Icons.money
-                      : method == 'CARD'
-                      ? Icons.credit_card
-                      : method == 'ESEWA'
-                      ? Icons.phone_android
-                      : method == 'KHALTI'
-                      ? Icons.phone_iphone
-                      : method == 'BANK_TRANSFER'
-                      ? Icons.account_balance
-                      : Icons.more_horiz,
-                  color: AppColors.primary,
+        return SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text(
+                ctx.tr('select_payment_method'),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: ctx.colors.textPrimary,
                 ),
-                title: Text(method.replaceAll('_', ' ')),
-                trailing: formData.paymentMethod == method
-                    ? const Icon(Icons.check, color: Colors.blue)
-                    : null,
-                onTap: () {
-                  setState(() {
-                    formData = formData.copyWith(paymentMethod: method);
-                  });
-                  Navigator.of(ctx).pop();
-                },
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              ..._paymentMethods.map(
+                (method) => ListTile(
+                  leading: Icon(
+                    method == 'CASH'
+                        ? Icons.money
+                        : method == 'CARD'
+                        ? Icons.credit_card
+                        : method == 'ESEWA'
+                        ? Icons.phone_android
+                        : method == 'KHALTI'
+                        ? Icons.phone_iphone
+                        : method == 'BANK_TRANSFER'
+                        ? Icons.account_balance
+                        : Icons.more_horiz,
+                    color: AppColors.primary,
+                  ),
+                  title: Text(
+                    method.replaceAll('_', ' '),
+                    style: TextStyle(color: ctx.colors.textPrimary),
+                  ),
+                  trailing: formData.paymentMethod == method
+                      ? const Icon(Icons.check, color: Colors.blue)
+                      : null,
+                  onTap: () {
+                    setState(() {
+                      formData = formData.copyWith(paymentMethod: method);
+                    });
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -349,13 +370,13 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
 
     setState(() {
       _amountError = (amount == null || amount <= 0)
-          ? 'Please enter a valid amount'
+          ? context.tr('valid_amount_error')
           : null;
       _titleError = formData.title.trim().isEmpty
-          ? 'Please enter a title'
+          ? context.tr('title_required_error')
           : null;
       _categoryError = formData.categoryId == null
-          ? 'Please select a category'
+          ? context.tr('category_required_error')
           : null;
     });
 
@@ -391,7 +412,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Expense added successfully')),
+        SnackBar(content: Text(context.tr('expense_added'))),
       );
       context.go(RoutePaths.dashboard);
     } catch (e) {
@@ -399,19 +420,20 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Failed to add expense: $e')));
+      ).showSnackBar(SnackBar(content: Text('${context.tr('failed_to_add_expense')}: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     ref.watch(categoriesProvider);
+    final c = context.colors;
 
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: AppColors.neutral),
+        iconTheme: IconThemeData(color: c.textPrimary),
         centerTitle: true,
-        title: const Text('Add Expense', style: AppTextStyles.body),
+        title: Text(context.tr('add_expense'), style: AppTextStyles.body),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -459,7 +481,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           padding: const EdgeInsets.all(8.0),
           child: PrimaryButton(
             onPressed: _handleSave,
-            label: _isSaving ? 'Saving...' : 'Save Expense',
+            label: _isSaving ? context.tr('saving') : context.tr('save_expense'),
           ),
         ),
       ),
