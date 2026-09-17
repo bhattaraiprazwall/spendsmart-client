@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/localization/localization_extension.dart';
@@ -43,7 +44,10 @@ class TransactionsScreen extends ConsumerStatefulWidget {
 class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   final _searchController = TextEditingController();
 
-  static const _months = [
+  int _selectedMonth = DateTime.now().month;
+  int _selectedYear = DateTime.now().year;
+
+  static const _monthsShort = [
     'Jan',
     'Feb',
     'Mar',
@@ -58,14 +62,78 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     'Dec',
   ];
 
-  Map<String, List<TransactionItem>> _groupTransactions(List<Transaction> allTransactions) {
+  static const _fullMonths = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  void _shiftMonth(int delta) {
+    HapticFeedback.lightImpact();
+    setState(() {
+      var month = _selectedMonth + delta;
+      var year = _selectedYear;
+      if (month < 1) {
+        month = 12;
+        year -= 1;
+      } else if (month > 12) {
+        month = 1;
+        year += 1;
+      }
+      _selectedMonth = month;
+      _selectedYear = year;
+    });
+  }
+
+  void _resetToCurrentMonth() {
+    HapticFeedback.lightImpact();
+    final now = DateTime.now();
+    setState(() {
+      _selectedMonth = now.month;
+      _selectedYear = now.year;
+    });
+  }
+
+  bool get _isCurrentMonth {
+    final now = DateTime.now();
+    return _selectedMonth == now.month && _selectedYear == now.year;
+  }
+
+  List<Transaction> _filterByMonthAndSearch(List<Transaction> allTransactions) {
+    final query = _searchController.text.trim().toLowerCase();
+
+    return allTransactions.where((t) {
+      final matchesMonth =
+          t.date.month == _selectedMonth && t.date.year == _selectedYear;
+      if (!matchesMonth) return false;
+
+      if (query.isNotEmpty) {
+        final titleMatch = t.title.toLowerCase().contains(query);
+        final categoryMatch = t.categoryName.toLowerCase().contains(query);
+        return titleMatch || categoryMatch;
+      }
+      return true;
+    }).toList();
+  }
+
+  Map<String, List<TransactionItem>> _groupTransactions(
+      List<Transaction> transactions) {
     final grouped = <String, List<TransactionItem>>{};
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
 
     // Sort by date descending
-    final sorted = List<Transaction>.from(allTransactions)
+    final sorted = List<Transaction>.from(transactions)
       ..sort((a, b) => b.date.compareTo(a.date));
 
     for (final e in sorted) {
@@ -76,7 +144,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       } else if (date == yesterday) {
         label = 'YESTERDAY';
       } else {
-        label = '${_months[date.month - 1]} ${date.day}, ${date.year}';
+        label = '${_monthsShort[date.month - 1]} ${date.day}, ${date.year}';
       }
       grouped.putIfAbsent(label, () => []).add(_mapToTransactionItem(e));
     }
@@ -140,6 +208,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
     final transactionsAsync = ref.watch(transactionProvider);
 
     return Scaffold(
@@ -161,20 +230,77 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
-              _buildSearchBar(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
+              _buildSearchBar(c),
+              const SizedBox(height: 14),
+              transactionsAsync.maybeWhen(
+                data: (allTransactions) {
+                  final monthTxs = allTransactions.where((t) {
+                    return t.date.month == _selectedMonth &&
+                        t.date.year == _selectedYear;
+                  }).toList();
+
+                  double monthIncome = 0;
+                  double monthExpense = 0;
+                  for (final t in monthTxs) {
+                    if (t.isIncome) {
+                      monthIncome += t.amount;
+                    } else {
+                      monthExpense += t.amount;
+                    }
+                  }
+
+                  return _buildMonthSlider(c, monthIncome, monthExpense);
+                },
+                orElse: () => _buildMonthSlider(c, 0, 0),
+              ),
+              const SizedBox(height: 14),
               Expanded(
                 child: transactionsAsync.when(
-                  data: (transactions) {
-                    if (transactions.isEmpty) {
-                      return Center(child: Text(context.tr('no_transactions')));
+                  data: (allTransactions) {
+                    final monthTransactions =
+                        _filterByMonthAndSearch(allTransactions);
+
+                    if (monthTransactions.isEmpty) {
+                      return _buildEmptyMonthState(c);
                     }
-                    final grouped = _groupTransactions(transactions);
-                    return _buildTransactionList(grouped);
+                    final grouped = _groupTransactions(monthTransactions);
+                    return GestureDetector(
+                      onHorizontalDragEnd: (details) {
+                        if ((details.primaryVelocity ?? 0) < -250) {
+                          _shiftMonth(1); // Swipe left -> next month
+                        } else if ((details.primaryVelocity ?? 0) > 250) {
+                          _shiftMonth(-1); // Swipe right -> prev month
+                        }
+                      },
+                      child: _buildTransactionList(grouped),
+                    );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Center(child: Text('Error: $e')),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.receipt_long_outlined,
+                              size: 48, color: c.textMuted),
+                          const SizedBox(height: 12),
+                          Text(
+                            context.tr('unable_to_load_dashboard'),
+                            style: TextStyle(color: c.textSecondary),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () =>
+                                ref.invalidate(transactionProvider),
+                            child: Text(context.tr('retry')),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -184,29 +310,303 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
-    final c = context.colors;
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: context.tr('search_transactions'),
-              hintStyle: TextStyle(color: c.textMuted, fontSize: 14),
-              prefixIcon: Icon(Icons.search, color: c.textMuted),
-              filled: true,
-              fillColor: c.card,
-              contentPadding: const EdgeInsets.symmetric(vertical: 0),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+  Widget _buildSearchBar(AppColorsPalette c) {
+    return TextField(
+      controller: _searchController,
+      onChanged: (_) => setState(() {}),
+      decoration: InputDecoration(
+        hintText: context.tr('search_transactions'),
+        hintStyle: TextStyle(color: c.textMuted, fontSize: 14),
+        prefixIcon: Icon(Icons.search, color: c.textMuted, size: 20),
+        suffixIcon: _searchController.text.isNotEmpty
+            ? IconButton(
+                icon: Icon(Icons.close, size: 18, color: c.textMuted),
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() {});
+                },
+              )
+            : null,
+        filled: true,
+        fillColor: c.card,
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: c.border.withValues(alpha: 0.4)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: c.border.withValues(alpha: 0.4)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF2D5BFF), width: 1.5),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMonthSlider(
+    AppColorsPalette c,
+    double monthIncome,
+    double monthExpense,
+  ) {
+    final currency = ref.watch(currencyProvider);
+    final symbol = CurrencyUtil.symbolFor(currency);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: c.border.withValues(alpha: 0.6)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Left Arrow Button
+              IconButton(
+                icon: const Icon(Icons.chevron_left_rounded, size: 26),
+                padding: EdgeInsets.zero,
+                constraints:
+                    const BoxConstraints(minWidth: 38, minHeight: 38),
+                splashRadius: 20,
+                color: c.textPrimary,
+                onPressed: () => _shiftMonth(-1),
+                tooltip: 'Previous Month',
               ),
+
+              // Month & Year Label
+              Expanded(
+                child: GestureDetector(
+                  onTap: _isCurrentMonth ? null : _resetToCurrentMonth,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${_fullMonths[_selectedMonth - 1]} $_selectedYear',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: c.textPrimary,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          if (!_isCurrentMonth) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2D5BFF)
+                                    .withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text(
+                                'Reset',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF2D5BFF),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Right Arrow Button
+              IconButton(
+                icon: const Icon(Icons.chevron_right_rounded, size: 26),
+                padding: EdgeInsets.zero,
+                constraints:
+                    const BoxConstraints(minWidth: 38, minHeight: 38),
+                splashRadius: 20,
+                color: c.textPrimary,
+                onPressed: () => _shiftMonth(1),
+                tooltip: 'Next Month',
+              ),
+            ],
+          ),
+
+          // Monthly inflow and outflow quick overview with clear labels
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: c.surface.withValues(alpha: 0.65),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: c.border.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                // Income
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color:
+                              const Color(0xFF00C853).withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_downward_rounded,
+                          size: 14,
+                          color: Color(0xFF00C853),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            context.tr('income'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: c.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 1),
+                          Text(
+                            '+$symbol${monthIncome.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF00C853),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Divider
+                Container(
+                  width: 1,
+                  height: 26,
+                  color: c.border.withValues(alpha: 0.5),
+                ),
+
+                // Expense
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color:
+                              const Color(0xFFE53935).withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_upward_rounded,
+                          size: 14,
+                          color: Color(0xFFE53935),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            context.tr('expense'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: c.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 1),
+                          Text(
+                            '-$symbol${monthExpense.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFFE53935),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyMonthState(AppColorsPalette c) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: c.card,
+                shape: BoxShape.circle,
+                border: Border.all(color: c.border.withValues(alpha: 0.5)),
+              ),
+              child: Icon(
+                Icons.calendar_today_rounded,
+                size: 36,
+                color: c.textMuted,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No transactions in ${_fullMonths[_selectedMonth - 1]} $_selectedYear',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: c.textPrimary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _searchController.text.isNotEmpty
+                  ? 'No matching results for "${_searchController.text}".'
+                  : 'Swipe left/right or use arrows to view other months.',
+              style: TextStyle(
+                fontSize: 12.5,
+                color: c.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
-        const SizedBox(width: 10),
-      ],
+      ),
     );
   }
 
@@ -252,6 +652,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
         decoration: BoxDecoration(
           color: context.colors.card,
           borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: context.colors.border.withValues(alpha: 0.4),
+          ),
         ),
         child: Row(
           children: [
@@ -267,9 +670,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
 
   Widget _buildIconCircle(TransactionItem item) {
     return CircleAvatar(
-      radius: 24,
+      radius: 22,
       backgroundColor: item.color.withValues(alpha: 0.15),
-      child: Icon(item.icon, color: item.color, size: 22),
+      child: Icon(item.icon, color: item.color, size: 20),
     );
   }
 
@@ -279,7 +682,11 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
       children: [
         Text(
           item.title,
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: context.colors.textPrimary),
+          style: TextStyle(
+            fontSize: 14.5,
+            fontWeight: FontWeight.w600,
+            color: context.colors.textPrimary,
+          ),
         ),
         const SizedBox(height: 3),
         Text(
@@ -295,9 +702,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     return Text(
       CurrencyUtil.signed(item.amount, code),
       style: TextStyle(
-        fontSize: 15,
+        fontSize: 14.5,
         fontWeight: FontWeight.w700,
-        color: item.isIncome ? Colors.green : Colors.red,
+        color: item.isIncome ? const Color(0xFF00C853) : const Color(0xFFE53935),
       ),
     );
   }

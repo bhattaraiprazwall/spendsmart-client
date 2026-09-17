@@ -1,6 +1,10 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:spendsmart/core/constants/api_constants.dart';
+import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
+import 'package:spendsmart/core/database/app_database.dart';
+import 'package:spendsmart/core/database/tables/sync_status.dart';
 import 'package:spendsmart/core/services/api_service.dart';
 import 'package:spendsmart/core/services/local_storage_service.dart';
 
@@ -106,6 +110,27 @@ class NotificationService {
         ),
       ),
     );
+
+    final userId = await _storage.getUserId();
+    if (userId != null) {
+      try {
+        final db = AppDatabase();
+        final id = message.messageId ?? const Uuid().v4();
+        final type = message.data['type'] ?? 'Reminder';
+        await db.notificationDao.insertNotification(
+          LocalNotificationsCompanion(
+            id: Value(id),
+            userId: Value(userId),
+            type: Value(type),
+            title: Value(notification.title ?? ''),
+            message: Value(notification.body ?? ''),
+            isRead: const Value(false),
+            createdAt: Value(DateTime.now()),
+            syncStatus: const Value(SyncStatus.synced),
+          ),
+        );
+      } catch (_) {}
+    }
   }
 
   Future<void> syncToken() async {

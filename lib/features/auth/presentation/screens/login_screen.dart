@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
+import 'package:spendsmart/core/services/connectivity_service.dart';
+import 'package:spendsmart/core/services/local_storage_service.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
-import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/utils/validators.dart';
 import 'package:spendsmart/core/widgets/already_login_register.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
-import 'package:spendsmart/core/widgets/buttons/social_button.dart';
-  import 'package:spendsmart/features/auth/presentation/providers/login_provider.dart';
+import 'package:spendsmart/features/auth/presentation/providers/login_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -36,6 +35,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    if (ConnectivityService().isOffline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+          content: Text('No internet connection. Please check your network and try again.'),
+        ),
+      );
+      return;
+    }
     await ref
         .read(loginProvider.notifier)
         .login(
@@ -53,20 +62,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           // Only navigate if we actually came from a loading state
           // This prevents firing on the initial AsyncData(null) build state
           if (previous?.isLoading == true) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(behavior: SnackBarBehavior.floating,content: Text('Login Successful')));
-            context.go(RoutePaths.dashboard);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                behavior: SnackBarBehavior.floating,
+                content: Text('Login Successful'),
+              ),
+            );
+            LocalStorageService().hasCompletedOnboarding().then((completed) {
+              if (context.mounted) {
+                if (completed) {
+                  context.go(RoutePaths.dashboard);
+                } else {
+                  context.go(RoutePaths.onboarding);
+                }
+              }
+            });
           }
         },
         error: (error, _) {
-          // error.toString() = "Exception: Invalid email or password"
-          // We remove the "Exception: " prefix for cleaner display
-          final message = error.toString().replaceFirst("Exception: ", "");
+          final rawMsg = error.toString().replaceFirst("Exception: ", "");
+          final isNetwork = rawMsg.contains('SocketException') ||
+              rawMsg.contains('NetworkException') ||
+              rawMsg.contains('No route to host') ||
+              rawMsg.contains('No internet connection') ||
+              rawMsg.contains('ClientException') ||
+              rawMsg.contains('errno');
+          final message = isNetwork
+              ? 'No internet connection. Please check your network and try again.'
+              : rawMsg;
 
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text(message)));
+          ).showSnackBar(
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.red,
+              content: Text(message),
+            ),
+          );
         },
       );
     });
@@ -109,7 +142,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     label: 'Password',
                     controller: _passwordController,
                     isPassword: true,
-                    validator: Validators.validatePassword,
+                    validator: Validators.validateLoginPassword,
                   ),
                   const SizedBox(height: 10),
 
@@ -139,41 +172,41 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 30),
 
                   //DIVIDER
-                  Row(
-                    children: [
-                      const Expanded(child: Divider()),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: const Text('OR CONTINUE WITH'),
-                      ),
-                      const Expanded(child: Divider()),
-                    ],
-                  ),
+                  // Row(
+                  //   children: [
+                  //     const Expanded(child: Divider()),
+                  //     Padding(
+                  //       padding: const EdgeInsets.symmetric(horizontal: 15),
+                  //       child: const Text('OR CONTINUE WITH'),
+                  //     ),
+                  //     const Expanded(child: Divider()),
+                  //   ],
+                  // ),
                   const SizedBox(height: 10),
                   //GOOGLE BUTTON
-                  SocialButton(
-                    text: 'Google',
-                    icon: SvgPicture.asset(
-                      'assets/icons/google.svg',
-                      width: 15,
-                      height: 15,
-                    ),
-                    backgroundColor: context.colors.card,
-                    textColor: context.colors.textPrimary,
-                  ),
-                  const SizedBox(height: 10),
-                  SocialButton(
-                    text: 'Apple',
-                    icon: SvgPicture.asset(
-                      'assets/icons/apple.svg',
-                      width: 15,
-                      height: 15,
-                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
-                    backgroundColor: AppColors.neutral,
-                    textColor: Colors.white,
-                  ),
-                  const SizedBox(height: 30),
+                  // SocialButton(
+                  //   text: 'Google',
+                  //   icon: SvgPicture.asset(
+                  //     'assets/icons/google.svg',
+                  //     width: 15,
+                  //     height: 15,
+                  //   ),
+                  //   backgroundColor: context.colors.card,
+                  //   textColor: context.colors.textPrimary,
+                  // ),
+                  // const SizedBox(height: 10),
+                  // SocialButton(
+                  //   text: 'Apple',
+                  //   icon: SvgPicture.asset(
+                  //     'assets/icons/apple.svg',
+                  //     width: 15,
+                  //     height: 15,
+                  //     colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  //   ),
+                  //   backgroundColor: AppColors.neutral,
+                  //   textColor: Colors.white,
+                  // ),
+                  // const SizedBox(height: 30),
                   //SIGNUP ROW
                   AlreadyLoginRegister(
                     action: () {

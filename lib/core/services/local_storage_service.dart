@@ -11,6 +11,11 @@ class LocalStorageService {
 
   Future<void> deleteToken() => _storage.delete(key: StorageConstants.idToken);
 
+  Future<void> saveUserId(String userId) =>
+      _storage.write(key: StorageConstants.userId, value: userId);
+
+  Future<String?> getUserId() => _storage.read(key: StorageConstants.userId);
+
   Future<void> saveCurrency(String currency) =>
       _storage.write(key: StorageConstants.currency, value: currency);
 
@@ -50,4 +55,25 @@ class LocalStorageService {
       _storage.write(key: StorageConstants.theme, value: theme);
 
   Future<String?> getTheme() => _storage.read(key: StorageConstants.theme);
+
+  Future<void> saveHasSeenIntro(bool value) =>
+      _storage.write(key: StorageConstants.hasSeenIntro, value: value.toString());
+
+  Future<bool> hasSeenIntro() async {
+    final val = await _storage.read(key: StorageConstants.hasSeenIntro);
+    return val == 'true';
+  }
+
+  Future<void> saveHasCompletedOnboarding(bool value) =>
+      _storage.write(key: StorageConstants.hasCompletedOnboarding, value: value.toString());
+
+  Future<bool> hasCompletedOnboarding() async {
+    final val = await _storage.read(key: StorageConstants.hasCompletedOnboarding);
+    return val == 'true';
+  }
+
+  Future<void> saveUserProfile(String profileJson) =>
+      _storage.write(key: StorageConstants.userProfile, value: profileJson);
+
+  Future<String?> getUserProfile() => _storage.read(key: StorageConstants.userProfile);
 }

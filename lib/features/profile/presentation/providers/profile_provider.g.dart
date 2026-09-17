@@ -9,6 +9,54 @@ part of 'profile_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(profileLocalDataSource)
+final profileLocalDataSourceProvider = ProfileLocalDataSourceProvider._();
+
+final class ProfileLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          ProfileLocalDataSource,
+          ProfileLocalDataSource,
+          ProfileLocalDataSource
+        >
+    with $Provider<ProfileLocalDataSource> {
+  ProfileLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'profileLocalDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$profileLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<ProfileLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ProfileLocalDataSource create(Ref ref) {
+    return profileLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ProfileLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ProfileLocalDataSource>(value),
+    );
+  }
+}
+
+String _$profileLocalDataSourceHash() =>
+    r'5cbb85d4627e7a1e7759ff4ca45fd6c0ad1e15f7';
+
 @ProviderFor(profileRemoteDataSource)
 final profileRemoteDataSourceProvider = ProfileRemoteDataSourceProvider._();
 
@@ -55,7 +103,7 @@ final class ProfileRemoteDataSourceProvider
 }
 
 String _$profileRemoteDataSourceHash() =>
-    r'5fd12ecca01ead418aa8975227038fa9638189e6';
+    r'f1abd6607c606939e3a5f9dafd53e7ae8de41419';
 
 @ProviderFor(profileRepository)
 final profileRepositoryProvider = ProfileRepositoryProvider._();
@@ -102,7 +150,7 @@ final class ProfileRepositoryProvider
   }
 }
 
-String _$profileRepositoryHash() => r'1bc7478b9b63eaca024eef34329effb49b0cc45b';
+String _$profileRepositoryHash() => r'33207b10698627f2815dcba846261ad92bd46376';
 
 @ProviderFor(getProfile)
 final getProfileProvider = GetProfileProvider._();
@@ -251,7 +299,7 @@ final class ProfileNotifierProvider
   ProfileNotifier create() => ProfileNotifier();
 }
 
-String _$profileNotifierHash() => r'af1acc22c074ff1637e5183366b21b6e089123b9';
+String _$profileNotifierHash() => r'e952e0d1ec61ee92af7b044ab69795dd48d8c22b';
 
 abstract class _$ProfileNotifier extends $AsyncNotifier<Profile?> {
   FutureOr<Profile?> build();

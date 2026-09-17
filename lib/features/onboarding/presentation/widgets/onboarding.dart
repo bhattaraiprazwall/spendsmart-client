@@ -10,6 +10,8 @@ class Onboarding extends StatelessWidget {
   final String description;
   final int currentPage;
   final int totalPages;
+  final String? nextLabel;
+  final String? skipLabel;
   final VoidCallback onSkip;
   final VoidCallback onNext;
   const Onboarding({
@@ -19,6 +21,8 @@ class Onboarding extends StatelessWidget {
     required this.description,
     this.currentPage = 0,
     this.totalPages = 2,
+    this.nextLabel,
+    this.skipLabel,
     required this.onSkip,
     required this.onNext,
   });
@@ -27,16 +31,19 @@ class Onboarding extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actionsPadding: EdgeInsets.all(10),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 12),
         actions: [
           GestureDetector(
             onTap: onSkip,
-            child: Text(
-              'Skip',
-              style: AppTextStyles.label.copyWith(
-                color: AppColors.primary,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                skipLabel ?? 'Skip',
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.primary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -95,7 +102,7 @@ class Onboarding extends StatelessWidget {
               onPressed: () {
                 onNext();
               },
-              label: 'Next',
+              label: nextLabel ?? 'Next',
             ),
             const SizedBox(height: 32), // safe bottom padding
           ],

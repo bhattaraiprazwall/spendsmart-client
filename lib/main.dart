@@ -12,6 +12,8 @@ import 'package:spendsmart/core/services/local_storage_service.dart';
 import 'package:spendsmart/core/theme/app_theme.dart';
 import 'package:spendsmart/firebase_options.dart';
 import 'package:spendsmart/core/services/notification_service.dart';
+import 'package:spendsmart/core/services/sync_provider.dart';
+import 'package:spendsmart/core/widgets/banners/connectivity_banner.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +42,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     final token = await storage.getToken();
     if (token != null) {
       ref.read(authStateProvider.notifier).state = true;
+      ref.read(syncEngineProvider).syncAll();
     }
     final currency = await storage.getCurrency();
     if (currency != null && currency.isNotEmpty) {
@@ -88,6 +91,11 @@ class _MyAppState extends ConsumerState<MyApp> {
           }
         }
         return const Locale('en');
+      },
+      builder: (context, child) {
+        return ConnectivityBanner(
+          child: child ?? const SizedBox.shrink(),
+        );
       },
     );
   }

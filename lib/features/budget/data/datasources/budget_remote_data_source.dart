@@ -2,14 +2,67 @@ import 'package:spendsmart/core/constants/api_constants.dart';
 import 'package:spendsmart/core/services/api_service.dart';
 import 'package:spendsmart/features/budget/data/models/budget_model.dart';
 
-class BudgetRemoteDataSource {
-  final ApiService _apiService = ApiService();
+abstract class BudgetRemoteDataSource {
+  Future<BudgetModel?> getBudget(
+    String idToken, {
+    required int month,
+    required int year,
+  });
+
+  Future<BudgetStatusModel> getBudgetStatus(
+    String idToken,
+    String budgetId,
+  );
+
+  Future<BudgetModel> createOrUpdateBudget(
+    String idToken, {
+    required int month,
+    required int year,
+    required double totalAmount,
+    List<Map<String, dynamic>>? categories,
+  });
+
+  Future<BudgetModel> updateBudget(
+    String idToken,
+    String budgetId, {
+    required double totalAmount,
+  });
+
+  Future<void> deleteBudget(String idToken, String budgetId);
+
+  Future<void> addCategoryLimit(
+    String idToken,
+    String budgetId, {
+    required String categoryId,
+    required double limit,
+  });
+
+  Future<void> updateCategoryLimit(
+    String idToken,
+    String budgetId,
+    String categoryId, {
+    required double limit,
+  });
+
+  Future<void> removeCategoryLimit(
+    String idToken,
+    String budgetId,
+    String categoryId,
+  );
+}
+
+class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
+  final ApiService _apiService;
+
+  BudgetRemoteDataSourceImpl({ApiService? apiService})
+      : _apiService = apiService ?? ApiService();
 
   Map<String, String> _headers(String idToken) => {
         "Content-Type": "application/json",
         "Authorization": "Bearer $idToken",
       };
 
+  @override
   Future<BudgetModel?> getBudget(
     String idToken, {
     required int month,
@@ -35,6 +88,7 @@ class BudgetRemoteDataSource {
     return BudgetModel.fromJson(budget as Map<String, dynamic>);
   }
 
+  @override
   Future<BudgetStatusModel> getBudgetStatus(
     String idToken,
     String budgetId,
@@ -55,6 +109,7 @@ class BudgetRemoteDataSource {
     );
   }
 
+  @override
   Future<BudgetModel> createOrUpdateBudget(
     String idToken, {
     required int month,
@@ -67,7 +122,7 @@ class BudgetRemoteDataSource {
       "year": year,
       "totalAmount": totalAmount,
     };
-    if (categories != null && categories.isNotEmpty) {
+    if (categories != null) {
       body["categories"] = categories;
     }
 
@@ -88,6 +143,7 @@ class BudgetRemoteDataSource {
     );
   }
 
+  @override
   Future<BudgetModel> updateBudget(
     String idToken,
     String budgetId, {
@@ -110,6 +166,7 @@ class BudgetRemoteDataSource {
     );
   }
 
+  @override
   Future<void> deleteBudget(String idToken, String budgetId) async {
     final response = await _apiService.delete(
       '${ApiConstants.budgets}/$budgetId',
@@ -123,6 +180,7 @@ class BudgetRemoteDataSource {
     }
   }
 
+  @override
   Future<void> addCategoryLimit(
     String idToken,
     String budgetId, {
@@ -142,6 +200,7 @@ class BudgetRemoteDataSource {
     }
   }
 
+  @override
   Future<void> updateCategoryLimit(
     String idToken,
     String budgetId,
@@ -161,6 +220,7 @@ class BudgetRemoteDataSource {
     }
   }
 
+  @override
   Future<void> removeCategoryLimit(
     String idToken,
     String budgetId,

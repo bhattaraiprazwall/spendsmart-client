@@ -7,6 +7,9 @@ class BudgetItem {
   final double progress;
   final Color color;
   final Color iconColor;
+  final Color? iconBgColor;
+  final Color? amountColor;
+  final Color? trackColor;
 
   const BudgetItem({
     required this.icon,
@@ -15,5 +18,8 @@ class BudgetItem {
     required this.progress,
     required this.color,
     required this.iconColor,
+    this.iconBgColor,
+    this.amountColor,
+    this.trackColor,
   });
 }

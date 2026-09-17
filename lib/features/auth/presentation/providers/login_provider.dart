@@ -1,8 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
-import 'package:spendsmart/core/providers/core_providers.dart';
-import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 import 'package:spendsmart/core/providers/notification_provider.dart';
+import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 
 part 'login_provider.g.dart';
 
@@ -19,10 +18,16 @@ class Login extends _$Login {
         password: password,
       );
 
-      //saving the id token received from the backend in the local storage
-      await ref.read(storageServiceProvider).saveToken(data["data"]["idToken"]);
-      if (data["data"]["refreshToken"] != null) {
-        await ref.read(storageServiceProvider).saveRefreshToken(data["data"]["refreshToken"]);
+      // Save token and refreshToken via AuthLocalDataSource
+      if (data["data"]?["idToken"] != null) {
+        await ref
+            .read(authLocalDataSourceProvider)
+            .saveToken(data["data"]["idToken"]);
+      }
+      if (data["data"]?["refreshToken"] != null) {
+        await ref
+            .read(authLocalDataSourceProvider)
+            .saveRefreshToken(data["data"]["refreshToken"]);
       }
       await ref.read(notificationServiceProvider).syncToken();
 

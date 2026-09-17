@@ -9,54 +9,6 @@ part of 'transaction_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(transactionRepository)
-final transactionRepositoryProvider = TransactionRepositoryProvider._();
-
-final class TransactionRepositoryProvider
-    extends
-        $FunctionalProvider<
-          TransactionRepository,
-          TransactionRepository,
-          TransactionRepository
-        >
-    with $Provider<TransactionRepository> {
-  TransactionRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'transactionRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$transactionRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<TransactionRepository> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  TransactionRepository create(Ref ref) {
-    return transactionRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(TransactionRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<TransactionRepository>(value),
-    );
-  }
-}
-
-String _$transactionRepositoryHash() =>
-    r'448c81bdf48423476ec36542bfe3d11ce786917e';
-
 @ProviderFor(transactionRemoteDataSource)
 final transactionRemoteDataSourceProvider =
     TransactionRemoteDataSourceProvider._();
@@ -105,6 +57,103 @@ final class TransactionRemoteDataSourceProvider
 
 String _$transactionRemoteDataSourceHash() =>
     r'1f02412498393c7fabd543e3ba4abf3ce266dbad';
+
+@ProviderFor(transactionLocalDataSource)
+final transactionLocalDataSourceProvider =
+    TransactionLocalDataSourceProvider._();
+
+final class TransactionLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          TransactionLocalDataSource,
+          TransactionLocalDataSource,
+          TransactionLocalDataSource
+        >
+    with $Provider<TransactionLocalDataSource> {
+  TransactionLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transactionLocalDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$transactionLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<TransactionLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  TransactionLocalDataSource create(Ref ref) {
+    return transactionLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TransactionLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TransactionLocalDataSource>(value),
+    );
+  }
+}
+
+String _$transactionLocalDataSourceHash() =>
+    r'b436d94e263c4dd7cbee69ade4d2cc94c197a3b5';
+
+@ProviderFor(transactionRepository)
+final transactionRepositoryProvider = TransactionRepositoryProvider._();
+
+final class TransactionRepositoryProvider
+    extends
+        $FunctionalProvider<
+          TransactionRepository,
+          TransactionRepository,
+          TransactionRepository
+        >
+    with $Provider<TransactionRepository> {
+  TransactionRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'transactionRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$transactionRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<TransactionRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  TransactionRepository create(Ref ref) {
+    return transactionRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(TransactionRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<TransactionRepository>(value),
+    );
+  }
+}
+
+String _$transactionRepositoryHash() =>
+    r'beaeed6f293ded90aeffbafe10340e25891cb636';
 
 @ProviderFor(updateTransaction)
 final updateTransactionProvider = UpdateTransactionProvider._();
@@ -225,7 +274,7 @@ final class TransactionNotifierProvider
 }
 
 String _$transactionNotifierHash() =>
-    r'7344826f8c9a39164cf6ff97aa2aba7b064adb24';
+    r'a31dd24d02c858a437223f258c10aa7aff46d7ff';
 
 abstract class _$TransactionNotifier extends $AsyncNotifier<List<Transaction>> {
   FutureOr<List<Transaction>> build();

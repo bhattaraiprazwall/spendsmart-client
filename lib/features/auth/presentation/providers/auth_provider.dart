@@ -1,5 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:spendsmart/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/features/auth/data/datasources/auth_local_data_source.dart';
+import 'package:spendsmart/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:spendsmart/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:spendsmart/features/auth/domain/repositories/auth_repository.dart';
 import 'package:spendsmart/features/auth/domain/usecases/change_password.dart';
@@ -10,12 +12,20 @@ part 'auth_provider.g.dart';
 
 @riverpod
 AuthRemoteDataSource authRemoteDataSource(Ref ref) {
-  return AuthRemoteDataSource();
+  return AuthRemoteDataSourceImpl();
+}
+
+@riverpod
+AuthLocalDataSource authLocalDataSource(Ref ref) {
+  return AuthLocalDataSourceImpl(ref.watch(storageServiceProvider));
 }
 
 @riverpod
 AuthRepository authRepository(Ref ref) {
-  return AuthRepositoryImpl(ref.watch(authRemoteDataSourceProvider));
+  return AuthRepositoryImpl(
+    ref.watch(authRemoteDataSourceProvider),
+    ref.watch(authLocalDataSourceProvider),
+  );
 }
 
 @riverpod

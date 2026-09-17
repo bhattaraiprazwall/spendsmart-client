@@ -9,6 +9,54 @@ part of 'forecast_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(forecastLocalDataSource)
+final forecastLocalDataSourceProvider = ForecastLocalDataSourceProvider._();
+
+final class ForecastLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          ForecastLocalDataSource,
+          ForecastLocalDataSource,
+          ForecastLocalDataSource
+        >
+    with $Provider<ForecastLocalDataSource> {
+  ForecastLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'forecastLocalDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$forecastLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<ForecastLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ForecastLocalDataSource create(Ref ref) {
+    return forecastLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ForecastLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ForecastLocalDataSource>(value),
+    );
+  }
+}
+
+String _$forecastLocalDataSourceHash() =>
+    r'a14d78602f5a04207bd68e05c3f9f752fce99e83';
+
 @ProviderFor(forecastRemoteDataSource)
 final forecastRemoteDataSourceProvider = ForecastRemoteDataSourceProvider._();
 
@@ -55,7 +103,7 @@ final class ForecastRemoteDataSourceProvider
 }
 
 String _$forecastRemoteDataSourceHash() =>
-    r'cf036d7a575c5a0453b81f9f96887c669badbd6e';
+    r'2557d34a8415e6411c2ab3dc24f1dce97c7986d7';
 
 @ProviderFor(forecastRepository)
 final forecastRepositoryProvider = ForecastRepositoryProvider._();
@@ -103,7 +151,7 @@ final class ForecastRepositoryProvider
 }
 
 String _$forecastRepositoryHash() =>
-    r'e003fc7384e45641f41626e73825466554ba6485';
+    r'57462c227e08685ed63e6aa90d2d665fdcaa5d3a';
 
 @ProviderFor(getMonthlyForecast)
 final getMonthlyForecastProvider = GetMonthlyForecastProvider._();
@@ -153,18 +201,12 @@ final class GetMonthlyForecastProvider
 String _$getMonthlyForecastHash() =>
     r'2b214756b754ca0c3f1d601d42d4d2c6f6dda228';
 
-@ProviderFor(monthlyForecast)
-final monthlyForecastProvider = MonthlyForecastProvider._();
+@ProviderFor(MonthlyForecastNotifier)
+final monthlyForecastProvider = MonthlyForecastNotifierProvider._();
 
-final class MonthlyForecastProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<MonthlyForecast>,
-          MonthlyForecast,
-          FutureOr<MonthlyForecast>
-        >
-    with $FutureModifier<MonthlyForecast>, $FutureProvider<MonthlyForecast> {
-  MonthlyForecastProvider._()
+final class MonthlyForecastNotifierProvider
+    extends $AsyncNotifierProvider<MonthlyForecastNotifier, MonthlyForecast> {
+  MonthlyForecastNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -176,18 +218,31 @@ final class MonthlyForecastProvider
       );
 
   @override
-  String debugGetCreateSourceHash() => _$monthlyForecastHash();
+  String debugGetCreateSourceHash() => _$monthlyForecastNotifierHash();
 
   @$internal
   @override
-  $FutureProviderElement<MonthlyForecast> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<MonthlyForecast> create(Ref ref) {
-    return monthlyForecast(ref);
-  }
+  MonthlyForecastNotifier create() => MonthlyForecastNotifier();
 }
 
-String _$monthlyForecastHash() => r'75c97ec46c5cc11372c33ed3e0630827098946ef';
+String _$monthlyForecastNotifierHash() =>
+    r'7685dbc6d7dc3ac67c1e8dcdb26d382383e09d9c';
+
+abstract class _$MonthlyForecastNotifier
+    extends $AsyncNotifier<MonthlyForecast> {
+  FutureOr<MonthlyForecast> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<MonthlyForecast>, MonthlyForecast>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<MonthlyForecast>, MonthlyForecast>,
+              AsyncValue<MonthlyForecast>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

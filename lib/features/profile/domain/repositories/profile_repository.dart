@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:spendsmart/features/profile/domain/entities/profile.dart';
 
 abstract class ProfileRepository {
+  Future<Profile> uploadAvatar(String idToken, File imageFile);
+
   Future<Profile> getProfile(String idToken);
 
   Future<Profile> updateProfile(

@@ -9,6 +9,54 @@ part of 'insights_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(insightsLocalDataSource)
+final insightsLocalDataSourceProvider = InsightsLocalDataSourceProvider._();
+
+final class InsightsLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          InsightsLocalDataSource,
+          InsightsLocalDataSource,
+          InsightsLocalDataSource
+        >
+    with $Provider<InsightsLocalDataSource> {
+  InsightsLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'insightsLocalDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$insightsLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<InsightsLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  InsightsLocalDataSource create(Ref ref) {
+    return insightsLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(InsightsLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<InsightsLocalDataSource>(value),
+    );
+  }
+}
+
+String _$insightsLocalDataSourceHash() =>
+    r'2e422fea340d5914d30d5e39e51e9df430db4226';
+
 @ProviderFor(insightsRemoteDataSource)
 final insightsRemoteDataSourceProvider = InsightsRemoteDataSourceProvider._();
 
@@ -55,7 +103,7 @@ final class InsightsRemoteDataSourceProvider
 }
 
 String _$insightsRemoteDataSourceHash() =>
-    r'eadcdd9f1c6a3485fdcf3cfa0d4e4329c65b3d1f';
+    r'b5749399049c7085e6aea310d785f996987b8349';
 
 @ProviderFor(insightsRepository)
 final insightsRepositoryProvider = InsightsRepositoryProvider._();
@@ -103,7 +151,7 @@ final class InsightsRepositoryProvider
 }
 
 String _$insightsRepositoryHash() =>
-    r'e5c838ba2a830de72964da206d911e5996d47a06';
+    r'b3bddd8502087a86a4f0fd3d0183e8da79572489';
 
 @ProviderFor(getInsights)
 final getInsightsProvider = GetInsightsProvider._();
@@ -246,74 +294,92 @@ abstract class _$InsightsPeriod extends $Notifier<String> {
   }
 }
 
-@ProviderFor(insights)
-final insightsProvider = InsightsProvider._();
+@ProviderFor(InsightsNotifier)
+final insightsProvider = InsightsNotifierProvider._();
 
-final class InsightsProvider
-    extends $FunctionalProvider<AsyncValue<Insight>, Insight, FutureOr<Insight>>
-    with $FutureModifier<Insight>, $FutureProvider<Insight> {
-  InsightsProvider._()
+final class InsightsNotifierProvider
+    extends $AsyncNotifierProvider<InsightsNotifier, Insight> {
+  InsightsNotifierProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'insightsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$insightsHash();
+  String debugGetCreateSourceHash() => _$insightsNotifierHash();
 
   @$internal
   @override
-  $FutureProviderElement<Insight> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+  InsightsNotifier create() => InsightsNotifier();
+}
 
+String _$insightsNotifierHash() => r'2035faedf3bf8ef09dcb29a624c130dae0b4092f';
+
+abstract class _$InsightsNotifier extends $AsyncNotifier<Insight> {
+  FutureOr<Insight> build();
+  @$mustCallSuper
   @override
-  FutureOr<Insight> create(Ref ref) {
-    return insights(ref);
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<Insight>, Insight>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<Insight>, Insight>,
+              AsyncValue<Insight>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
   }
 }
 
-String _$insightsHash() => r'57f76e27fb4f95342d28fd658a1ba50658544ab8';
+@ProviderFor(SpendingAnomalyNotifier)
+final spendingAnomalyProvider = SpendingAnomalyNotifierProvider._();
 
-@ProviderFor(spendingAnomaly)
-final spendingAnomalyProvider = SpendingAnomalyProvider._();
-
-final class SpendingAnomalyProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<SpendingAnomaly>,
-          SpendingAnomaly,
-          FutureOr<SpendingAnomaly>
-        >
-    with $FutureModifier<SpendingAnomaly>, $FutureProvider<SpendingAnomaly> {
-  SpendingAnomalyProvider._()
+final class SpendingAnomalyNotifierProvider
+    extends $AsyncNotifierProvider<SpendingAnomalyNotifier, SpendingAnomaly> {
+  SpendingAnomalyNotifierProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'spendingAnomalyProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$spendingAnomalyHash();
+  String debugGetCreateSourceHash() => _$spendingAnomalyNotifierHash();
 
   @$internal
   @override
-  $FutureProviderElement<SpendingAnomaly> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<SpendingAnomaly> create(Ref ref) {
-    return spendingAnomaly(ref);
-  }
+  SpendingAnomalyNotifier create() => SpendingAnomalyNotifier();
 }
 
-String _$spendingAnomalyHash() => r'51df73d3abdcc966211c0439c5d8455840c3ed80';
+String _$spendingAnomalyNotifierHash() =>
+    r'e7a9bf21886832945e454592e61e2f2ff1056ddf';
+
+abstract class _$SpendingAnomalyNotifier
+    extends $AsyncNotifier<SpendingAnomaly> {
+  FutureOr<SpendingAnomaly> build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<AsyncValue<SpendingAnomaly>, SpendingAnomaly>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<SpendingAnomaly>, SpendingAnomaly>,
+              AsyncValue<SpendingAnomaly>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

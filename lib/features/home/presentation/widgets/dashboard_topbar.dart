@@ -229,7 +229,10 @@ class DashboardTopBar extends ConsumerWidget implements PreferredSizeWidget {
     final c = context.colors;
     final notificationsAsync = ref.watch(notificationProvider);
     final unreadCount =
-        notificationsAsync.value?.where((n) => !n.isRead).length ?? 0;
+        (notificationsAsync.asData?.value ?? notificationsAsync.value)
+            ?.where((n) => !n.isRead)
+            .length ??
+        0;
 
     return Material(
       color: Colors.transparent,

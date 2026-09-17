@@ -17,6 +17,8 @@ import 'package:spendsmart/features/home/presentation/screens/transactions_scree
 import 'package:spendsmart/features/incomes/presentation/screens/add_income_screen.dart';
 import 'package:spendsmart/features/insights/presentation/screens/insights_screen.dart';
 import 'package:spendsmart/features/onboarding/presentation/screens/onboardingflow.dart';
+import 'package:spendsmart/features/onboarding/presentation/screens/smart_alerts_screen.dart';
+import 'package:spendsmart/features/onboarding/presentation/screens/splash_screen.dart';
 import 'package:spendsmart/features/profile/presentation/screens/change_password_screen.dart';
 import 'package:spendsmart/features/profile/domain/entities/profile.dart';
 import 'package:spendsmart/features/profile/presentation/screens/edit_profile_screen.dart';
@@ -27,27 +29,44 @@ import 'package:spendsmart/features/forecast/presentation/screens/forecast_scree
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final goRouter = GoRouter(
-    initialLocation: RoutePaths.onboarding,
+    initialLocation: RoutePaths.splash,
     debugLogDiagnostics: true,
     errorBuilder: (_, _) => const NotFoundScreen(),
     redirect: (context, state) {
       final isLoggedIn = ref.read(authStateProvider);
       final matched = state.matchedLocation;
+
+      // The splash and first onboarding alert screen are always accessible on launch
+      if (matched == RoutePaths.splash || matched == RoutePaths.smartAlerts) {
+        return null;
+      }
+
       final isAuthRoute =
           matched == RoutePaths.login ||
-          matched == RoutePaths.signup ||
-          matched == RoutePaths.onboarding;
+          matched == RoutePaths.signup;
 
-      if (!isLoggedIn && !isAuthRoute) return RoutePaths.login;
-      if (isLoggedIn && isAuthRoute) return RoutePaths.dashboard;
+      if (!isLoggedIn && !isAuthRoute && matched != RoutePaths.onboarding) {
+        return RoutePaths.login;
+      }
       return null;
     },
     routes: [
+      GoRoute(
+        path: RoutePaths.splash,
+        builder: (_, _) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.smartAlerts,
+        builder: (_, _) => const SmartAlertsScreen(),
+      ),
       GoRoute(path: RoutePaths.login, builder: (_, _) => const LoginScreen()),
       GoRoute(path: RoutePaths.signup, builder: (_, _) => const SignupScreen()),
       GoRoute(
         path: RoutePaths.onboarding,
-        builder: (_, _) => const OnboardingFlow(),
+        builder: (_, state) {
+          final isRevisit = state.extra is bool ? state.extra as bool : false;
+          return OnboardingFlow(isRevisit: isRevisit);
+        },
       ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, navigationShell) =>

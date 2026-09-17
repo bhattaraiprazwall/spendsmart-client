@@ -7,8 +7,8 @@ import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/core/utils/currency_util.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
-import 'package:spendsmart/features/budget/domain/entities/budget.dart';
 import 'package:spendsmart/features/budget/domain/entities/budget_category.dart';
+import 'package:spendsmart/features/budget/domain/entities/budget.dart';
 import 'package:spendsmart/features/budget/presentation/providers/budget_provider.dart';
 import 'package:spendsmart/features/budget/presentation/widgets/budget_status_widgets.dart';
 import 'package:spendsmart/features/transactions/domain/entities/transaction.dart';
@@ -34,14 +34,6 @@ class _TransactionDetailScreenState
   void initState() {
     super.initState();
     _transaction = widget.transaction;
-    Future.microtask(() async {
-      final token = await ref.read(storageServiceProvider).getToken();
-      if (token == null) return;
-      final now = DateTime.now();
-      ref
-          .read(budgetProvider.notifier)
-          .fetchBudget(token, month: now.month, year: now.year);
-    });
   }
 
   Future<void> _handleEdit() async {
@@ -60,9 +52,7 @@ class _TransactionDetailScreenState
         }
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.tr('transaction_updated')),
-            ),
+            SnackBar(content: Text(context.tr('transaction_updated'))),
           );
         }
       },
@@ -74,9 +64,7 @@ class _TransactionDetailScreenState
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.tr('delete_transaction')),
-        content: Text(
-          context.tr('delete_transaction_confirm'),
-        ),
+        content: Text(context.tr('delete_transaction_confirm')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -100,14 +88,16 @@ class _TransactionDetailScreenState
           .read(transactionProvider.notifier)
           .deleteTransaction(token, _transaction.id);
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.tr('transaction_deleted'))));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.tr('transaction_deleted'))),
+      );
       context.pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${context.tr('failed_to_delete_transaction')}: $e')),
+        SnackBar(
+          content: Text('${context.tr('failed_to_delete_transaction')}: $e'),
+        ),
       );
     }
   }

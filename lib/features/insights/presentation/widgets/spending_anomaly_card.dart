@@ -108,11 +108,7 @@ class _SpendingAnomalyCardState extends ConsumerState<SpendingAnomalyCard> {
           // Main message
           Text(
             widget.anomaly.message,
-            style: TextStyle(
-              fontSize: 14,
-              height: 1.5,
-              color: c.textSecondary,
-            ),
+            style: TextStyle(fontSize: 14, height: 1.5, color: c.textSecondary),
           ),
 
           // Explanation for anomaly

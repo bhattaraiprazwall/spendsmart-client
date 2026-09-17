@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
-import 'package:spendsmart/features/expenses/data/datasources/expense_remote_datasource.dart';
+import 'package:spendsmart/features/expenses/data/datasources/expense_remote_data_source.dart';
 import 'package:spendsmart/features/expenses/data/repositories/expense_repository_impl.dart';
 import 'package:spendsmart/features/expenses/domain/entities/expense.dart';
 import 'package:spendsmart/features/expenses/domain/repositories/expense_repository.dart';
@@ -11,15 +11,29 @@ import 'package:spendsmart/features/expenses/domain/usecases/get_expenses.dart';
 import 'package:spendsmart/features/budget/presentation/providers/budget_provider.dart';
 import 'package:spendsmart/features/home/presentation/providers/dashboard_provider.dart';
 import 'package:spendsmart/features/insights/presentation/providers/insights_provider.dart';
+import 'package:spendsmart/features/forecast/presentation/providers/forecast_provider.dart';
 import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
 import 'dart:async';
+import 'package:spendsmart/core/database/database_provider.dart';
+import 'package:spendsmart/features/expenses/data/datasources/expense_local_data_source.dart';
 
 final expenseRemoteDataSourceProvider = Provider<ExpenseRemoteDataSource>((ref) {
-  return ExpenseRemoteDataSource();
+  return ExpenseRemoteDataSourceImpl();
+});
+
+final expenseLocalDataSourceProvider = Provider<ExpenseLocalDataSource>((ref) {
+  return ExpenseLocalDataSourceImpl(
+    transactionDao: ref.watch(transactionDaoProvider),
+    categoryDao: ref.watch(categoryDaoProvider),
+    storageService: ref.watch(storageServiceProvider),
+  );
 });
 
 final expenseRepositoryProvider = Provider<ExpenseRepository>((ref) {
-  return ExpenseRepositoryImpl(ref.watch(expenseRemoteDataSourceProvider));
+  return ExpenseRepositoryImpl(
+    ref.watch(expenseRemoteDataSourceProvider),
+    ref.watch(expenseLocalDataSourceProvider),
+  );
 });
 
 final createExpenseUseCaseProvider = Provider<CreateExpense>((ref) {
@@ -68,16 +82,19 @@ class ExpenseNotifier extends AsyncNotifier<List<Expense>> {
         categoryId: categoryId,
       );
       
-      // Invalidate dependent providers to trigger automatic UI updates
+      // Invalidate dependent providers to trigger automatic background updates
       ref.invalidate(transactionProvider);
       ref.invalidate(insightsProvider);
+      ref.invalidate(spendingAnomalyProvider);
+      ref.invalidate(monthlyForecastProvider);
+      ref.invalidate(dashboardProvider);
       ref.invalidate(budgetProvider);
-      
-      // Refresh dashboard
-      final now = DateTime.now();
-      await ref.read(dashboardProvider.notifier).fetchSummary(idToken, month: now.month, year: now.year);
-      
-      await fetchExpenses(idToken);
+
+      if (state.hasValue) {
+        _safeSetState(AsyncData([expense, ...state.value!]));
+      } else {
+        _safeSetState(AsyncData([expense]));
+      }
       return expense;
     } catch (e, st) {
       if (e is UnauthorizedException) {

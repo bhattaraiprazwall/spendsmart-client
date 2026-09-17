@@ -2,7 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
-import 'package:spendsmart/features/category/data/datasources/category_remote_datasource.dart';
+import 'package:spendsmart/features/category/data/datasources/category_remote_data_source.dart';
 import 'package:spendsmart/features/category/data/repositories/category_repository_impl.dart';
 import 'package:spendsmart/features/category/domain/entities/category.dart';
 import 'package:spendsmart/features/category/domain/repositories/category_repository.dart';
@@ -14,16 +14,29 @@ import 'package:spendsmart/features/expenses/presentation/providers/expense_prov
 import 'package:spendsmart/features/incomes/presentation/providers/income_provider.dart';
 import 'package:spendsmart/features/insights/presentation/providers/insights_provider.dart';
 import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
+import 'package:spendsmart/core/database/database_provider.dart';
+import 'package:spendsmart/features/category/data/datasources/category_local_data_source.dart';
 part 'category_provider.g.dart';
 
 @riverpod
 CategoryRemoteDataSource categoryRemoteDataSource(Ref ref) {
-  return CategoryRemoteDataSource();
+  return CategoryRemoteDataSourceImpl();
+}
+
+@riverpod
+CategoryLocalDataSource categoryLocalDataSource(Ref ref) {
+  return CategoryLocalDataSourceImpl(
+    categoryDao: ref.watch(categoryDaoProvider),
+    storageService: ref.watch(storageServiceProvider),
+  );
 }
 
 @riverpod
 CategoryRepository categoryRepository(Ref ref) {
-  return CategoryRepositoryImpl(ref.watch(categoryRemoteDataSourceProvider));
+  return CategoryRepositoryImpl(
+    ref.watch(categoryRemoteDataSourceProvider),
+    ref.watch(categoryLocalDataSourceProvider),
+  );
 }
 
 @riverpod
@@ -49,7 +62,15 @@ DeleteCategory deleteCategoryUseCase(Ref ref) {
 @riverpod
 class Categories extends _$Categories {
   @override
-  FutureOr<List<Category>> build() => const [];
+  FutureOr<List<Category>> build() async {
+    final token = await ref.read(storageServiceProvider).getToken();
+    if (token == null) return const [];
+    try {
+      return await ref.read(getCategoriesUseCaseProvider)(token);
+    } catch (_) {
+      return const [];
+    }
+  }
 
   void _safeSetState(AsyncValue<List<Category>> newState) {
     try {
@@ -58,7 +79,9 @@ class Categories extends _$Categories {
   }
 
   Future<void> fetchCategories(String idToken, {String? type}) async {
-    _safeSetState(const AsyncLoading());
+    if (!state.hasValue) {
+      _safeSetState(const AsyncLoading());
+    }
     try {
       final data = await ref
           .read(getCategoriesUseCaseProvider)(idToken, type: type);
@@ -67,12 +90,16 @@ class Categories extends _$Categories {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
+        _safeSetState(AsyncError(e, st));
+      } else {
+        if (!state.hasValue) {
+          _safeSetState(const AsyncData([]));
+        }
       }
-      _safeSetState(AsyncError(e, st));
     }
   }
 
-  Future<void> _refreshDependents() async {
+  void _refreshDependents() {
     ref.invalidate(transactionProvider);
     ref.invalidate(insightsProvider);
     ref.invalidate(expenseProvider);
@@ -86,17 +113,20 @@ class Categories extends _$Categories {
     required String color,
     String type = 'EXPENSE',
   }) async {
-    _safeSetState(const AsyncLoading());
     try {
-      await ref.read(createCategoryUseCaseProvider)(
+      final newCat = await ref.read(createCategoryUseCaseProvider)(
         idToken,
         name: name,
         icon: icon,
         color: color,
         type: type,
       );
-      await _refreshDependents();
-      await fetchCategories(idToken);
+      if (state.hasValue) {
+        _safeSetState(AsyncData([...state.value!, newCat]));
+      } else {
+        _safeSetState(AsyncData([newCat]));
+      }
+      _refreshDependents();
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).clearAuth();
@@ -107,11 +137,16 @@ class Categories extends _$Categories {
   }
 
   Future<void> deleteCategory(String idToken, String categoryId) async {
-    _safeSetState(const AsyncLoading());
     try {
       await ref.read(deleteCategoryUseCaseProvider)(idToken, categoryId);
-      await _refreshDependents();
-      await fetchCategories(idToken);
+      if (state.hasValue) {
+        _safeSetState(
+          AsyncData(
+            state.value!.where((c) => c.id != categoryId).toList(),
+          ),
+        );
+      }
+      _refreshDependents();
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).clearAuth();
@@ -129,9 +164,8 @@ class Categories extends _$Categories {
     required String color,
     String? type,
   }) async {
-    _safeSetState(const AsyncLoading());
     try {
-      await ref.read(updateCategoryUseCaseProvider)(
+      final updatedCat = await ref.read(updateCategoryUseCaseProvider)(
         idToken,
         categoryId,
         name: name,
@@ -139,8 +173,16 @@ class Categories extends _$Categories {
         color: color,
         type: type,
       );
-      await _refreshDependents();
-      await fetchCategories(idToken);
+      if (state.hasValue) {
+        _safeSetState(
+          AsyncData(
+            state.value!
+                .map((c) => c.id == categoryId ? updatedCat : c)
+                .toList(),
+          ),
+        );
+      }
+      _refreshDependents();
     } catch (e, st) {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).clearAuth();

@@ -65,7 +65,32 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
       appBar: AppTopBar(title: context.tr('categories')),
       body: categoriesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.category_outlined, size: 48, color: c.textMuted),
+                const SizedBox(height: 12),
+                Text(
+                  context.tr('failed_to_load_categories'),
+                  style: TextStyle(color: c.textSecondary),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () async {
+                    final token = await ref.read(storageServiceProvider).getToken();
+                    if (token != null) {
+                      ref.read(categoriesProvider.notifier).fetchCategories(token);
+                    }
+                  },
+                  child: Text(context.tr('retry')),
+                ),
+              ],
+            ),
+          ),
+        ),
         data: (categories) {
           final expense = categories.where((c) => c.type == 'EXPENSE').toList();
           final income = categories.where((c) => c.type == 'INCOME').toList();
@@ -224,7 +249,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
   Widget _buildIconCircle(IconData icon, Color color, bool isDefault) {
     return CircleAvatar(
       radius: 26,
-      backgroundColor: isDefault ? color.withOpacity(0.15) : color,
+      backgroundColor: isDefault ? color.withValues(alpha: 0.15) : color,
       child: Icon(icon, color: isDefault ? color : Colors.white, size: 22),
     );
   }
@@ -259,7 +284,7 @@ class _CategoriesScreenState extends ConsumerState<CategoriesScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

@@ -103,7 +103,7 @@
     }
 
     String _colorToHex(Color color) {
-      return '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
+      return '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
     }
 
     Future<void> _save() async {
@@ -188,7 +188,7 @@
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
               ),
               child: Icon(
                 isIncome ? Icons.arrow_downward : Icons.arrow_upward,
@@ -214,7 +214,7 @@
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(

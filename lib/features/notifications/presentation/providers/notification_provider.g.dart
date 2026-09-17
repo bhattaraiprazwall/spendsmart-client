@@ -9,6 +9,55 @@ part of 'notification_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
+@ProviderFor(notificationLocalDataSource)
+final notificationLocalDataSourceProvider =
+    NotificationLocalDataSourceProvider._();
+
+final class NotificationLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          NotificationLocalDataSource,
+          NotificationLocalDataSource,
+          NotificationLocalDataSource
+        >
+    with $Provider<NotificationLocalDataSource> {
+  NotificationLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notificationLocalDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$notificationLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<NotificationLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  NotificationLocalDataSource create(Ref ref) {
+    return notificationLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NotificationLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NotificationLocalDataSource>(value),
+    );
+  }
+}
+
+String _$notificationLocalDataSourceHash() =>
+    r'347df999c461f696ef7de75435aa62a29c524cde';
+
 @ProviderFor(notificationRemoteDataSource)
 final notificationRemoteDataSourceProvider =
     NotificationRemoteDataSourceProvider._();
@@ -56,7 +105,7 @@ final class NotificationRemoteDataSourceProvider
 }
 
 String _$notificationRemoteDataSourceHash() =>
-    r'27c104d28a9c4267b7da490aadc3030713752516';
+    r'95869bbc9c67f6e27022d3cac68f5114646f9aa9';
 
 @ProviderFor(notificationRepository)
 final notificationRepositoryProvider = NotificationRepositoryProvider._();
@@ -104,7 +153,7 @@ final class NotificationRepositoryProvider
 }
 
 String _$notificationRepositoryHash() =>
-    r'1d72aedf961fc7f7fba8b4493771db8e633c5dd8';
+    r'33ab9113401a9f2084a7510525c6680d627d9045';
 
 @ProviderFor(getNotifications)
 final getNotificationsProvider = GetNotificationsProvider._();
@@ -226,7 +275,7 @@ final class NotificationNotifierProvider
 }
 
 String _$notificationNotifierHash() =>
-    r'88cb53ede088fa9c559ae02804e019fda76314df';
+    r'bd0fa3afc0dbb4d60fb67fd9a85fc8890dc1f9c6';
 
 abstract class _$NotificationNotifier
     extends $AsyncNotifier<List<NotificationItem>> {

@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:spendsmart/core/constants/api_constants.dart';
+import 'package:spendsmart/core/exceptions/network_exception.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/services/local_storage_service.dart';
 
@@ -63,130 +66,171 @@ class ApiService {
     Map<String, dynamic>? body,
     Map<String, String>? headers,
   }) async {
-    final uri = Uri.parse(url);
+    try {
+      final uri = Uri.parse(url);
 
-    final finalHeaders =
-        headers ??
-        {
-          "Content-Type": "application/json",
-        };
+      final finalHeaders =
+          headers ??
+          {
+            "Content-Type": "application/json",
+          };
 
-    http.Response response;
+      http.Response response;
 
-    // Initial request
-    switch (method.toUpperCase()) {
-      case 'POST':
-        response = await http.post(
-          uri,
-          headers: finalHeaders,
-          body: jsonEncode(body),
-        );
-        break;
+      final encodedBody = body != null ? jsonEncode(body) : null;
 
-      case 'PUT':
-        response = await http.put(
-          uri,
-          headers: finalHeaders,
-          body: jsonEncode(body),
-        );
-        break;
+      const timeout = Duration(seconds: 8);
 
-      case 'PATCH':
-        response = await http.patch(
-          uri,
-          headers: finalHeaders,
-          body: jsonEncode(body),
-        );
-        break;
-
-      case 'DELETE':
-        response = await http.delete(
-          uri,
-          headers: finalHeaders,
-        );
-        break;
-
-      default:
-        response = await http.get(
-          uri,
-          headers: finalHeaders,
-        );
-    }
-
-    // Debug logs
-    print('URL: ${response.request?.url}');
-    print('STATUS: ${response.statusCode}');
-    print('BODY: ${response.body}');
-
-    // Token expired / Unauthorized
-    if (response.statusCode == 401) {
-      final isAuthEndpoint = url == ApiConstants.login ||
-          url == ApiConstants.register ||
-          url == ApiConstants.refresh;
-
-      if (!isAuthEndpoint) {
-        final newToken = await _performTokenRefresh();
-
-        if (newToken != null) {
-          final retryHeaders = Map<String, String>.from(finalHeaders);
-          retryHeaders["Authorization"] = "Bearer $newToken";
-
-          // Retry request with new token
-          switch (method.toUpperCase()) {
-            case 'POST':
-              response = await http.post(
+      // Initial request
+      switch (method.toUpperCase()) {
+        case 'POST':
+          response = await http
+              .post(
                 uri,
-                headers: retryHeaders,
-                body: jsonEncode(body),
-              );
-              break;
+                headers: finalHeaders,
+                body: encodedBody,
+              )
+              .timeout(timeout);
+          break;
 
-            case 'PUT':
-              response = await http.put(
+        case 'PUT':
+          response = await http
+              .put(
                 uri,
-                headers: retryHeaders,
-                body: jsonEncode(body),
-              );
-              break;
+                headers: finalHeaders,
+                body: encodedBody,
+              )
+              .timeout(timeout);
+          break;
 
-            case 'PATCH':
-              response = await http.patch(
+        case 'PATCH':
+          response = await http
+              .patch(
                 uri,
-                headers: retryHeaders,
-                body: jsonEncode(body),
-              );
-              break;
+                headers: finalHeaders,
+                body: encodedBody,
+              )
+              .timeout(timeout);
+          break;
 
-            case 'DELETE':
-              response = await http.delete(
+        case 'DELETE':
+          response = await http
+              .delete(
                 uri,
-                headers: retryHeaders,
-              );
-              break;
+                headers: finalHeaders,
+              )
+              .timeout(timeout);
+          break;
 
-            default:
-              response = await http.get(
+        default:
+          response = await http
+              .get(
                 uri,
-                headers: retryHeaders,
-              );
-          }
+                headers: finalHeaders,
+              )
+              .timeout(timeout);
+      }
 
-          // If still 401 after retry, throw UnauthorizedException
-          if (response.statusCode == 401) {
+      // Debug logs
+      print('URL: ${response.request?.url}');
+      print('STATUS: ${response.statusCode}');
+      print('BODY: ${response.body}');
+
+      // Token expired / Unauthorized
+      if (response.statusCode == 401) {
+        final isAuthEndpoint = url == ApiConstants.login ||
+            url == ApiConstants.register ||
+            url == ApiConstants.refresh;
+
+        if (!isAuthEndpoint) {
+          final newToken = await _performTokenRefresh();
+
+          if (newToken != null) {
+            final retryHeaders = Map<String, String>.from(finalHeaders);
+            retryHeaders["Authorization"] = "Bearer $newToken";
+
+            // Retry request with new token
+            switch (method.toUpperCase()) {
+              case 'POST':
+                response = await http
+                    .post(
+                      uri,
+                      headers: retryHeaders,
+                      body: encodedBody,
+                    )
+                    .timeout(timeout);
+                break;
+
+              case 'PUT':
+                response = await http
+                    .put(
+                      uri,
+                      headers: retryHeaders,
+                      body: encodedBody,
+                    )
+                    .timeout(timeout);
+                break;
+
+              case 'PATCH':
+                response = await http
+                    .patch(
+                      uri,
+                      headers: retryHeaders,
+                      body: encodedBody,
+                    )
+                    .timeout(timeout);
+                break;
+
+              case 'DELETE':
+                response = await http
+                    .delete(
+                      uri,
+                      headers: retryHeaders,
+                    )
+                    .timeout(timeout);
+                break;
+
+              default:
+                response = await http
+                    .get(
+                      uri,
+                      headers: retryHeaders,
+                    )
+                    .timeout(timeout);
+            }
+
+            // If still 401 after retry, throw UnauthorizedException
+            if (response.statusCode == 401) {
+              await _storage.clearAuth();
+              throw UnauthorizedException();
+            }
+          } else {
             await _storage.clearAuth();
             throw UnauthorizedException();
           }
-        } else {
-          await _storage.clearAuth();
-          throw UnauthorizedException();
         }
       }
-    }
 
-    return {
-      "statusCode": response.statusCode,
-      "data": jsonDecode(response.body),
-    };
+      return {
+        "statusCode": response.statusCode,
+        "data": jsonDecode(response.body),
+      };
+    } on SocketException catch (_) {
+      throw const NetworkException('No internet connection. Please check your network.');
+    } on http.ClientException catch (e) {
+      if (e.message.contains('SocketException') ||
+          e.message.contains('No route to host') ||
+          e.message.contains('Network is unreachable') ||
+          e.message.contains('Failed host lookup') ||
+          e.message.contains('errno')) {
+        throw const NetworkException('No internet connection. Please check your network.');
+      }
+      throw NetworkException(e.message);
+    } on TimeoutException catch (_) {
+      throw const NetworkException('Connection timed out. Please check your network.');
+    } on HandshakeException catch (_) {
+      throw const NetworkException('Connection security error. Please check your network.');
+    }
   }
 
   Future<Map<String, dynamic>> post(

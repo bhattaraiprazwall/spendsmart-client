@@ -1,10 +1,56 @@
+import 'package:flutter/foundation.dart';
 import 'package:spendsmart/core/constants/api_constants.dart';
 import 'package:spendsmart/core/services/api_service.dart';
 import 'package:spendsmart/features/expenses/data/models/expense.dart';
 
-class ExpenseRemoteDataSource {
-  final ApiService _apiService = ApiService();
+class BudgetAlert {
+  final String type;
+  final double spent;
+  final double limit;
+  final double usagePercent;
 
+  BudgetAlert({
+    required this.type,
+    required this.spent,
+    required this.limit,
+    required this.usagePercent,
+  });
+
+  factory BudgetAlert.fromJson(Map<String, dynamic> json) {
+    return BudgetAlert(
+      type: json["type"]?.toString() ?? "BUDGET_WARNING",
+      spent: (json["spent"] as num?)?.toDouble() ?? 0.0,
+      limit: (json["limit"] as num?)?.toDouble() ?? 0.0,
+      usagePercent: (json["usagePercent"] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+}
+
+abstract class ExpenseRemoteDataSource {
+  static final ValueNotifier<BudgetAlert?> latestAlertNotifier =
+      ValueNotifier<BudgetAlert?>(null);
+
+  Future<ExpenseModel> createExpense(
+    String idToken, {
+    required String type,
+    required double amount,
+    required String title,
+    String? note,
+    required String paymentMethod,
+    required String date,
+    required String categoryId,
+  });
+
+  Future<List<ExpenseModel>> getExpenses(String idToken);
+}
+
+class ExpenseRemoteDataSourceImpl implements ExpenseRemoteDataSource {
+  final ApiService _apiService;
+
+  ExpenseRemoteDataSourceImpl({ApiService? apiService})
+      : _apiService = apiService ?? ApiService();
+
+  @override
   Future<ExpenseModel> createExpense(
     String idToken, {
     required String type,
@@ -40,7 +86,10 @@ class ExpenseRemoteDataSource {
       if (data is Map<String, dynamic>) {
         final errors = data["errors"];
         if (errors is List && errors.isNotEmpty) {
-          message = errors.map((e) => e is Map ? e["message"] : null).whereType<String>().join(", ");
+          message = errors
+              .map((e) => e is Map ? e["message"] : null)
+              .whereType<String>()
+              .join(", ");
         } else if (data["message"] != null) {
           message = data["message"].toString();
         }
@@ -48,9 +97,18 @@ class ExpenseRemoteDataSource {
       throw Exception(message);
     }
 
+    final alertData = response["data"]?["data"]?["alert"];
+    if (alertData is Map<String, dynamic>) {
+      ExpenseRemoteDataSource.latestAlertNotifier.value =
+          BudgetAlert.fromJson(alertData);
+    } else {
+      ExpenseRemoteDataSource.latestAlertNotifier.value = null;
+    }
+
     return ExpenseModel.fromJson(response["data"]["data"]["transaction"]);
   }
 
+  @override
   Future<List<ExpenseModel>> getExpenses(String idToken) async {
     final response = await _apiService.get(
       ApiConstants.transactions,

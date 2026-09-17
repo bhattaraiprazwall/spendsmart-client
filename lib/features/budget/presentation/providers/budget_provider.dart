@@ -2,7 +2,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
-import 'package:spendsmart/features/budget/data/datasources/budget_remote_datasource.dart';
 import 'package:spendsmart/features/budget/data/repositories/budget_repository_impl.dart';
 import 'package:spendsmart/features/budget/domain/entities/budget.dart';
 import 'package:spendsmart/features/budget/domain/repositories/budget_repository.dart';
@@ -15,16 +14,32 @@ import 'package:spendsmart/features/budget/domain/usecases/remove_category_limit
 import 'package:spendsmart/features/budget/domain/usecases/update_budget.dart';
 import 'package:spendsmart/features/budget/domain/usecases/update_category_limit.dart';
 import 'package:spendsmart/features/home/presentation/providers/dashboard_provider.dart';
+import 'package:spendsmart/core/database/database_provider.dart';
+import 'package:spendsmart/features/budget/data/datasources/budget_local_data_source.dart';
+import 'package:spendsmart/features/budget/data/datasources/budget_remote_data_source.dart';
 part 'budget_provider.g.dart';
 
 @riverpod
 BudgetRemoteDataSource budgetRemoteDataSource(Ref ref) {
-  return BudgetRemoteDataSource();
+  return BudgetRemoteDataSourceImpl();
+}
+
+@riverpod
+BudgetLocalDataSource budgetLocalDataSource(Ref ref) {
+  return BudgetLocalDataSourceImpl(
+    budgetDao: ref.watch(budgetDaoProvider),
+    transactionDao: ref.watch(transactionDaoProvider),
+    categoryDao: ref.watch(categoryDaoProvider),
+    storageService: ref.watch(storageServiceProvider),
+  );
 }
 
 @riverpod
 BudgetRepository budgetRepository(Ref ref) {
-  return BudgetRepositoryImpl(ref.watch(budgetRemoteDataSourceProvider));
+  return BudgetRepositoryImpl(
+    ref.watch(budgetRemoteDataSourceProvider),
+    ref.watch(budgetLocalDataSourceProvider),
+  );
 }
 
 @riverpod
@@ -73,7 +88,21 @@ class Budget extends _$Budget {
   int _year = DateTime.now().year;
 
   @override
-  FutureOr<BudgetStatus?> build() => null;
+  FutureOr<BudgetStatus?> build() async {
+    final token = await ref.read(storageServiceProvider).getToken();
+    if (token == null) return null;
+    try {
+      final budget = await ref.read(getBudgetUseCaseProvider)(
+        token,
+        month: _month,
+        year: _year,
+      );
+      if (budget == null) return null;
+      return await ref.read(getBudgetStatusUseCaseProvider)(token, budget.id);
+    } catch (_) {
+      return null;
+    }
+  }
 
   void _safeSetState(AsyncValue<BudgetStatus?> newState) {
     try {
@@ -101,7 +130,9 @@ class Budget extends _$Budget {
   }) async {
     _month = month;
     _year = year;
-    _safeSetState(const AsyncLoading());
+    if (!state.hasValue) {
+      _safeSetState(const AsyncLoading());
+    }
     try {
       final budget = await ref.read(getBudgetUseCaseProvider)(
         idToken,
@@ -119,8 +150,12 @@ class Budget extends _$Budget {
       if (e is UnauthorizedException) {
         await ref.read(storageServiceProvider).clearAuth();
         ref.read(authStateProvider.notifier).state = false;
+        _safeSetState(AsyncError(e, st));
+      } else {
+        if (!state.hasValue) {
+          _safeSetState(const AsyncData(null));
+        }
       }
-      _safeSetState(AsyncError(e, st));
     }
   }
 
@@ -131,7 +166,6 @@ class Budget extends _$Budget {
     required double totalAmount,
     List<Map<String, dynamic>>? categories,
   }) async {
-    _safeSetState(const AsyncLoading());
     try {
       await ref.read(createOrUpdateBudgetUseCaseProvider)(
         idToken,
@@ -156,7 +190,6 @@ class Budget extends _$Budget {
     String budgetId, {
     required double totalAmount,
   }) async {
-    _safeSetState(const AsyncLoading());
     try {
       await ref.read(updateBudgetUseCaseProvider)(
         idToken,
@@ -175,7 +208,6 @@ class Budget extends _$Budget {
   }
 
   Future<void> deleteBudget(String idToken, String budgetId) async {
-    _safeSetState(const AsyncLoading());
     try {
       await ref.read(deleteBudgetUseCaseProvider)(idToken, budgetId);
       _safeSetState(const AsyncData(null));
@@ -195,7 +227,6 @@ class Budget extends _$Budget {
     required String categoryId,
     required double limit,
   }) async {
-    _safeSetState(const AsyncLoading());
     try {
       await ref.read(addCategoryLimitUseCaseProvider)(
         idToken,
@@ -220,7 +251,6 @@ class Budget extends _$Budget {
     String categoryId, {
     required double limit,
   }) async {
-    _safeSetState(const AsyncLoading());
     try {
       await ref.read(updateCategoryLimitUseCaseProvider)(
         idToken,
@@ -244,7 +274,6 @@ class Budget extends _$Budget {
     String budgetId,
     String categoryId,
   ) async {
-    _safeSetState(const AsyncLoading());
     try {
       await ref.read(removeCategoryLimitUseCaseProvider)(
         idToken,

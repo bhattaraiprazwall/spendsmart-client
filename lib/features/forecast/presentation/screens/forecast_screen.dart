@@ -17,6 +17,14 @@ class ForecastScreen extends ConsumerStatefulWidget {
 class _ForecastScreenState extends ConsumerState<ForecastScreen> {
   bool _isCalculationExpanded = false;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(monthlyForecastProvider);
+    });
+  }
+
   String formatMonth(int? month, int? year) {
     if (month == null || year == null) {
       return '';
@@ -52,7 +60,7 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
       borderRadius: BorderRadius.circular(16),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.04),
+          color: Colors.black.withValues(alpha: 0.04),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),
@@ -98,7 +106,7 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.errorContainer.withOpacity(0.4),
+                      color: theme.colorScheme.errorContainer.withValues(alpha: 0.4),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -122,7 +130,12 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    error.toString(),
+                    (error.toString().contains('SocketException') ||
+                            error.toString().contains('NetworkException') ||
+                            error.toString().contains('No internet connection') ||
+                            error.toString().contains('No route to host'))
+                        ? context.tr('no_internet')
+                        : error.toString().replaceAll('Exception: ', ''),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -177,7 +190,7 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.primaryContainer
-                                .withOpacity(0.5),
+                                .withValues(alpha: 0.5),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -277,7 +290,7 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
                       end: Alignment.bottomRight,
                       colors: [
                         theme.colorScheme.primary,
-                        theme.colorScheme.primary.withOpacity(0.75),
+                        theme.colorScheme.primary.withValues(alpha: 0.75),
                       ],
                     ),
                   ),
@@ -321,14 +334,14 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
                       Text(
                         context.tr('estimated_spending'),
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onPrimary.withOpacity(0.85),
+                          color: theme.colorScheme.onPrimary.withValues(alpha: 0.85),
                         ),
                       ),
 
                       const SizedBox(height: 20),
 
                       Divider(
-                        color: theme.colorScheme.onPrimary.withOpacity(0.3),
+                        color: theme.colorScheme.onPrimary.withValues(alpha: 0.3),
                       ),
 
                       const SizedBox(height: 12),
@@ -337,7 +350,7 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
                         forecast.message,
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onPrimary.withOpacity(0.9),
+                          color: theme.colorScheme.onPrimary.withValues(alpha: 0.9),
                         ),
                       ),
                     ],
@@ -377,7 +390,7 @@ class _ForecastScreenState extends ConsumerState<ForecastScreen> {
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color: theme.colorScheme.primaryContainer
-                                      .withOpacity(0.5),
+                                      .withValues(alpha: 0.5),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Icon(
@@ -589,7 +602,7 @@ formatCurrency(forecastAmount, currencyCode),
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.secondaryContainer
-                        .withOpacity(0.4),
+                        .withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(16),
                   ),
 

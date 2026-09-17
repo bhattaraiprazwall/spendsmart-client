@@ -55,7 +55,55 @@ final class CategoryRemoteDataSourceProvider
 }
 
 String _$categoryRemoteDataSourceHash() =>
-    r'0691f70d96f4ea7ee63013a1e1f115f15f5e45db';
+    r'5f49fbe61abdd3846ae90afdde032e0c1e0052ea';
+
+@ProviderFor(categoryLocalDataSource)
+final categoryLocalDataSourceProvider = CategoryLocalDataSourceProvider._();
+
+final class CategoryLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          CategoryLocalDataSource,
+          CategoryLocalDataSource,
+          CategoryLocalDataSource
+        >
+    with $Provider<CategoryLocalDataSource> {
+  CategoryLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'categoryLocalDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$categoryLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<CategoryLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CategoryLocalDataSource create(Ref ref) {
+    return categoryLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CategoryLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CategoryLocalDataSource>(value),
+    );
+  }
+}
+
+String _$categoryLocalDataSourceHash() =>
+    r'4cc0cec321d517386eed2bb1a158e63c29273300';
 
 @ProviderFor(categoryRepository)
 final categoryRepositoryProvider = CategoryRepositoryProvider._();
@@ -103,7 +151,7 @@ final class CategoryRepositoryProvider
 }
 
 String _$categoryRepositoryHash() =>
-    r'50ba97881e1c81c55cb88c31432aa4865eeffddb';
+    r'ffc4c491077e8241812796a8b699cd113af326d2';
 
 @ProviderFor(getCategoriesUseCase)
 final getCategoriesUseCaseProvider = GetCategoriesUseCaseProvider._();
@@ -297,7 +345,7 @@ final class CategoriesProvider
   Categories create() => Categories();
 }
 
-String _$categoriesHash() => r'41f50cd877c5a1d32d2ad0b45e3416d3f0f99983';
+String _$categoriesHash() => r'7eeff8667fcfb5b002baa0e220e8625b9ad4c3d7';
 
 abstract class _$Categories extends $AsyncNotifier<List<Category>> {
   FutureOr<List<Category>> build();

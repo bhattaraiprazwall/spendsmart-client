@@ -15,11 +15,26 @@ import '../../domain/entities/spending_anomaly.dart';
 import 'package:spendsmart/core/providers/currency_provider.dart';
 import 'package:spendsmart/features/forecast/presentation/providers/forecast_provider.dart';
 
-class InsightsScreen extends ConsumerWidget {
+class InsightsScreen extends ConsumerStatefulWidget {
   const InsightsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<InsightsScreen> createState() => _InsightsScreenState();
+}
+
+class _InsightsScreenState extends ConsumerState<InsightsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(insightsProvider);
+      ref.invalidate(spendingAnomalyProvider);
+      ref.invalidate(monthlyForecastProvider);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final c = context.colors;
     final insightsAsync = ref.watch(insightsProvider);
     final AsyncValue<SpendingAnomaly> anomalyAsync =
@@ -38,7 +53,30 @@ class InsightsScreen extends ConsumerWidget {
             anomalyAsync,
           ),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, _) => Center(child: Text('Error: $error')),
+          error: (error, _) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.insights_outlined, size: 48, color: c.textMuted),
+                  const SizedBox(height: 12),
+                  Text(
+                    context.tr('unable_to_load_dashboard'),
+                    style: TextStyle(color: c.textSecondary),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref.invalidate(insightsProvider);
+                      ref.invalidate(spendingAnomalyProvider);
+                    },
+                    child: Text(context.tr('retry')),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -57,8 +95,10 @@ class InsightsScreen extends ConsumerWidget {
         await Future.wait([
           ref.refresh(insightsProvider.future),
           ref.refresh(spendingAnomalyProvider.future),
+          ref.refresh(monthlyForecastProvider.future),
         ]);
-      },      child: SingleChildScrollView(
+      },
+      child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(20.0),
         child: Column(

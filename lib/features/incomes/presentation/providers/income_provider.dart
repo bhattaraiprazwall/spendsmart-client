@@ -2,23 +2,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:spendsmart/core/exceptions/unauthorized_exception.dart';
 import 'package:spendsmart/core/providers/auth_state_provider.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
-import 'package:spendsmart/features/incomes/data/datasources/income_remote_datasource.dart';
+import 'package:spendsmart/features/incomes/data/datasources/income_remote_data_source.dart';
 import 'package:spendsmart/features/incomes/data/repositories/income_repository_impl.dart';
 import 'package:spendsmart/features/incomes/domain/entities/income.dart';
 import 'package:spendsmart/features/incomes/domain/repositories/income_repository.dart';
 import 'package:spendsmart/features/incomes/domain/usecases/create_income.dart';
 import 'package:spendsmart/features/incomes/domain/usecases/get_incomes.dart';
+import 'package:spendsmart/features/budget/presentation/providers/budget_provider.dart';
 import 'package:spendsmart/features/home/presentation/providers/dashboard_provider.dart';
 import 'package:spendsmart/features/insights/presentation/providers/insights_provider.dart';
+import 'package:spendsmart/features/forecast/presentation/providers/forecast_provider.dart';
 import 'package:spendsmart/features/transactions/presentation/providers/transaction_provider.dart';
 import 'dart:async';
+import 'package:spendsmart/core/database/database_provider.dart';
+import 'package:spendsmart/features/incomes/data/datasources/income_local_data_source.dart';
 
 final incomeRemoteDataSourceProvider = Provider<IncomeRemoteDataSource>((ref) {
-  return IncomeRemoteDataSource();
+  return IncomeRemoteDataSourceImpl();
+});
+
+final incomeLocalDataSourceProvider = Provider<IncomeLocalDataSource>((ref) {
+  return IncomeLocalDataSourceImpl(
+    transactionDao: ref.watch(transactionDaoProvider),
+    categoryDao: ref.watch(categoryDaoProvider),
+    storageService: ref.watch(storageServiceProvider),
+  );
 });
 
 final incomeRepositoryProvider = Provider<IncomeRepository>((ref) {
-  return IncomeRepositoryImpl(ref.watch(incomeRemoteDataSourceProvider));
+  return IncomeRepositoryImpl(
+    ref.watch(incomeRemoteDataSourceProvider),
+    ref.watch(incomeLocalDataSourceProvider),
+  );
 });
 
 final createIncomeUseCaseProvider = Provider<CreateIncome>((ref) {
@@ -64,15 +79,19 @@ class IncomeNotifier extends AsyncNotifier<List<Income>> {
         categoryId: categoryId,
       );
       
-      // Invalidate dependent providers
+      // Invalidate dependent providers to trigger automatic background updates
       ref.invalidate(transactionProvider);
       ref.invalidate(insightsProvider);
-      
-      // Refresh dashboard
-      final now = DateTime.now();
-      await ref.read(dashboardProvider.notifier).fetchSummary(idToken, month: now.month, year: now.year);
-      
-      await fetchIncomes(idToken);
+      ref.invalidate(spendingAnomalyProvider);
+      ref.invalidate(monthlyForecastProvider);
+      ref.invalidate(dashboardProvider);
+      ref.invalidate(budgetProvider);
+
+      if (state.hasValue) {
+        _safeSetState(AsyncData([income, ...state.value!]));
+      } else {
+        _safeSetState(AsyncData([income]));
+      }
       return income;
     } catch (e, st) {
       if (e is UnauthorizedException) {

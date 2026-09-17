@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/features/notifications/presentation/providers/notification_provider.dart';
@@ -19,14 +20,81 @@ class NotificationsScreen extends ConsumerWidget {
         backgroundColor: c.background,
         elevation: 0,
         leading: BackButton(color: c.textPrimary),
-        title: Text(
-          context.tr('notifications'),
-          style: TextStyle(
-            color: c.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              context.tr('notifications'),
+              style: TextStyle(
+                color: c.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            notifications.maybeWhen(
+              data: (items) {
+                final unreadCount = items.where((n) => !n.isRead).length;
+                if (unreadCount == 0) return const SizedBox.shrink();
+
+                return Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.danger.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '$unreadCount',
+                    style: const TextStyle(
+                      color: AppColors.danger,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                );
+              },
+              orElse: () => const SizedBox.shrink(),
+            ),
+          ],
         ),
+        actions: [
+          notifications.maybeWhen(
+            data: (items) {
+              final hasUnread = items.any((n) => !n.isRead);
+              if (!hasUnread) return const SizedBox.shrink();
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  onPressed: () => ref
+                      .read(notificationProvider.notifier)
+                      .markAllAsRead(),
+                  icon: const Icon(
+                    Icons.done_all_rounded,
+                    size: 18,
+                    color: AppColors.primary,
+                  ),
+                  label: Text(
+                    context.tr('mark_all_as_read'),
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              );
+            },
+            orElse: () => const SizedBox.shrink(),
+          ),
+        ],
       ),
       body: notifications.when(
         loading: () => const Center(

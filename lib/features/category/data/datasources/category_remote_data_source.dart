@@ -2,15 +2,46 @@ import 'package:spendsmart/core/constants/api_constants.dart';
 import 'package:spendsmart/core/services/api_service.dart';
 import 'package:spendsmart/features/category/data/models/category_model.dart';
 
-class CategoryRemoteDataSource {
-  final ApiService _apiService = ApiService();
+abstract class CategoryRemoteDataSource {
+  Future<List<CategoryModel>> getCategories(
+    String idToken, {
+    String? type,
+  });
 
+  Future<CategoryModel> createCategory(
+    String idToken, {
+    required String name,
+    required String icon,
+    required String color,
+    String type = 'EXPENSE',
+  });
+
+  Future<void> deleteCategory(String idToken, String categoryId);
+
+  Future<CategoryModel> updateCategory(
+    String idToken,
+    String categoryId, {
+    String? name,
+    String? icon,
+    String? color,
+    String? type,
+  });
+}
+
+class CategoryRemoteDataSourceImpl implements CategoryRemoteDataSource {
+  final ApiService _apiService;
+
+  CategoryRemoteDataSourceImpl({ApiService? apiService})
+      : _apiService = apiService ?? ApiService();
+
+  @override
   Future<List<CategoryModel>> getCategories(
     String idToken, {
     String? type,
   }) async {
     final uri = type != null
-        ? Uri.parse(ApiConstants.categories).replace(queryParameters: {"type": type})
+        ? Uri.parse(ApiConstants.categories)
+            .replace(queryParameters: {"type": type})
         : Uri.parse(ApiConstants.categories);
 
     final response = await _apiService.get(
@@ -34,6 +65,7 @@ class CategoryRemoteDataSource {
         .toList();
   }
 
+  @override
   Future<CategoryModel> createCategory(
     String idToken, {
     required String name,
@@ -59,6 +91,7 @@ class CategoryRemoteDataSource {
     return CategoryModel.fromJson(response["data"]["data"]["category"]);
   }
 
+  @override
   Future<void> deleteCategory(String idToken, String categoryId) async {
     final response = await _apiService.delete(
       '${ApiConstants.categories}/$categoryId',
@@ -74,6 +107,7 @@ class CategoryRemoteDataSource {
     }
   }
 
+  @override
   Future<CategoryModel> updateCategory(
     String idToken,
     String categoryId, {

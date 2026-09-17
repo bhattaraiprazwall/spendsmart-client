@@ -55,7 +55,55 @@ final class BudgetRemoteDataSourceProvider
 }
 
 String _$budgetRemoteDataSourceHash() =>
-    r'19f560267084af4db6b8c8d45fb0c36bc993fd13';
+    r'e36349106659085ff6146c0dfc67a6125bfac47c';
+
+@ProviderFor(budgetLocalDataSource)
+final budgetLocalDataSourceProvider = BudgetLocalDataSourceProvider._();
+
+final class BudgetLocalDataSourceProvider
+    extends
+        $FunctionalProvider<
+          BudgetLocalDataSource,
+          BudgetLocalDataSource,
+          BudgetLocalDataSource
+        >
+    with $Provider<BudgetLocalDataSource> {
+  BudgetLocalDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'budgetLocalDataSourceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$budgetLocalDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<BudgetLocalDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  BudgetLocalDataSource create(Ref ref) {
+    return budgetLocalDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(BudgetLocalDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<BudgetLocalDataSource>(value),
+    );
+  }
+}
+
+String _$budgetLocalDataSourceHash() =>
+    r'65897dce16d573cffa75768de256883834e01906';
 
 @ProviderFor(budgetRepository)
 final budgetRepositoryProvider = BudgetRepositoryProvider._();
@@ -101,7 +149,7 @@ final class BudgetRepositoryProvider
   }
 }
 
-String _$budgetRepositoryHash() => r'6046a061abbf6b70ce9834de30a4744af9acb5c7';
+String _$budgetRepositoryHash() => r'03782b1974681f0729aa9c82998efea9b4ca6e07';
 
 @ProviderFor(getBudgetUseCase)
 final getBudgetUseCaseProvider = GetBudgetUseCaseProvider._();
@@ -489,7 +537,7 @@ final class BudgetProvider
   Budget create() => Budget();
 }
 
-String _$budgetHash() => r'f37f879f9ab61272267291269ce7d3404cfff48d';
+String _$budgetHash() => r'973c18d14ee4d1c2c429f303e095b6ac50b3c389';
 
 abstract class _$Budget extends $AsyncNotifier<BudgetStatus?> {
   FutureOr<BudgetStatus?> build();

@@ -2,9 +2,27 @@ import 'package:spendsmart/core/constants/api_constants.dart';
 import 'package:spendsmart/core/services/api_service.dart';
 import 'package:spendsmart/features/incomes/data/models/income.dart';
 
-class IncomeRemoteDataSource {
-  final ApiService _apiService = ApiService();
+abstract class IncomeRemoteDataSource {
+  Future<IncomeModel> createIncome(
+    String idToken, {
+    required String type,
+    required double amount,
+    required String title,
+    String? note,
+    required String date,
+    required String categoryId,
+  });
 
+  Future<List<IncomeModel>> getIncomes(String idToken);
+}
+
+class IncomeRemoteDataSourceImpl implements IncomeRemoteDataSource {
+  final ApiService _apiService;
+
+  IncomeRemoteDataSourceImpl({ApiService? apiService})
+      : _apiService = apiService ?? ApiService();
+
+  @override
   Future<IncomeModel> createIncome(
     String idToken, {
     required String type,
@@ -52,6 +70,7 @@ class IncomeRemoteDataSource {
     return IncomeModel.fromJson(response["data"]["data"]["transaction"]);
   }
 
+  @override
   Future<List<IncomeModel>> getIncomes(String idToken) async {
     final response = await _apiService.get(
       ApiConstants.transactions,

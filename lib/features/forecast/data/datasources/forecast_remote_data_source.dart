@@ -1,11 +1,18 @@
 import 'package:spendsmart/core/constants/api_constants.dart';
 import 'package:spendsmart/core/services/api_service.dart';
-
 import '../models/monthly_forecast_model.dart';
 
-class ForecastRemoteDataSource {
-  final ApiService _apiService = ApiService();
+abstract class ForecastRemoteDataSource {
+  Future<MonthlyForecastModel> getMonthlyForecast(String token);
+}
 
+class ForecastRemoteDataSourceImpl implements ForecastRemoteDataSource {
+  final ApiService _apiService;
+
+  ForecastRemoteDataSourceImpl({ApiService? apiService})
+      : _apiService = apiService ?? ApiService();
+
+  @override
   Future<MonthlyForecastModel> getMonthlyForecast(
     String token,
   ) async {

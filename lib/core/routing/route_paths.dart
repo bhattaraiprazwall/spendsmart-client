@@ -1,5 +1,7 @@
 class RoutePaths {
-  static const login = '/';
+  static const splash = '/';
+  static const smartAlerts = '/onboarding/alerts';
+  static const login = '/login';
   static const signup = '/signup';
   static const onboarding = '/onboarding';
   static const dashboard = '/home/dashboard';

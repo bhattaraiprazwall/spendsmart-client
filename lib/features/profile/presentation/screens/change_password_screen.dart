@@ -8,6 +8,7 @@ import 'package:spendsmart/core/utils/validators.dart';
 import 'package:spendsmart/core/widgets/inputs/custom_textfield.dart';
 import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/core/providers/core_providers.dart';
+import 'package:spendsmart/core/services/sync_provider.dart';
 import 'package:spendsmart/features/auth/presentation/providers/auth_provider.dart';
 
 class ChangePasswordScreen extends ConsumerStatefulWidget {
@@ -41,6 +42,30 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       );
       return;
     }
+
+    final isOnline = ref.read(connectivityServiceProvider).isOnline;
+    if (!isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.danger,
+          content: Row(
+            children: [
+              const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  context.tr('no_internet_password'),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _saving = true;
     });
@@ -61,8 +86,34 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final errStr = e.toString().toLowerCase();
+        final isNetworkErr = errStr.contains('socket') ||
+            errStr.contains('timeout') ||
+            errStr.contains('failed host lookup') ||
+            errStr.contains('connection');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString().replaceFirst("Exception: ", ""))),
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.danger,
+            content: Row(
+              children: [
+                Icon(
+                  isNetworkErr ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    isNetworkErr
+                        ? context.tr('no_internet_password')
+                        : e.toString().replaceFirst("Exception: ", ""),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       }
     } finally {
@@ -97,7 +148,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                 CustomTextField(
                   controller: _currentPassController,
                   label: context.tr('current_password'),
-                  validator: Validators.validatePassword,
+                  validator: Validators.validateLoginPassword,
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(

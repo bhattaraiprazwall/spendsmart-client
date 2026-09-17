@@ -1,6 +1,7 @@
 class ApiConstants {
-  // static const String baseUrl = 'http://localhost:5000/api';
-  static const String baseUrl = 'http://192.168.0.102:5000/api';
+  // ADB reverse is active for USB device testing
+  static const String baseUrl = 'http://localhost:5000/api';
+  // static const String baseUrl = 'http://192.168.0.102:5000/api';
 
   static const String register = '$baseUrl/v1/auth/register';
 
@@ -10,6 +11,7 @@ class ApiConstants {
 
   //profile page routes
   static const String profile = "$baseUrl/v1/users/me";
+  static const String uploadAvatar = "$baseUrl/v1/users/me/avatar";
 
   static const String changePassword = '$baseUrl/v1/auth/change-password';
 

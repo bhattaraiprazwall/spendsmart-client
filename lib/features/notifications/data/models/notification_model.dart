@@ -21,7 +21,7 @@ class NotificationModel extends NotificationItem {
       createdAt: DateTime.parse(
         json['createdAt'] as String,
       ),
-      isRead: json['isRead'] as bool,
+      isRead: (json['isRead'] as bool?) ?? false,
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:spendsmart/core/constants/api_constants.dart';
 import 'package:spendsmart/core/constants/app_colors.dart';
 import 'package:spendsmart/core/routing/route_paths.dart';
 import 'package:spendsmart/core/services/api_service.dart';
+import 'package:spendsmart/core/services/connectivity_service.dart';
 import 'package:spendsmart/core/theme/app_theme_extension.dart';
 import 'package:spendsmart/core/theme/app_text_styles.dart';
 import 'package:spendsmart/core/widgets/buttons/primary_button.dart';
@@ -13,6 +14,7 @@ import 'package:spendsmart/core/providers/core_providers.dart';
 import 'package:spendsmart/core/localization/localization_extension.dart';
 import 'package:spendsmart/features/category/domain/entities/category.dart';
 import 'package:spendsmart/features/category/presentation/providers/category_provider.dart';
+import 'package:spendsmart/features/expenses/data/datasources/expense_remote_data_source.dart';
 import 'package:spendsmart/features/expenses/domain/entities/expense_form_data.dart';
 import 'package:spendsmart/features/expenses/presentation/providers/expense_provider.dart';
 import 'package:spendsmart/features/expenses/presentation/widgets/amount_display.dart';
@@ -124,6 +126,29 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
   }
 
   Future<void> _predictCategory(String title) async {
+    if (ConnectivityService().isOffline) {
+      final categories = ref.read(categoriesProvider).value ?? [];
+      final lowerTitle = title.toLowerCase();
+      Category? matched;
+      for (final cat in categories) {
+        if (cat.type == 'EXPENSE' &&
+            lowerTitle.contains(cat.name.toLowerCase())) {
+          matched = cat;
+          break;
+        }
+      }
+      if (mounted) {
+        setState(() {
+          _suggestionCategory = matched;
+          _suggestionConfidenceLabel = matched != null ? 'Local Match' : null;
+          _suggestionAlternative = null;
+          _showSuggestion = matched != null;
+          _isPredicting = false;
+        });
+      }
+      return;
+    }
+
     setState(() => _isPredicting = true);
     try {
       final token = await ref.read(storageServiceProvider).getToken();
@@ -169,6 +194,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         if (mounted) setState(() => _isPredicting = false);
       }
     } catch (e) {
+      debugPrint('Category prediction error: $e');
       if (mounted) setState(() => _isPredicting = false);
     }
   }
@@ -208,7 +234,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
                 ),
                 error: (e, _) => SizedBox(
                   height: 200,
-                  child: Center(child: Text(ctx.tr('failed_to_load_categories'))),
+                  child: Center(
+                    child: Text(ctx.tr('failed_to_load_categories')),
+                  ),
                 ),
                 data: (categories) => ListView(
                   shrinkWrap: true,
@@ -243,10 +271,7 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
         backgroundColor: color.withValues(alpha: 0.15),
         child: Icon(_mapCategoryIcon(cat.icon), color: color, size: 20),
       ),
-      title: Text(
-        cat.name,
-        style: TextStyle(color: ctx.colors.textPrimary),
-      ),
+      title: Text(cat.name, style: TextStyle(color: ctx.colors.textPrimary)),
       trailing: formData.categoryId == cat.id
           ? const Icon(Icons.check, color: Colors.blue)
           : null,
@@ -409,18 +434,71 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
             categoryId: formData.categoryId!,
           );
 
+      final alert = ExpenseRemoteDataSource.latestAlertNotifier.value;
+      ExpenseRemoteDataSource.latestAlertNotifier.value = null;
+
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.tr('expense_added'))),
-      );
-      context.go(RoutePaths.dashboard);
+      if (alert != null) {
+        final isExceeded = alert.type == 'BUDGET_EXCEEDED';
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Row(
+              children: [
+                Icon(
+                  isExceeded
+                      ? Icons.error_rounded
+                      : Icons.warning_amber_rounded,
+                  color: isExceeded ? Colors.red : Colors.orange,
+                  size: 28,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  isExceeded ? 'Budget Exceeded!' : 'Budget Warning',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
+            ),
+            content: Text(
+              isExceeded
+                  ? 'You have exceeded 100% of this category\'s monthly budget!\n\nSpent: \$${alert.spent.toStringAsFixed(2)} / Limit: \$${alert.limit.toStringAsFixed(2)}'
+                  : 'You have reached ${alert.usagePercent.toStringAsFixed(0)}% of this category\'s monthly budget.\n\nSpent: \$${alert.spent.toStringAsFixed(2)} / Limit: \$${alert.limit.toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 15),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text(
+                  'OK',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.tr('expense_added'))));
+      }
+
+      if (mounted) {
+        context.go(RoutePaths.dashboard);
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('${context.tr('failed_to_add_expense')}: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${context.tr('failed_to_add_expense')}: $e')),
+      );
     }
   }
 
@@ -481,7 +559,9 @@ class _AddExpenseScreenState extends ConsumerState<AddExpenseScreen> {
           padding: const EdgeInsets.all(8.0),
           child: PrimaryButton(
             onPressed: _handleSave,
-            label: _isSaving ? context.tr('saving') : context.tr('save_expense'),
+            label: _isSaving
+                ? context.tr('saving')
+                : context.tr('save_expense'),
           ),
         ),
       ),
